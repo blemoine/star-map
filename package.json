@@ -1,0 +1,46 @@
+{
+  "name": "stars-ts",
+  "version": "1.0.0",
+  "description": "Map of the stars",
+  "main": "",
+  "scripts": {
+    "pretty": "prettier --write 'src/**/*.ts*'",
+    "start:dev": "webpack-dev-server --mode development",
+    "test": "tsc --noEmit && jest --no-cache"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/preprocessor.js"
+    },
+    "testMatch": [
+      "**/__tests__/*.(ts|tsx|js)"
+    ]
+  },
+  "author": "@blemoine",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/d3": "^5.0.0",
+    "@types/geojson": "^7946.0.4",
+    "@types/jest": "^23.3.1",
+    "@types/papaparse": "^4.5.3",
+    "copy-webpack-plugin": "^4.5.2",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^23.5.0",
+    "jsverify": "^0.8.3",
+    "prettier": "^1.14.2",
+    "ts-loader": "^4.5.0",
+    "typescript": "^3.0.3",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.7"
+  },
+  "dependencies": {
+    "d3": "^5.7.0",
+    "papaparse": "^4.6.0"
+  }
+}
