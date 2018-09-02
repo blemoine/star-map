@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { Point } from 'geojson';
 import { HygProperty } from '../hygdata/hygdata';
+import './star-map.css';
 
 export class StarMap {
   private chartState = {
@@ -34,18 +35,16 @@ export class StarMap {
 
     const self = this;
 
-    const zoom = d3.zoom()
+    const zoom = d3
+      .zoom()
       .scaleExtent([1, 10])
-      .on("zoom", function (){
+      .on('zoom', function() {
+        svg.select('.map').attr('transform', d3.event.transform);
+        svg.select('.graticule').attr('transform', d3.event.transform);
 
-        svg.select('.map').attr('transform', d3.event.transform)
-        svg.select('.graticule').attr('transform', d3.event.transform)
-
-      self.update(svg, projection, tooltip);
-
-    });
+        self.update(svg, projection, tooltip);
+      });
     svg.call(zoom as any);
-
 
     let gpos0: [number, number] | null = null;
     let o0: [number, number, number] | null = null;

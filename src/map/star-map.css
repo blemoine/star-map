@@ -1,0 +1,28 @@
+svg {
+    border: 1px solid #eee;
+    background-color: #111;
+}
+
+.map path {
+    fill: #87B687;
+    stroke: #777;
+}
+
+
+.graticule path {
+    fill: none;
+    stroke: #454545;
+}
+
+.main-wrapper {
+    display: flex;
+}
+
+.tooltip {
+    background-color: white;
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+    padding: 5px 10px;
+    border: 1px solid #444;
+}
