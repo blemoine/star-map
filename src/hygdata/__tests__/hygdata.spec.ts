@@ -16,7 +16,7 @@ function expectToBeError<A>(result: Validated<A>, messages: Array<string> = []):
 
 describe('convertToGeoJson', () => {
   it('should return an error in case of invalid csv', () => {
-    const result = convertToGeoJson('dasd');
+    const result = convertToGeoJson('dasd', () => true);
 
     expectToBeError(result, ["Unable to auto-detect delimiting character; defaulted to ','"]);
   });
@@ -31,27 +31,27 @@ describe('convertToGeoJson', () => {
     '2076,2081,2261,99,,Alp Phe,Ankaa,0.438056,-42.305981,25.9740,232.76,-353.64,75.0,10.400,8.327,K0III...,1.083,19.083654,2.198282,-17.483284,0.00002323,0.00003218,-0.00008456,0.11468290295782503,-0.7383786688321162,0.000001128452322861111,-0.000001714495099,Alp,,Phe,1,2076,,64.44659847416881,,,';
   describe('header parsing', () => {
     it('should return an error if there is no "proper" header ', () => {
-      const result = convertToGeoJson(oneValidCsvRow);
+      const result = convertToGeoJson(oneValidCsvRow, () => true);
 
       expectToBeError(result, [`proper header was not found in the list of headers`]);
     });
     it('should return an error if there is no "absmag" header ', () => {
-      const result = convertToGeoJson(oneValidCsvRow);
+      const result = convertToGeoJson(oneValidCsvRow, () => true);
 
       expectToBeError(result, [`absmag header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dist" header ', () => {
-      const result = convertToGeoJson(oneValidCsvRow);
+      const result = convertToGeoJson(oneValidCsvRow, () => true);
 
       expectToBeError(result, [`dist header was not found in the list of headers`]);
     });
     it('should return an error if there is no "ra" header ', () => {
-      const result = convertToGeoJson(oneValidCsvRow);
+      const result = convertToGeoJson(oneValidCsvRow, () => true);
 
       expectToBeError(result, [`ra header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dec" header ', () => {
-      const result = convertToGeoJson(oneValidCsvRow);
+      const result = convertToGeoJson(oneValidCsvRow, () => true);
 
       expectToBeError(result, [`dec header was not found in the list of headers`]);
     });
@@ -60,7 +60,7 @@ describe('convertToGeoJson', () => {
   describe('parsing', () => {
     const validCsv = headerRow + '\n' + oneValidCsvRow + '\n' + oneRowWithoutName + '\n' + oneRowWithHighMagnitude + '\n' + '\n';
     it('should ignore row with magnitude < 6 and without name', () => {
-      const result = convertToGeoJson(validCsv);
+      const result = convertToGeoJson(validCsv, () => true);
       if (isError(result)) {
         throw new Error(`${result} should not be an error`);
       }

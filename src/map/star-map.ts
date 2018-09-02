@@ -1,4 +1,6 @@
 import * as d3 from 'd3';
+import { Point } from 'geojson';
+import { HygProperty } from '../hygdata/hygdata';
 
 export class StarMap {
   private chartState = {
@@ -7,7 +9,7 @@ export class StarMap {
     rotateGamma: 0,
   };
 
-  constructor(private geoJson: GeoJSON.FeatureCollection) {}
+  constructor(private geoJson: GeoJSON.FeatureCollection<Point, HygProperty>) {}
 
   render(domSelector: string) {
     const svg: d3.Selection<d3.BaseType, any, HTMLElement, any> = d3.select(domSelector);
@@ -18,17 +20,32 @@ export class StarMap {
     const height = node ? node.clientHeight : 600;
     const width = node ? node.clientWidth : 800;
 
-    const scale = Math.min(width / Math.PI, height / Math.PI);
+    const defaultScale = Math.min(width / Math.PI, height / Math.PI);
 
     projection
-      .scale(scale)
+      .scale(defaultScale)
       .translate([width / 2, height / 2])
       .center([0, 0])
       .rotate([this.chartState.rotateLambda, this.chartState.rotatePhi, this.chartState.rotateGamma]);
 
-    this.update(svg, projection);
+    const tooltip = d3.select('.tooltip');
+
+    this.update(svg, projection, tooltip);
 
     const self = this;
+
+    const zoom = d3.zoom()
+      .scaleExtent([1, 10])
+      .on("zoom", function (){
+
+        svg.select('.map').attr('transform', d3.event.transform)
+        svg.select('.graticule').attr('transform', d3.event.transform)
+
+      self.update(svg, projection, tooltip);
+
+    });
+    svg.call(zoom as any);
+
 
     let gpos0: [number, number] | null = null;
     let o0: [number, number, number] | null = null;
@@ -57,7 +74,7 @@ export class StarMap {
 
         if (!o1) return;
         projection.rotate(o1);
-        self.update(svg, projection);
+        self.update(svg, projection, tooltip);
       })
       .on('end', function dragended() {
         svg.selectAll('.point').remove();
@@ -66,7 +83,11 @@ export class StarMap {
     svg.call(drag as any);
   }
 
-  private update(svg: d3.Selection<d3.BaseType, any, HTMLElement, any>, projection: d3.GeoProjection) {
+  private update(
+    svg: d3.Selection<d3.BaseType, any, HTMLElement, any>,
+    projection: d3.GeoProjection,
+    tooltip: d3.Selection<d3.BaseType, any, HTMLElement, any>
+  ) {
     const graticule = d3.geoGraticule();
 
     const u = svg
@@ -77,10 +98,14 @@ export class StarMap {
     const geoGenerator = d3.geoPath().projection(projection);
     geoGenerator.projection(projection).pointRadius(function(d) {
       if (d && 'properties' in d && d.properties !== null) {
-        if (d.properties.magnitude < 2) {
+        let magnitude = d.properties.magnitude;
+        if (magnitude < 2) {
           return 3;
+        } else if (magnitude < 3) {
+          return 2;
+        } else {
+          return 1;
         }
-        return 2;
       } else {
         return 0;
       }
@@ -91,6 +116,7 @@ export class StarMap {
       .datum(graticule())
       .attr('d', geoGenerator);
 
+    u.exit().remove();
     u.enter()
       .append('path')
       .merge(u)
@@ -108,7 +134,20 @@ export class StarMap {
 
         return `rgba(255,255,255,${opacity})`;
       })
-      .style('stroke', 'transparent');
+      .style('stroke', 'transparent')
+      .style('cursor', 'pointer')
+      .on('mouseover', (d) => {
+        if (d.properties) {
+          tooltip.style('visibility', 'visible').text(d.properties.name);
+        }
+      })
+      .on('mousemove', function() {
+        const point = d3.mouse(this as any);
+        tooltip.style('top', point[1] + 15 + 'px').style('left', point[0] + 15 + 'px');
+      })
+      .on('mouseout', () => {
+        tooltip.style('visibility', 'hidden');
+      });
   }
 }
 
@@ -227,7 +266,11 @@ function quat2euler(t: [number, number, number, number]): [number, number, numbe
 	o0 - the projection rotation in euler angles at starting pos (v0), commonly obtained by projection.rotate
 */
 
-function eulerAngles(v0: [number, number], v1: [number, number], o0: [number, number, number]): [number, number, number]  {
+function eulerAngles(
+  v0: [number, number],
+  v1: [number, number],
+  o0: [number, number, number]
+): [number, number, number] {
   /*
     The math behind this:
     - first calculate the quaternion rotation between the two vectors, v0 & v1
@@ -238,8 +281,8 @@ function eulerAngles(v0: [number, number], v1: [number, number], o0: [number, nu
   const b = lonlat2xyz(v0);
   const c = lonlat2xyz(v1);
   const d = quaternion(b, c);
-  if(d === null) {
-    return  o0
+  if (d === null) {
+    return o0;
   }
   const t = quatMultiply(a, d);
 

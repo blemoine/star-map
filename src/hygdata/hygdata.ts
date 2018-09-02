@@ -25,7 +25,7 @@ function parseToFloat(n: string): Validated<number> {
   }
 }
 
-export function convertToGeoJson(csv: string): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
+export function convertToGeoJson(csv: string, shouldDisplay: (magnitude: number) => boolean): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
   const parsed = parse(csv);
   if (parsed.errors.length > 0) {
     const [headError, ...tailErrors] = parsed.errors;
@@ -35,9 +35,6 @@ export function convertToGeoJson(csv: string): Validated<GeoJSON.FeatureCollecti
   }
   const headers = parsed.data[0];
   const indexOf = indexOfHeader(headers);
-
-
-
 
   return flatMap(
     zip6(indexOf('proper'), indexOf('absmag'), indexOf('dist'), indexOf('ra'), indexOf('dec'), indexOf('id')),
@@ -60,7 +57,7 @@ export function convertToGeoJson(csv: string): Validated<GeoJSON.FeatureCollecti
               const apparentMagnitude = toApparentMagnitude(dist, absMag);
 
               const name = row[properIndex];
-              if (apparentMagnitude > 6 || !name || name.trim() === '') {
+              if (!shouldDisplay(apparentMagnitude)) {
                 return maybeAcc;
               } else {
                 const maybeRa = flatMap(parseToFloat(row[raIndex]), mkRightAscension);
@@ -73,7 +70,7 @@ export function convertToGeoJson(csv: string): Validated<GeoJSON.FeatureCollecti
                   acc.push({
                     id: id,
                     type: 'Feature',
-                    geometry: { type: 'Point', coordinates: coordinates },
+                    geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
                     properties: { magnitude: toApparentMagnitude(dist, absMag), name: name },
                   });
 

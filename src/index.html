@@ -37,10 +37,15 @@
 </head>
 <body>
 <div class="main-wrapper">
+  <div>
+    <input style="position:absolute" type="number" value="6" step=".1" oninput="updateMaxMagnitude(this.value)"/>
+  </div>
   <svg id="main-map" width="100vw" height="100vh">
     <g class="graticule"><path></path></g>
     <g class="circles"></g>
     <g class="map"></g>
   </svg>
+
 </div>
+<div class="tooltip" ></div>
 </body>
