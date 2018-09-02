@@ -28,9 +28,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src/index.html'),
-    }),
+    new HtmlWebpackPlugin(),
     new CopyWebpackPlugin([{ from: 'src/data/*', to: 'data', flatten: true }]),
   ],
 };
