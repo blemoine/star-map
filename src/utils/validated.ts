@@ -1,19 +1,35 @@
+type ErrorUnit = {
+  message: string;
+  context?: {};
+};
 class Err {
   public readonly kind: 'error' = 'error';
-  constructor(private headErrors: string, private otherErrors: Array<string>) {}
+  constructor(private headErrors: ErrorUnit, private otherErrors: Array<ErrorUnit>) {}
 
-  errors(): Array<string> {
+  errors(): Array<ErrorUnit> {
     return [this.headErrors, ...this.otherErrors];
   }
 
   combine(err: Err): Err {
     return new Err(this.headErrors, [...this.otherErrors, ...err.errors()]);
   }
+
+  map(fn: (e: ErrorUnit) => ErrorUnit): Err {
+    return new Err(fn(this.headErrors), this.otherErrors.map(fn));
+  }
 }
 export type Validated<A> = A | Err;
 
-export function raise(e: string): Err {
-  return new Err(e, []);
+export function raise(message: string, context?: {}): Err {
+  return new Err({ message, context }, []);
+}
+
+export function errorMap<A>(v: Validated<A>, fn: (e: ErrorUnit) => ErrorUnit): Validated<A> {
+  if (isError(v)) {
+    return v.map(fn);
+  } else {
+    return v;
+  }
 }
 
 export function isError<A>(v: Validated<A>): v is Err {

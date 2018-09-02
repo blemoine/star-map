@@ -4,8 +4,8 @@ import { isError, Validated } from '../../utils/validated';
 function expectToBeError<A>(result: Validated<A>, messages: Array<string> = []): void {
   if (isError(result)) {
     messages.forEach((msg) => {
-      let errors = result.errors();
-      if (errors.indexOf(msg) < 0) {
+      const errors = result.errors();
+      if (!errors.some((e) => e.message.indexOf(msg) >= 0)) {
         fail(`Cannot find '${msg}' in ${JSON.stringify(errors, null, 2)}`);
       }
     });
@@ -58,7 +58,7 @@ describe('convertToGeoJson', () => {
   });
 
   describe('parsing', () => {
-    const validCsv = headerRow + '\n' + oneValidCsvRow + '\n' + oneRowWithoutName + '\n' + oneRowWithHighMagnitude;
+    const validCsv = headerRow + '\n' + oneValidCsvRow + '\n' + oneRowWithoutName + '\n' + oneRowWithHighMagnitude + '\n' + '\n';
     it('should ignore row with magnitude < 6 and without name', () => {
       const result = convertToGeoJson(validCsv);
       if (isError(result)) {
