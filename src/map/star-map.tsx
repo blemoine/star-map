@@ -1,39 +1,80 @@
-import * as d3 from 'd3';
+import * as React from 'react';
 import { Point } from 'geojson';
 import { HygProperty } from '../hygdata/hygdata';
+import * as d3 from 'd3';
 import './star-map.css';
 
-export class StarMap {
-  private chartState = {
+type Props = {
+  height: string;
+  width: string;
+  geoJson: GeoJSON.FeatureCollection<Point, HygProperty>;
+};
+type State = {
+  rotateLambda: number;
+  rotatePhi: number;
+  rotateGamma: number;
+};
+
+export class StarMap extends React.Component<Props, State> {
+  private svgNode: SVGSVGElement | null = null;
+  private tooltipNode: HTMLDivElement | null = null;
+  private projection: d3.GeoProjection = d3.geoOrthographic();
+
+  state: State = {
     rotateLambda: 0.1,
     rotatePhi: 0,
     rotateGamma: 0,
   };
 
-  constructor(private geoJson: GeoJSON.FeatureCollection<Point, HygProperty>) {}
-
-  render(domSelector: string) {
-    const svg: d3.Selection<d3.BaseType, any, HTMLElement, any> = d3.select(domSelector);
-
-    const projection = d3.geoOrthographic();
-
-    const node = svg.node() as any;
-    const height = node ? node.clientHeight : 600;
-    const width = node ? node.clientWidth : 800;
+  componentDidMount() {
+    const height = this.svgNode ? this.svgNode.clientHeight : 600;
+    const width = this.svgNode ? this.svgNode.clientWidth : 800;
 
     const defaultScale = Math.min(width / Math.PI, height / Math.PI);
-
-    projection
+    this.projection
       .scale(defaultScale)
       .translate([width / 2, height / 2])
       .center([0, 0])
-      .rotate([this.chartState.rotateLambda, this.chartState.rotatePhi, this.chartState.rotateGamma]);
+      .rotate([this.state.rotateLambda, this.state.rotatePhi, this.state.rotateGamma]);
 
-    const tooltip = d3.select('.tooltip');
+    this.update();
 
-    this.update(svg, projection, tooltip);
-
+    let gpos0: [number, number] | null = null;
+    let o0: [number, number, number] | null = null;
     const self = this;
+    const svg = d3.select(this.svgNode);
+    const drag = d3
+      .drag()
+      .on('start', function dragstarted() {
+        if (!self.projection.invert) {
+          throw new Error('WTF');
+        }
+        const point = d3.mouse(this as any);
+        gpos0 = self.projection.invert(point);
+        o0 = self.projection.rotate();
+      })
+      .on('drag', function dragged() {
+        if (!self.projection.invert || gpos0 === null) {
+          throw new Error('WTF');
+        }
+        const point = d3.mouse(this as any);
+        const gpos1 = self.projection.invert(point);
+        if (gpos1 === null) {
+          throw new Error('WTF');
+        }
+        o0 = self.projection.rotate();
+
+        const o1 = eulerAngles(gpos0, gpos1, o0);
+
+        if (!o1) return;
+        self.projection.rotate(o1);
+        self.update();
+      })
+      .on('end', function dragended() {
+        svg.selectAll('.point').remove();
+      });
+
+    svg.call(drag as any);
 
     const zoom = d3
       .zoom()
@@ -42,83 +83,55 @@ export class StarMap {
         svg.select('.map').attr('transform', d3.event.transform);
         svg.select('.graticule').attr('transform', d3.event.transform);
 
-        self.update(svg, projection, tooltip);
+        self.update();
       });
     svg.call(zoom as any);
-
-    let gpos0: [number, number] | null = null;
-    let o0: [number, number, number] | null = null;
-    const drag = d3
-      .drag()
-      .on('start', function dragstarted() {
-        if (!projection.invert) {
-          throw new Error('WTF');
-        }
-        const point = d3.mouse(this as any);
-        gpos0 = projection.invert(point);
-        o0 = projection.rotate();
-      })
-      .on('drag', function dragged() {
-        if (!projection.invert || gpos0 === null) {
-          throw new Error('WTF');
-        }
-        const point = d3.mouse(this as any);
-        const gpos1 = projection.invert(point);
-        if (gpos1 === null) {
-          throw new Error('WTF');
-        }
-        o0 = projection.rotate();
-
-        const o1 = eulerAngles(gpos0, gpos1, o0);
-
-        if (!o1) return;
-        projection.rotate(o1);
-        self.update(svg, projection, tooltip);
-      })
-      .on('end', function dragended() {
-        svg.selectAll('.point').remove();
-      });
-
-    svg.call(drag as any);
+  }
+  componentDidUpdate() {
+    this.update();
   }
 
-  private update(
-    svg: d3.Selection<d3.BaseType, any, HTMLElement, any>,
-    projection: d3.GeoProjection,
-    tooltip: d3.Selection<d3.BaseType, any, HTMLElement, any>
-  ) {
+  private update() {
+    const geoGenerator = d3
+      .geoPath()
+      .projection(this.projection)
+      .pointRadius(function(d) {
+        if (d && 'properties' in d && d.properties !== null) {
+          const magnitude = d.properties.magnitude;
+          if (magnitude === -Infinity) {
+            return 0;
+          } else if (magnitude < 0) {
+            return 3 - magnitude;
+          } else if (magnitude < 2) {
+            return 3;
+          } else if (magnitude < 3) {
+            return 2;
+          } else {
+            return 1;
+          }
+        } else {
+          return 0;
+        }
+      });
+
     const graticule = d3.geoGraticule();
 
-    const u = svg
-      .select('g.map')
-      .selectAll('path')
-      .data(this.geoJson.features);
-
-    const geoGenerator = d3.geoPath().projection(projection);
-    geoGenerator.projection(projection).pointRadius(function(d) {
-      if (d && 'properties' in d && d.properties !== null) {
-        let magnitude = d.properties.magnitude;
-        if (magnitude < 2) {
-          return 3;
-        } else if (magnitude < 3) {
-          return 2;
-        } else {
-          return 1;
-        }
-      } else {
-        return 0;
-      }
-    });
-    // Update graticule
+    const svg = d3.select(this.svgNode);
     svg
       .select('.graticule path')
       .datum(graticule())
       .attr('d', geoGenerator);
 
-    u.exit().remove();
-    u.enter()
+    const tooltip = d3.select(this.tooltipNode);
+    const starsPath = svg
+      .select('g.map')
+      .selectAll('path')
+      .data(this.props.geoJson.features);
+    starsPath.exit().remove();
+    starsPath
+      .enter()
       .append('path')
-      .merge(u)
+      .merge(starsPath)
       .attr('d', geoGenerator)
       .style('fill', (d) => {
         if (d === null || d.properties === null) {
@@ -148,7 +161,23 @@ export class StarMap {
         tooltip.style('visibility', 'hidden');
       });
   }
+
+  render() {
+    return (
+      <>
+        <svg ref={(node) => (this.svgNode = node)} width={this.props.width} height={this.props.height}>
+          <g className="graticule">
+            <path />
+          </g>
+          <g className="map" />
+        </svg>
+        <div ref={(node) => (this.tooltipNode = node)} className="tooltip" />
+      </>
+    );
+  }
 }
+
+// TODO move
 
 var to_radians = Math.PI / 180;
 var to_degrees = 180 / Math.PI;
