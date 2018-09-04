@@ -10,7 +10,7 @@ describe('toApparentMagnitude', () => {
       fc.property(fc.float(), function(absMag: number) {
         return Math.abs(toApparentMagnitude(dist, absMag) - absMag) === 0;
       })
-    )
+    );
   });
   it('should convert correctly absolute magnitude to apparent magnitude at the specified distance', () => {
     const dist = getOrThrow(mkParsec(10.9999));

@@ -1,11 +1,12 @@
 import * as fc from 'fast-check';
-import { Degree, euler2quat, mkDegree, quat2euler } from '../euler-angle';
+import { Degree, euler2quat, quat2euler } from '../euler-angle';
+import { arbitray } from '../../tests/utils/arbitraries';
 
 describe('quaternion and euler angle', () => {
   it('should be the inverse of each other', () => {
     fc.assert(
-      fc.property(fc.float(), fc.float(), fc.float(), function(a: number, b: number, c: number) {
-        const degrees: [Degree, Degree, Degree] = [mkDegree(a), mkDegree(b), mkDegree(c)];
+      fc.property(arbitray.degree, arbitray.degree, arbitray.degree, function(a: Degree, b: Degree, c: Degree) {
+        const degrees: [Degree, Degree, Degree] = [a, b, c];
 
         const result = quat2euler(euler2quat(degrees));
         expect(result.length).toBe(3);
