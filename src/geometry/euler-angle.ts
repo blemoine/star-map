@@ -45,19 +45,19 @@ export function euler2quat(e: [Degree, Degree, Degree]): Quaternion {
   return [qr, qi, qj, qk];
 }
 
-function atan2(n1: number, n2: number, ): Radian {
-  return mkRadian(Math.atan2(n1, n2))
-}
-function asin(n1: number, ): Radian {
-  return mkRadian(Math.asin(n1))
+declare global {
+  interface Math {
+    atan2(y: number, x: number): Radian;
+    asin(x: number): Radian;
+  }
 }
 
 // This function computes quaternion to euler angles
 // https://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Euler_angles_.E2.86.94_Quaternion
 export function quat2euler(t: Quaternion): [Degree, Degree, Degree] {
   return [
-    toDegree(atan2(2 * (t[0] * t[1] + t[2] * t[3]), 1 - 2 * (t[1] * t[1] + t[2] * t[2]))),
-    toDegree(asin(Math.max(-1, Math.min(1, 2 * (t[0] * t[2] - t[3] * t[1]))))),
-    toDegree(atan2(2 * (t[0] * t[3] + t[1] * t[2]), 1 - 2 * (t[2] * t[2] + t[3] * t[3]))),
+    toDegree(Math.atan2(2 * (t[0] * t[1] + t[2] * t[3]), 1 - 2 * (t[1] * t[1] + t[2] * t[2]))),
+    toDegree(Math.asin(Math.max(-1, Math.min(1, 2 * (t[0] * t[2] - t[3] * t[1]))))),
+    toDegree(Math.atan2(2 * (t[0] * t[3] + t[1] * t[2]), 1 - 2 * (t[2] * t[2] + t[3] * t[3]))),
   ];
 }
