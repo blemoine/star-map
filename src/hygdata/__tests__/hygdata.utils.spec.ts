@@ -1,14 +1,16 @@
 import { toApparentMagnitude } from '../hygdata.utils';
 import { mkParsec } from '../../measures/parsec';
-import * as jsc from 'jsverify';
+import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
 
 describe('toApparentMagnitude', () => {
   it('should work as identity function if distance is 10 parsec', () => {
     const dist = getOrThrow(mkParsec(10));
-    jsc.assertForall('number', function(absMag: number) {
-      return Math.abs(toApparentMagnitude(dist, absMag) - absMag) === 0;
-    });
+    fc.assert(
+      fc.property(fc.float(), function(absMag: number) {
+        return Math.abs(toApparentMagnitude(dist, absMag) - absMag) === 0;
+      })
+    )
   });
   it('should convert correctly absolute magnitude to apparent magnitude at the specified distance', () => {
     const dist = getOrThrow(mkParsec(10.9999));
