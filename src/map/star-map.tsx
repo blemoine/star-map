@@ -4,6 +4,10 @@ import { HygProperty } from '../hygdata/hygdata';
 import * as d3 from 'd3';
 import './star-map.css';
 import { Rotation } from '../geometry/rotation';
+import { multiplyQuaternion, quaternionForRotation } from '../geometry/quaternion';
+import { Degree, euler2quat, mkDegree, quat2euler } from '../geometry/euler-angle';
+import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry/coordinates';
+import { isError, raise, Validated, zip } from '../utils/validated';
 
 type Props = {
   height: string;
@@ -32,34 +36,54 @@ export class StarMap extends React.Component<Props, {}> {
 
     this.update();
 
-    let gpos0: [number, number] | null = null;
-    let o0: [number, number, number] | null = null;
+    let gpos0: GeoCoordinates | null = null;
+    let o0: [Degree, Degree, Degree] | null = null;
     const self = this;
     const svg = d3.select(this.svgNode);
+
+    const projectionInvert = (point: [number, number]): Validated<GeoCoordinates> => {
+      if (!this.projection.invert) {
+        return raise('The project has no projectionInvert function');
+      }
+      const inverted = this.projection.invert(point);
+      if (inverted === null) {
+        return raise(`The point ${point} has no invert in the projection`);
+      }
+      return zip(mkLongitude(inverted[0]), mkLatitude(inverted[1]));
+    };
+
+    const getProjectionRotate = (): [Degree, Degree, Degree] => {
+      const baseRotate = self.projection.rotate();
+
+      return [mkDegree(baseRotate[0]), mkDegree(baseRotate[1]), mkDegree(baseRotate[2])];
+    };
+
     const drag = d3
       .drag()
       .on('start', function dragstarted() {
-        if (!self.projection.invert) {
-          throw new Error('WTF');
-        }
         const point = d3.mouse(this as any);
-        gpos0 = self.projection.invert(point);
-        o0 = self.projection.rotate();
+        const maybeInverted = projectionInvert(point);
+        if (isError(maybeInverted)) {
+          console.error('There is an error in invert projection', maybeInverted.errors());
+        } else {
+          gpos0 = maybeInverted;
+          o0 = getProjectionRotate();
+        }
       })
       .on('drag', function dragged() {
-        if (!self.projection.invert || gpos0 === null) {
+        if (gpos0 === null) {
           throw new Error('WTF');
         }
         const point = d3.mouse(this as any);
-        const gpos1 = self.projection.invert(point);
-        if (gpos1 === null) {
-          throw new Error('WTF');
+        const gpos1 = projectionInvert(point);
+        if (isError(gpos1)) {
+          console.error('There is an error in invert projection', gpos1.errors());
+          throw new Error('WTF ');
         }
-        o0 = self.projection.rotate();
+        o0 = getProjectionRotate();
 
         const o1 = eulerAngles(gpos0, gpos1, o0);
 
-        if (!o1) return;
         self.props.rotationChange({
           rotateLambda: o1[0],
           rotatePhi: o1[1],
@@ -175,115 +199,6 @@ export class StarMap extends React.Component<Props, {}> {
   }
 }
 
-// TODO move
-
-var to_radians = Math.PI / 180;
-var to_degrees = 180 / Math.PI;
-
-// Helper function: cross product of two vectors v0&v1
-function cross(v0: [number, number, number], v1: [number, number, number]): [number, number, number] {
-  return [v0[1] * v1[2] - v0[2] * v1[1], v0[2] * v1[0] - v0[0] * v1[2], v0[0] * v1[1] - v0[1] * v1[0]];
-}
-
-//Helper function: dot product of two vectors v0&v1
-function dot(v0: [number, number, number], v1: [number, number, number]): number {
-  for (var i = 0, sum = 0; v0.length > i; ++i) sum += v0[i] * v1[i];
-  return sum;
-}
-
-function lonlat2xyz(coord: [number, number]): [number, number, number] {
-  var lon = coord[0] * to_radians;
-  var lat = coord[1] * to_radians;
-
-  var x = Math.cos(lat) * Math.cos(lon);
-
-  var y = Math.cos(lat) * Math.sin(lon);
-
-  var z = Math.sin(lat);
-
-  return [x, y, z];
-}
-
-// Helper function:
-// This function computes a quaternion representation for the rotation between to vectors
-// https://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Euler_angles_.E2.86.94_Quaternion
-function quaternion(
-  v0: [number, number, number],
-  v1: [number, number, number]
-): [number, number, number, number] | null {
-  const w = cross(v0, v1), // vector pendicular to v0 & v1
-    w_len = Math.sqrt(dot(w, w)); // length of w
-
-  if (w_len == 0) return null;
-
-  const theta = 0.5 * Math.acos(Math.max(-1, Math.min(1, dot(v0, v1))));
-
-  const qi = (w[2] * Math.sin(theta)) / w_len;
-  const qj = (-w[1] * Math.sin(theta)) / w_len;
-  const qk = (w[0] * Math.sin(theta)) / w_len;
-  const qr = Math.cos(theta);
-  if (Number.isFinite(theta)) {
-    return [qr, qi, qj, qk];
-  } else {
-    return null;
-  }
-}
-
-// Helper function:
-// This functions converts euler angles to quaternion
-// https://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Euler_angles_.E2.86.94_Quaternion
-function euler2quat(e: [number, number, number]): [number, number, number, number] {
-  const roll = 0.5 * e[0] * to_radians,
-    pitch = 0.5 * e[1] * to_radians,
-    yaw = 0.5 * e[2] * to_radians,
-    sr = Math.sin(roll),
-    cr = Math.cos(roll),
-    sp = Math.sin(pitch),
-    cp = Math.cos(pitch),
-    sy = Math.sin(yaw),
-    cy = Math.cos(yaw),
-    qi = sr * cp * cy - cr * sp * sy,
-    qj = cr * sp * cy + sr * cp * sy,
-    qk = cr * cp * sy - sr * sp * cy,
-    qr = cr * cp * cy + sr * sp * sy;
-
-  return [qr, qi, qj, qk];
-}
-
-// This functions computes a quaternion multiply
-// Geometrically, it means combining two quant rotations
-// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
-function quatMultiply(
-  q1: [number, number, number, number],
-  q2: [number, number, number, number]
-): [number, number, number, number] {
-  const a = q1[0],
-    b = q1[1],
-    c = q1[2],
-    d = q1[3],
-    e = q2[0],
-    f = q2[1],
-    g = q2[2],
-    h = q2[3];
-
-  return [
-    a * e - b * f - c * g - d * h,
-    b * e + a * f + c * h - d * g,
-    a * g - b * h + c * e + d * f,
-    a * h + b * g - c * f + d * e,
-  ];
-}
-
-// This function computes quaternion to euler angles
-// https://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Euler_angles_.E2.86.94_Quaternion
-function quat2euler(t: [number, number, number, number]): [number, number, number] {
-  return [
-    Math.atan2(2 * (t[0] * t[1] + t[2] * t[3]), 1 - 2 * (t[1] * t[1] + t[2] * t[2])) * to_degrees,
-    Math.asin(Math.max(-1, Math.min(1, 2 * (t[0] * t[2] - t[3] * t[1])))) * to_degrees,
-    Math.atan2(2 * (t[0] * t[3] + t[1] * t[2]), 1 - 2 * (t[2] * t[2] + t[3] * t[3])) * to_degrees,
-  ];
-}
-
 /*  This function computes the euler angles when given two vectors, and a rotation
 	This is really the only math function called with d3 code.
 
@@ -292,11 +207,7 @@ function quat2euler(t: [number, number, number, number]): [number, number, numbe
 	o0 - the projection rotation in euler angles at starting pos (v0), commonly obtained by projection.rotate
 */
 
-function eulerAngles(
-  v0: [number, number],
-  v1: [number, number],
-  o0: [number, number, number]
-): [number, number, number] {
+function eulerAngles(v0: GeoCoordinates, v1: GeoCoordinates, o0: [Degree, Degree, Degree]): [Degree, Degree, Degree] {
   /*
     The math behind this:
     - first calculate the quaternion rotation between the two vectors, v0 & v1
@@ -306,11 +217,11 @@ function eulerAngles(
   const a = euler2quat(o0);
   const b = lonlat2xyz(v0);
   const c = lonlat2xyz(v1);
-  const d = quaternion(b, c);
+  const d = quaternionForRotation(b, c);
   if (d === null) {
     return o0;
   }
-  const t = quatMultiply(a, d);
+  const t = multiplyQuaternion(a, d);
 
   return quat2euler(t);
 }
