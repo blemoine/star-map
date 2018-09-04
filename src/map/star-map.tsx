@@ -3,39 +3,32 @@ import { Point } from 'geojson';
 import { HygProperty } from '../hygdata/hygdata';
 import * as d3 from 'd3';
 import './star-map.css';
+import { Rotation } from '../geometry/rotation';
 
 type Props = {
   height: string;
   width: string;
   geoJson: GeoJSON.FeatureCollection<Point, HygProperty>;
-};
-type State = {
-  rotateLambda: number;
-  rotatePhi: number;
-  rotateGamma: number;
+  rotation: Rotation;
+  rotationChange: (rotation: Rotation) => void;
 };
 
-export class StarMap extends React.Component<Props, State> {
+export class StarMap extends React.Component<Props, {}> {
   private svgNode: SVGSVGElement | null = null;
   private tooltipNode: HTMLDivElement | null = null;
   private projection: d3.GeoProjection = d3.geoOrthographic();
-
-  state: State = {
-    rotateLambda: 0.1,
-    rotatePhi: 0,
-    rotateGamma: 0,
-  };
 
   componentDidMount() {
     const height = this.svgNode ? this.svgNode.clientHeight : 600;
     const width = this.svgNode ? this.svgNode.clientWidth : 800;
 
     const defaultScale = Math.min(width / Math.PI, height / Math.PI);
+    const rotation = this.props.rotation;
     this.projection
       .scale(defaultScale)
       .translate([width / 2, height / 2])
       .center([0, 0])
-      .rotate([this.state.rotateLambda, this.state.rotatePhi, this.state.rotateGamma]);
+      .rotate([rotation.rotateLambda, rotation.rotatePhi, rotation.rotateGamma]);
 
     this.update();
 
@@ -67,8 +60,11 @@ export class StarMap extends React.Component<Props, State> {
         const o1 = eulerAngles(gpos0, gpos1, o0);
 
         if (!o1) return;
-        self.projection.rotate(o1);
-        self.update();
+        self.props.rotationChange({
+          rotateLambda: o1[0],
+          rotatePhi: o1[1],
+          rotateGamma: o1[2],
+        });
       })
       .on('end', function dragended() {
         svg.selectAll('.point').remove();
@@ -88,6 +84,8 @@ export class StarMap extends React.Component<Props, State> {
     svg.call(zoom as any);
   }
   componentDidUpdate() {
+    const rotation = this.props.rotation;
+    this.projection.rotate([rotation.rotateLambda, rotation.rotatePhi, rotation.rotateGamma]);
     this.update();
   }
 

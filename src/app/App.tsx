@@ -5,11 +5,17 @@ import { convertToGeoJson, HygProperty } from '../hygdata/hygdata';
 import { parse } from 'papaparse';
 import { isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
+import { Rotation } from '../geometry/rotation';
 
 export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null }> {
   state = {
     geoJson: null,
     maxMagnitude: 6,
+    rotation: {
+      rotateLambda: 0.1,
+      rotatePhi: 0,
+      rotateGamma: 0,
+    },
   };
 
   private csv: Array<Array<string>> = [];
@@ -49,6 +55,10 @@ export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollectio
     }
   }
 
+  private updateRotation(rotation: Rotation) {
+    this.setState((s) => ({ ...s, rotation }));
+  }
+
   render() {
     const geoJson = this.state.geoJson;
 
@@ -65,10 +75,22 @@ export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollectio
           <Controls
             magnitude={this.state.maxMagnitude}
             magnitudeChange={(magnitude) => this.updateMagnitude(magnitude)}
+            rotation={this.state.rotation}
+            rotationChange={(rotation) => this.updateRotation(rotation)}
           />
         </div>
         <div className="main-wrapper">
-          {geoJson ? <StarMap geoJson={geoJson} width="100vw" height="100vh" /> : 'LOADING...'}
+          {geoJson ? (
+            <StarMap
+              geoJson={geoJson}
+              rotation={this.state.rotation}
+              rotationChange={(rotation) => this.updateRotation(rotation)}
+              width="100vw"
+              height="100vh"
+            />
+          ) : (
+            'LOADING...'
+          )}
         </div>
       </>
     );

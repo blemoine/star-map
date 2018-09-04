@@ -1,3 +1,6 @@
+.controls-wrapper {
+    display: flex;
+}
 .form-element {
   margin: 5px;
 }

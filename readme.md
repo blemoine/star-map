@@ -6,3 +6,4 @@ TODO:
  * faire un beau loading
  * display error to the user
  * le zoom es tpourri, l'ameliorer
+ * Extraire les tqilles width height de star map
