@@ -3,12 +3,24 @@ import { StarMap } from '../map/star-map';
 import { Point } from 'geojson';
 import { convertToGeoJson, HygProperty } from '../hygdata/hygdata';
 import { parse } from 'papaparse';
-import { isError } from '../utils/validated';
+import { getOrElse, isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
 import { Rotation } from '../geometry/rotation';
+import { mkParsec, Parsec, plus } from '../measures/parsec';
 
-export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null }> {
-  state = {
+type State = {
+  geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null;
+  maxMagnitude: number;
+  rotation: Rotation;
+  position: {
+    x: Parsec;
+    y: Parsec;
+    z: Parsec;
+  };
+};
+
+export class App extends React.Component<{}, State> {
+  state: State = {
     geoJson: null,
     maxMagnitude: 6,
     rotation: {
@@ -16,9 +28,65 @@ export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollectio
       rotatePhi: 0,
       rotateGamma: 0,
     },
+    position: {
+      x: mkParsec(0),
+      y: mkParsec(0),
+      z: mkParsec(0),
+    },
   };
 
   private csv: Array<Array<string>> = [];
+
+  private keyPressListener = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowUp') {
+      this.setState((s: State) => ({
+        ...s,
+        position: {
+          ...s.position,
+          z: plus(s.position.z, mkParsec(1)),
+        },
+      }));
+      this.reloadGeoJson();
+    } else if (e.key === 'ArrowDown') {
+      this.setState(
+        (s: State): State => ({
+          ...s,
+          position: {
+            ...s.position,
+            z:getOrElse(mkParsec(s.position.z - 1), s.position.z),
+          },
+        })
+      );
+      this.reloadGeoJson();
+    } else if (e.key === 'ArrowLeft') {
+
+      this.setState(
+        (s: State): State => {
+          return ({
+            ...s,
+            position: {
+              ...s.position,
+              x: getOrElse(mkParsec(s.position.x - 1), s.position.x),
+            },
+          })
+        }
+      );
+      this.reloadGeoJson();
+    } else if (e.key === 'ArrowRight') {
+      this.setState((s: State) => ({
+        ...s,
+        position: {
+          ...s.position,
+          x: plus(s.position.x, mkParsec(1)),
+        },
+      }));
+      this.reloadGeoJson();
+    }
+  };
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.keyPressListener);
+  }
 
   componentDidMount() {
     fetch('data/hygdata_v3.csv')
@@ -36,18 +104,28 @@ export class App extends React.Component<{}, { geoJson: GeoJSON.FeatureCollectio
           console.error(parsed.errors);
         }
         this.csv = parsed.data;
-        const geoJson = convertToGeoJson(this.csv, (magnitude: number) => magnitude < this.state.maxMagnitude);
-        if (isError(geoJson)) {
-          console.error(...geoJson.errors());
-        } else {
-          this.setState((prevState) => ({ ...prevState, geoJson }));
-        }
+        this.reloadGeoJson();
       });
+  }
+
+  private reloadGeoJson() {
+    //TODO
+    const geoJson = convertToGeoJson(
+      this.csv,
+      this.state.position,
+      (magnitude: number) => magnitude < this.state.maxMagnitude
+    );
+    if (isError(geoJson)) {
+      console.error(...geoJson.errors());
+    } else {
+      this.setState((prevState) => ({ ...prevState, geoJson }));
+      document.addEventListener('keydown', this.keyPressListener);
+    }
   }
 
   private updateMagnitude(maxMagnitude: number) {
     this.setState((prevState) => ({ ...prevState, maxMagnitude }));
-    const geoJson = convertToGeoJson(this.csv, (magnitude: number) => magnitude < maxMagnitude);
+    const geoJson = convertToGeoJson(this.csv, this.state.position, (magnitude: number) => magnitude < maxMagnitude);
     if (isError(geoJson)) {
       console.error(...geoJson.errors());
     } else {

@@ -5,10 +5,16 @@ declare class ParsecTag {
 }
 export type Parsec = number & ParsecTag;
 
-export function mkParsec(n: number): Validated<Parsec> {
+export function mkParsec(n: 0): Parsec;
+export function mkParsec(n: 1): Parsec;
+export function mkParsec(n: number): Validated<Parsec>;
+export function mkParsec(n: number | 0 | 1): Validated<Parsec> {
   if (n < 0) {
     return raise(`Cannot transform ${n} to parsec, must be positive`);
   } else {
     return n as Parsec;
   }
+}
+export function plus(i: Parsec, j: Parsec): Parsec {
+  return (i + j) as Parsec;
 }

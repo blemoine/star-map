@@ -1,6 +1,6 @@
-import { map, raise, Validated } from '../utils/validated';
+import { map, raise, Validated, zip } from '../utils/validated';
 import { Vector3D } from './vectors';
-import { DegreeTag, toRadians } from './euler-angle';
+import { DegreeTag, toDegree, toRadians } from './euler-angle';
 
 declare class LatitudeTag {
   private _kind: 'latitude';
@@ -9,8 +9,8 @@ declare class LongitudeTag {
   private _kind: 'latitude';
 }
 
-type Latitude = number & LatitudeTag & DegreeTag;
-type Longitude = number & LongitudeTag & DegreeTag;
+export type Latitude = number & LatitudeTag & DegreeTag;
+export type Longitude = number & LongitudeTag & DegreeTag;
 
 export function mkLatitude(n: number): Validated<Latitude> {
   if (n < -90 || n > 90) {
@@ -32,7 +32,7 @@ export type GeoCoordinates = [Longitude, Latitude];
 declare class RightAscensionTag {
   private _kind: 'rightAscension';
 }
-type RightAscension = number & RightAscensionTag;
+export type RightAscension = number & RightAscensionTag;
 export function mkRightAscension(n: number): Validated<RightAscension> {
   if (n < 0 || n > 24) {
     return raise(`The right ascension ${n} should be between 0 and 24`);
@@ -41,7 +41,7 @@ export function mkRightAscension(n: number): Validated<RightAscension> {
   }
 }
 
-type Declination = Latitude;
+export type Declination = Latitude;
 
 export type RaDecCoordinates = [Declination, RightAscension];
 
@@ -49,6 +49,11 @@ export function decRaToGeo([dec, ra]: RaDecCoordinates): Validated<GeoCoordinate
   const normalizedRa = ra > 12 ? ra - 24 : ra;
 
   return map(mkLongitude(normalizedRa * 15), (lon): GeoCoordinates => [lon, dec]);
+}
+
+export function geoToDecRa([lon, lat]: GeoCoordinates): Validated<RaDecCoordinates> {
+  const maybeRa = mkRightAscension((lon >= 0 ? lon : lon + 360) / 15);
+  return map(maybeRa, (ra): RaDecCoordinates => [lat, ra]);
 }
 
 export function lonlat2xyz(coord: GeoCoordinates): Vector3D {
@@ -60,4 +65,12 @@ export function lonlat2xyz(coord: GeoCoordinates): Vector3D {
   const z = Math.sin(lat);
 
   return [x, y, z];
+}
+
+export function xyzToLonLat([x, y, z]: Vector3D): Validated<GeoCoordinates> {
+  const dist = Math.sqrt(x * x + y * y + z * z);
+  const lat = mkLatitude(toDegree(Math.asin(z / dist)));
+  const lon = mkLongitude(toDegree(Math.atan2(y / dist, x / dist)));
+
+  return zip(lon, lat);
 }

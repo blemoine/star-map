@@ -1,5 +1,17 @@
 import { getOrThrow } from '../../tests/utils/utils';
-import { mkLatitude, mkRightAscension, decRaToGeo } from '../coordinates';
+import {
+  mkLatitude,
+  mkRightAscension,
+  decRaToGeo,
+  lonlat2xyz,
+  xyzToLonLat,
+  Latitude,
+  Longitude,
+  GeoCoordinates,
+} from '../coordinates';
+import * as fc from 'fast-check';
+import { arbitray } from '../../tests/utils/arbitraries';
+import { isError } from '../../utils/validated';
 
 describe('coordinates', () => {
   it('should convert center to center', () => {
@@ -28,5 +40,23 @@ describe('coordinates', () => {
     const dec = getOrThrow(mkLatitude(-88));
 
     expect(decRaToGeo([dec, ra])).toEqual([-165, -88]);
+  });
+});
+
+describe('lonlat2xyz and xyzToLonLat', () => {
+  it('should be invert', () => {
+    fc.assert(
+      fc.property(arbitray.longitude, arbitray.latitude, function(longitude: Longitude, latitude: Latitude) {
+        const input: GeoCoordinates = [longitude, latitude];
+
+        const result = xyzToLonLat(lonlat2xyz(input));
+        if(isError(result)) {
+          return fail(`For input ${input}, to result valid were generated, ` + result)
+        }
+        expect(result.length).toEqual(2);
+        expect(result[0]).toBeCloseTo(input[0], 5);
+        expect(result[1]).toBeCloseTo(input[1], 5);
+      })
+    );
   });
 });

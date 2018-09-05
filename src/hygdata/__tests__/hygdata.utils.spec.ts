@@ -1,7 +1,10 @@
-import { toApparentMagnitude } from '../hygdata.utils';
-import { mkParsec } from '../../measures/parsec';
+import { moveOrigin, Star, toApparentMagnitude } from '../hygdata.utils';
+import { mkParsec, Parsec } from '../../measures/parsec';
 import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
+import { Declination, RightAscension } from '../../geometry/coordinates';
+import { arbitray } from '../../tests/utils/arbitraries';
+import { isError } from '../../utils/validated';
 
 describe('toApparentMagnitude', () => {
   it('should work as identity function if distance is 10 parsec', () => {
@@ -21,4 +24,41 @@ describe('toApparentMagnitude', () => {
     const absMag2 = -6.932;
     expect(toApparentMagnitude(dist2, absMag2)).toBeCloseTo(1.25, 3);
   });
+});
+
+describe('moveOrigin', () => {
+  it('should not do anthing if not moving', () => {
+    const origin = {
+      x: mkParsec(0),
+      y: mkParsec(0),
+      z: mkParsec(0),
+    };
+
+    fc.assert(
+      fc.property(fc.float(), arbitray.ra, arbitray.dec, arbitray.parsec, function(
+        apparentMagnitude: number,
+        ra: RightAscension,
+        dec: Declination,
+        distance: Parsec
+      ) {
+        const star: Star = {
+          ra,
+          dec,
+          distance,
+          apparentMagnitude,
+        };
+
+        const result = moveOrigin(origin, star);
+        if (isError(result)) {
+          return fail(`The result should be a star for inputs ${origin} and ${star}`);
+        }
+
+        expect(result.ra).toBeCloseTo(star.ra, 6);
+        expect(result.dec).toBeCloseTo(star.dec, 6);
+        expect(result.distance).toBeCloseTo(star.distance, 6);
+        expect(result.apparentMagnitude).toBeCloseTo(star.apparentMagnitude, 6);
+      })
+    );
+  });
+
 });

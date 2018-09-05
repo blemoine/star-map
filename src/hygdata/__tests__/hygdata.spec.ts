@@ -1,5 +1,6 @@
 import { convertToGeoJson } from '../hygdata';
 import { isError, Validated } from '../../utils/validated';
+import { mkParsec } from '../../measures/parsec';
 
 function expectToBeError<A>(result: Validated<A>, messages: Array<string> = []): void {
   if (isError(result)) {
@@ -24,29 +25,30 @@ describe('convertToGeoJson', () => {
   const oneRowWithHighMagnitude = '2076,2081,2261,99,,Alp Phe,Ankaa,0.438056,-42.305981,25.9740,232.76,-353.64,75.0,10.400,8.327,K0III...,1.083,19.083654,2.198282,-17.483284,0.00002323,0.00003218,-0.00008456,0.11468290295782503,-0.7383786688321162,0.000001128452322861111,-0.000001714495099,Alp,,Phe,1,2076,,64.44659847416881,,,'.split(
     ','
   );
+  const moveToZero = { x: mkParsec(0), y: mkParsec(0), z: mkParsec(0) };
   describe('header parsing', () => {
     it('should return an error if there is no "proper" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], () => true);
+      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
 
       expectToBeError(result, [`proper header was not found in the list of headers`]);
     });
-    it('should return an error if there is no "absmag" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], () => true);
+    it('should return an error if there is no "mag" header ', () => {
+      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
 
-      expectToBeError(result, [`absmag header was not found in the list of headers`]);
+      expectToBeError(result, [`mag header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dist" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], () => true);
+      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
 
       expectToBeError(result, [`dist header was not found in the list of headers`]);
     });
     it('should return an error if there is no "ra" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], () => true);
+      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
 
       expectToBeError(result, [`ra header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dec" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], () => true);
+      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
 
       expectToBeError(result, [`dec header was not found in the list of headers`]);
     });
@@ -54,19 +56,19 @@ describe('convertToGeoJson', () => {
 
   describe('parsing', () => {
     it('invert longitude coordinate', () => {
-      const result = convertToGeoJson([headerRow, oneRowWithHighMagnitude], () => true);
+      const result = convertToGeoJson([headerRow, oneRowWithHighMagnitude], moveToZero, () => true);
       if (isError(result)) {
         throw new Error(`${result} should not be an error`);
       }
       expect(result.features).toEqual([
         {
           geometry: {
-            coordinates: [-6.5708400000000005,  -42.305981],
+            coordinates: [ -6.570840000000003, -42.30598099999999],
             type: 'Point',
           },
           id: '2076',
           properties: {
-            magnitude: 10.399694180984001,
+            magnitude: 10.4,
             name: 'Ankaa',
           },
           type: 'Feature',
@@ -77,6 +79,7 @@ describe('convertToGeoJson', () => {
     it('should ignore row with magnitude < 6', () => {
       const result = convertToGeoJson(
         [headerRow, oneValidCsvRow, oneRowWithHighMagnitude, []],
+        moveToZero,
         (magnitude) => magnitude < 6
       );
       if (isError(result)) {
@@ -85,12 +88,12 @@ describe('convertToGeoJson', () => {
       expect(result.features).toEqual([
         {
           geometry: {
-            coordinates: [-2.096865, 29.090432],
+            coordinates: [-2.096865, 29.090431999999996],
             type: 'Point',
           },
           id: '676',
           properties: {
-            magnitude: 2.070011463168629,
+            magnitude: 2.0700000000000003,
             name: 'Alpheratz',
           },
           type: 'Feature',

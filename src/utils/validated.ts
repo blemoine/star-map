@@ -36,6 +36,14 @@ export function isError<A>(v: Validated<A>): v is Err {
   return v && (v as Err).kind === 'error';
 }
 
+export function getOrElse<A>(v: Validated<A>, orElse: A): A {
+  if (isError(v)) {
+    return orElse;
+  } else {
+    return v;
+  }
+}
+
 export function map<A, B>(v: Validated<A>, fn: (a: A) => B): Validated<B> {
   if (isError(v)) {
     return v;
