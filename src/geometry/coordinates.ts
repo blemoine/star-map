@@ -46,7 +46,7 @@ export type Declination = Latitude;
 export type RaDecCoordinates = [Declination, RightAscension];
 
 export function decRaToGeo([dec, ra]: RaDecCoordinates): Validated<GeoCoordinates> {
-  const normalizedRa = ra > 12 ? ra - 24 : ra;
+  const normalizedRa = ra <= 12 ? ra : ra - 24;
 
   return map(mkLongitude(normalizedRa * 15), (lon): GeoCoordinates => [lon, dec]);
 }

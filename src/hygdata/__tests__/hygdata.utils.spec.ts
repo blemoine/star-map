@@ -2,12 +2,7 @@ import { moveOrigin, Star, toApparentMagnitude } from '../hygdata.utils';
 import { mkParsec, Parsec } from '../../measures/parsec';
 import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
-import {
-  Declination,
-  geoToDecRa,
-  RightAscension,
-  xyzToLonLat,
-} from '../../geometry/coordinates';
+import { Declination, geoToDecRa, RightAscension, xyzToLonLat } from '../../geometry/coordinates';
 import { arbitray } from '../../tests/utils/arbitraries';
 import { flatMap, isError } from '../../utils/validated';
 import { Vector3D } from '../../geometry/vectors';
@@ -81,7 +76,7 @@ describe('moveOrigin', () => {
           return fail(`The result should be a star for inputs ${origin} and ${star}`);
         }
 
-        expect(result.dec).toBe(0)
+        expect(result.dec).toBe(0);
         expect(result.distance).toBeCloseTo(Math.abs(baseDistance - newCoord), 6);
       })
     );

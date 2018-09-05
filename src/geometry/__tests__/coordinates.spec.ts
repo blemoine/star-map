@@ -7,11 +7,11 @@ import {
   xyzToLonLat,
   Latitude,
   Longitude,
-  GeoCoordinates,
+  GeoCoordinates, geoToDecRa,
 } from '../coordinates';
 import * as fc from 'fast-check';
 import { arbitray } from '../../tests/utils/arbitraries';
-import { isError } from '../../utils/validated';
+import { flatMap, isError } from '../../utils/validated';
 
 describe('coordinates', () => {
   it('should convert center to center', () => {
@@ -50,8 +50,25 @@ describe('lonlat2xyz and xyzToLonLat', () => {
         const input: GeoCoordinates = [longitude, latitude];
 
         const result = xyzToLonLat(lonlat2xyz(input));
-        if(isError(result)) {
-          return fail(`For input ${input}, to result valid were generated, ` + result)
+        if (isError(result)) {
+          return fail(`For input ${input}, to result valid were generated, ` + result);
+        }
+        expect(result.length).toEqual(2);
+        expect(result[0]).toBeCloseTo(input[0], 5);
+        expect(result[1]).toBeCloseTo(input[1], 5);
+      })
+    );
+  });
+});
+
+describe('geoToDecRa and decRaToGeo', () => {
+  it('should be invert', () => {
+    fc.assert(
+      fc.property(arbitray.longitude, arbitray.latitude, function(longitude: Longitude, latitude: Latitude) {
+        const input: GeoCoordinates = [longitude, latitude];
+        const result = flatMap(geoToDecRa(input), decRaToGeo);
+        if (isError(result)) {
+          return fail(`For input ${input}, to result valid were generated, ` + result);
         }
         expect(result.length).toEqual(2);
         expect(result[0]).toBeCloseTo(input[0], 5);

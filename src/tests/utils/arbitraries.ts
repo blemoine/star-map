@@ -14,7 +14,7 @@ import { getOrThrow } from './utils';
 import { mkParsec, Parsec } from '../../measures/parsec';
 
 const degree: Arbitrary<Degree> = fc.float().map(mkDegree);
-const longitude: Arbitrary<Longitude> = fc.float(-180, 180).map((i) => getOrThrow(mkLongitude(i)));
+const longitude: Arbitrary<Longitude> = fc.float(-179.999, 180).map((i) => getOrThrow(mkLongitude(i)));
 const latitude: Arbitrary<Latitude> = fc.float(-90, 90).map((i) => getOrThrow(mkLatitude(i)));
 
 const ra: Arbitrary<RightAscension> = fc.float(0, 24).map((i) => getOrThrow(mkRightAscension(i)));
