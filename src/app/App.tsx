@@ -88,7 +88,6 @@ export class App extends React.Component<{}, State> {
   }
 
   private reloadGeoJson() {
-    //TODO
     const geoJson = convertToGeoJson(
       this.csv,
       this.state.position,

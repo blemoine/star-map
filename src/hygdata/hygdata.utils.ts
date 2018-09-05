@@ -18,14 +18,15 @@ export type Star = {
   apparentMagnitude: number;
 };
 
-export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number): number {
-  return absoluteMagnitude + 5.0 * Math.log10(distance) - 5.0;
+function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
+  return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }
 
-export function moveOrigin(
-  newOrigin: Vector3D,
-  star: Star
-): Validated<Star> {
+export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number): number {
+  return magnitudeAt(absoluteMagnitude, mkParsec(10), distance);
+}
+
+export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
   const newCoord = flatMap(decRaToGeo([star.dec, star.ra]), (latLon) => {
     const unitXyz = lonlat2xyz(latLon);
 
@@ -47,8 +48,7 @@ export function moveOrigin(
 
   return map(newCoord, ({ dec, ra, distance }) => {
     // TODO refactor to magnitude convert
-    const absMag = star.apparentMagnitude + 5.0 - 5 * Math.log10(star.distance);
-    const apparentMagnitude = toApparentMagnitude(distance, absMag);
+    const apparentMagnitude = magnitudeAt(star.apparentMagnitude, star.distance, distance);
     return {
       ra,
       dec,
