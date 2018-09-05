@@ -7,4 +7,4 @@ TODO:
  * display error to the user
  * le zoom es tpourri, l'ameliorer
  * Extraire les tqilles width height de star map
- * La position ne peut pas etre type directement en parsec, parce qu'une position peut etre negative
+ * Le movement ne se fait pas dans la bonne direction => chopper la direction courante, et avancer dans ce sens

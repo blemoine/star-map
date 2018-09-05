@@ -3,20 +3,16 @@ import { StarMap } from '../map/star-map';
 import { Point } from 'geojson';
 import { convertToGeoJson, HygProperty } from '../hygdata/hygdata';
 import { parse } from 'papaparse';
-import { getOrElse, isError } from '../utils/validated';
+import {  isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
 import { Rotation } from '../geometry/rotation';
-import { mkParsec, Parsec, plus } from '../measures/parsec';
+import { Vector3D } from '../geometry/vectors';
 
 type State = {
   geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null;
   maxMagnitude: number;
   rotation: Rotation;
-  position: {
-    x: Parsec;
-    y: Parsec;
-    z: Parsec;
-  };
+  position: Vector3D;
 };
 
 export class App extends React.Component<{}, State> {
@@ -28,11 +24,7 @@ export class App extends React.Component<{}, State> {
       rotatePhi: 0,
       rotateGamma: 0,
     },
-    position: {
-      x: mkParsec(0),
-      y: mkParsec(0),
-      z: mkParsec(0),
-    },
+    position: [0, 0, 0],
   };
 
   private csv: Array<Array<string>> = [];
@@ -41,44 +33,31 @@ export class App extends React.Component<{}, State> {
     if (e.key === 'ArrowUp') {
       this.setState((s: State) => ({
         ...s,
-        position: {
-          ...s.position,
-          z: plus(s.position.z, mkParsec(1)),
-        },
+        position: [s.position[0], s.position[1], s.position[2] + 1],
       }));
       this.reloadGeoJson();
     } else if (e.key === 'ArrowDown') {
       this.setState(
         (s: State): State => ({
           ...s,
-          position: {
-            ...s.position,
-            z:getOrElse(mkParsec(s.position.z - 1), s.position.z),
-          },
+          position: [s.position[0], s.position[1], s.position[2] - 1],
         })
       );
       this.reloadGeoJson();
     } else if (e.key === 'ArrowLeft') {
-
       this.setState(
         (s: State): State => {
-          return ({
+          return {
             ...s,
-            position: {
-              ...s.position,
-              x: getOrElse(mkParsec(s.position.x - 1), s.position.x),
-            },
-          })
+            position: [s.position[0] - 1, s.position[1], s.position[2]],
+          };
         }
       );
       this.reloadGeoJson();
     } else if (e.key === 'ArrowRight') {
       this.setState((s: State) => ({
         ...s,
-        position: {
-          ...s.position,
-          x: plus(s.position.x, mkParsec(1)),
-        },
+        position: [s.position[0] + 1, s.position[1], s.position[2]],
       }));
       this.reloadGeoJson();
     }

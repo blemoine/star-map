@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
-import { Degree, mkDegree } from '../../geometry/euler-angle';
 import { Arbitrary } from 'fast-check';
+import { Degree, mkDegree } from '../../geometry/euler-angle';
 import {
   Declination,
   Latitude,
@@ -17,11 +17,10 @@ const degree: Arbitrary<Degree> = fc.float().map(mkDegree);
 const longitude: Arbitrary<Longitude> = fc.float(-180, 180).map((i) => getOrThrow(mkLongitude(i)));
 const latitude: Arbitrary<Latitude> = fc.float(-90, 90).map((i) => getOrThrow(mkLatitude(i)));
 
-const ra : Arbitrary<RightAscension> = fc.float(0, 24).map((i) => getOrThrow(mkRightAscension(i)));
-const dec : Arbitrary<Declination> = latitude;
+const ra: Arbitrary<RightAscension> = fc.float(0, 24).map((i) => getOrThrow(mkRightAscension(i)));
+const dec: Arbitrary<Declination> = latitude;
 
 const parsec: Arbitrary<Parsec> = fc.float(1, 1000000).map((i) => getOrThrow(mkParsec(i)));
-
 
 export const arbitray = {
   degree,
@@ -29,5 +28,5 @@ export const arbitray = {
   longitude,
   ra,
   dec,
-  parsec
+  parsec,
 };

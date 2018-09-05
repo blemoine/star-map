@@ -23,20 +23,16 @@ export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number)
 }
 
 export function moveOrigin(
-  newOrigin: {
-    x: Parsec;
-    y: Parsec;
-    z: Parsec;
-  },
+  newOrigin: Vector3D,
   star: Star
 ): Validated<Star> {
   const newCoord = flatMap(decRaToGeo([star.dec, star.ra]), (latLon) => {
     const unitXyz = lonlat2xyz(latLon);
 
     const xyz: Vector3D = [
-      unitXyz[0] * star.distance - newOrigin.x,
-      unitXyz[1] * star.distance - newOrigin.y,
-      unitXyz[2] * star.distance - newOrigin.z,
+      unitXyz[0] * star.distance - newOrigin[0],
+      unitXyz[1] * star.distance - newOrigin[1],
+      unitXyz[2] * star.distance - newOrigin[2],
     ];
     const lonlat: Validated<GeoCoordinates> = xyzToLonLat(xyz);
     return flatMap(flatMap(lonlat, geoToDecRa), ([dec, ra]) => {

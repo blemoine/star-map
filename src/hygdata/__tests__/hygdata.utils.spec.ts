@@ -2,9 +2,15 @@ import { moveOrigin, Star, toApparentMagnitude } from '../hygdata.utils';
 import { mkParsec, Parsec } from '../../measures/parsec';
 import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
-import { Declination, RightAscension } from '../../geometry/coordinates';
+import {
+  Declination,
+  geoToDecRa,
+  RightAscension,
+  xyzToLonLat,
+} from '../../geometry/coordinates';
 import { arbitray } from '../../tests/utils/arbitraries';
-import { isError } from '../../utils/validated';
+import { flatMap, isError } from '../../utils/validated';
+import { Vector3D } from '../../geometry/vectors';
 
 describe('toApparentMagnitude', () => {
   it('should work as identity function if distance is 10 parsec', () => {
@@ -28,11 +34,7 @@ describe('toApparentMagnitude', () => {
 
 describe('moveOrigin', () => {
   it('should not do anthing if not moving', () => {
-    const origin = {
-      x: mkParsec(0),
-      y: mkParsec(0),
-      z: mkParsec(0),
-    };
+    const origin: Vector3D = [0, 0, 0];
 
     fc.assert(
       fc.property(fc.float(), arbitray.ra, arbitray.dec, arbitray.parsec, function(
@@ -61,4 +63,26 @@ describe('moveOrigin', () => {
     );
   });
 
+  it('should substract distance if going in the original direction', () => {
+    fc.assert(
+      fc.property(fc.float().filter((i) => i > 0), arbitray.parsec, function(baseDistance: number, newCoord: number) {
+        const starCartesian: Vector3D = [baseDistance, 0, 0];
+        const [dec, ra] = getOrThrow(flatMap(xyzToLonLat(starCartesian), geoToDecRa));
+
+        const origin: Vector3D = [newCoord, 0, 0];
+        const star: Star = {
+          dec,
+          ra,
+          distance: getOrThrow(mkParsec(Math.abs(baseDistance))),
+          apparentMagnitude: 5,
+        };
+        const result = moveOrigin(origin, star);
+        if (isError(result)) {
+          return fail(`The result should be a star for inputs ${origin} and ${star}`);
+        }
+
+        expect(result.distance).toBeCloseTo(Math.abs(baseDistance - newCoord), 6);
+      })
+    );
+  });
 });

@@ -1,8 +1,9 @@
 import { Feature, Point } from 'geojson';
-import { mkParsec, Parsec } from '../measures/parsec';
+import { mkParsec } from '../measures/parsec';
 import { moveOrigin } from './hygdata.utils';
 import { errorMap, flatMap, map, raise, Validated, zip, zip3, zip6 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
+import { Vector3D } from '../geometry/vectors';
 
 export type HygProperty = { magnitude: number; name: string };
 
@@ -26,11 +27,7 @@ function parseToFloat(n: string): Validated<number> {
 
 export function convertToGeoJson(
   csv: Array<Array<string>>,
-  moveTo: {
-    x: Parsec;
-    y: Parsec;
-    z: Parsec;
-  },
+  moveTo: Vector3D,
   shouldDisplay: (magnitude: number) => boolean
 ): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
   const headers = csv[0];

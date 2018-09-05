@@ -1,6 +1,6 @@
 import { convertToGeoJson } from '../hygdata';
 import { isError, Validated } from '../../utils/validated';
-import { mkParsec } from '../../measures/parsec';
+import { Vector3D } from '../../geometry/vectors';
 
 function expectToBeError<A>(result: Validated<A>, messages: Array<string> = []): void {
   if (isError(result)) {
@@ -25,7 +25,7 @@ describe('convertToGeoJson', () => {
   const oneRowWithHighMagnitude = '2076,2081,2261,99,,Alp Phe,Ankaa,0.438056,-42.305981,25.9740,232.76,-353.64,75.0,10.400,8.327,K0III...,1.083,19.083654,2.198282,-17.483284,0.00002323,0.00003218,-0.00008456,0.11468290295782503,-0.7383786688321162,0.000001128452322861111,-0.000001714495099,Alp,,Phe,1,2076,,64.44659847416881,,,'.split(
     ','
   );
-  const moveToZero = { x: mkParsec(0), y: mkParsec(0), z: mkParsec(0) };
+  const moveToZero: Vector3D =[0,0,0];
   describe('header parsing', () => {
     it('should return an error if there is no "proper" header ', () => {
       const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
