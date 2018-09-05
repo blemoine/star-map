@@ -81,6 +81,7 @@ describe('moveOrigin', () => {
           return fail(`The result should be a star for inputs ${origin} and ${star}`);
         }
 
+        expect(result.dec).toBe(0)
         expect(result.distance).toBeCloseTo(Math.abs(baseDistance - newCoord), 6);
       })
     );
