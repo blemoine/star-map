@@ -135,14 +135,13 @@ export class App extends React.Component<{}, State> {
             rotationChange={(rotation) => this.updateRotation(rotation)}
           />
         </div>
-        <div className="main-wrapper">
+        <div className="main-wrapper" style={{width:"100vw", height:"100vh"}}>
           {geoJson ? (
             <StarMap
               geoJson={geoJson}
               rotation={this.state.rotation}
               rotationChange={(rotation) => this.updateRotation(rotation)}
-              width="100vw"
-              height="100vh"
+
             />
           ) : (
             'LOADING...'

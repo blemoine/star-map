@@ -10,8 +10,6 @@ import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry
 import { isError, raise, Validated, zip } from '../utils/validated';
 
 type Props = {
-  height: string;
-  width: string;
   geoJson: GeoJSON.FeatureCollection<Point, HygProperty>;
   rotation: Rotation;
   rotationChange: (rotation: Rotation) => void;
@@ -187,7 +185,7 @@ export class StarMap extends React.Component<Props, {}> {
   render() {
     return (
       <>
-        <svg ref={(node) => (this.svgNode = node)} width={this.props.width} height={this.props.height}>
+        <svg ref={(node) => (this.svgNode = node)} width="100%" height="100%">
           <g className="graticule">
             <path />
           </g>
