@@ -3,10 +3,11 @@ import { StarMap } from '../map/star-map';
 import { Point } from 'geojson';
 import { convertToGeoJson, HygProperty } from '../hygdata/hygdata';
 import { parse } from 'papaparse';
-import {  isError } from '../utils/validated';
+import { isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
 import { Rotation } from '../geometry/rotation';
 import { Vector3D } from '../geometry/vectors';
+import { mkDegree, toRadians } from '../geometry/euler-angle';
 
 type State = {
   geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null;
@@ -18,7 +19,7 @@ type State = {
 export class App extends React.Component<{}, State> {
   state: State = {
     geoJson: null,
-    maxMagnitude: 6,
+    maxMagnitude: 4,
     rotation: {
       rotateLambda: 0.1,
       rotatePhi: 0,
@@ -30,35 +31,27 @@ export class App extends React.Component<{}, State> {
   private csv: Array<Array<string>> = [];
 
   private keyPressListener = (e: KeyboardEvent) => {
+    const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
+    const lat = toRadians(mkDegree(this.state.rotation.rotatePhi));
+
+    const x = Math.cos(lat) * Math.cos(lon);
+    const y = Math.cos(lat) * Math.sin(lon);
+    const z = Math.sin(lat);
+
+    //TODO refactor c'est la meme fonction que lonlat2xyz
     if (e.key === 'ArrowUp') {
       this.setState((s: State) => ({
         ...s,
-        position: [s.position[0], s.position[1], s.position[2] + 1],
+        position: [s.position[0] + x, s.position[1] + y, s.position[2] + z],
       }));
       this.reloadGeoJson();
     } else if (e.key === 'ArrowDown') {
       this.setState(
         (s: State): State => ({
           ...s,
-          position: [s.position[0], s.position[1], s.position[2] - 1],
+          position: [s.position[0] - x, s.position[1] - y, s.position[2] - z],
         })
       );
-      this.reloadGeoJson();
-    } else if (e.key === 'ArrowLeft') {
-      this.setState(
-        (s: State): State => {
-          return {
-            ...s,
-            position: [s.position[0] - 1, s.position[1], s.position[2]],
-          };
-        }
-      );
-      this.reloadGeoJson();
-    } else if (e.key === 'ArrowRight') {
-      this.setState((s: State) => ({
-        ...s,
-        position: [s.position[0] + 1, s.position[1], s.position[2]],
-      }));
       this.reloadGeoJson();
     }
   };
@@ -135,13 +128,12 @@ export class App extends React.Component<{}, State> {
             rotationChange={(rotation) => this.updateRotation(rotation)}
           />
         </div>
-        <div className="main-wrapper" style={{width:"100vw", height:"100vh"}}>
+        <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
           {geoJson ? (
             <StarMap
               geoJson={geoJson}
               rotation={this.state.rotation}
               rotationChange={(rotation) => this.updateRotation(rotation)}
-
             />
           ) : (
             'LOADING...'

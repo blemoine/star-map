@@ -15,7 +15,7 @@
       "js"
     ],
     "transform": {
-      "^.+\\.(ts|tsx)$": "<rootDir>/preprocessor.js"
+      "^.+\\.(ts|tsx)$": "ts-jest"
     },
     "testMatch": [
       "**/__tests__/*.(ts|tsx|js)"
@@ -37,6 +37,7 @@
     "jest": "^23.5.0",
     "prettier": "^1.14.2",
     "style-loader": "^0.23.0",
+    "ts-jest": "^23.1.4",
     "ts-loader": "^4.5.0",
     "typescript": "^3.0.3",
     "webpack": "^4.17.1",
