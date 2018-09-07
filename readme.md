@@ -8,4 +8,4 @@ TODO:
  * le zoom es tpourri, l'ameliorer
  * Le movement ne se fait pas dans la bonne direction => chopper la direction courante, et avancer dans ce sens
   * attacher le listener de mouvenebt au svg et pas au document ( pour qu'on puisse utiliser les fleches dans les input)
-  * afficher la distance de le tooltip
+  * gestion de l'acceleration sur le deplacement:
