@@ -21,7 +21,7 @@ export class App extends React.Component<{}, State> {
     geoJson: null,
     maxMagnitude: 4,
     rotation: {
-      rotateLambda: 0.1,
+      rotateLambda: 0,
       rotatePhi: 0,
       rotateGamma: 0,
     },
@@ -36,7 +36,7 @@ export class App extends React.Component<{}, State> {
 
     const x = Math.cos(lat) * Math.cos(lon);
     const y = Math.cos(lat) * Math.sin(lon);
-    const z = Math.sin(lat);
+    const z = -Math.sin(lat);
 
     //TODO refactor c'est la meme fonction que lonlat2xyz
     if (e.key === 'ArrowUp') {

@@ -16,6 +16,3 @@ export function mkParsec(n: number | 0 | 1 | 10): Validated<Parsec> {
     return n as Parsec;
   }
 }
-export function plus(i: Parsec, j: Parsec): Parsec {
-  return (i + j) as Parsec;
-}

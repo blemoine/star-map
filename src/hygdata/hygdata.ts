@@ -1,11 +1,11 @@
 import { Feature, Point } from 'geojson';
-import { mkParsec } from '../measures/parsec';
+import { mkParsec, Parsec } from '../measures/parsec';
 import { moveOrigin } from './hygdata.utils';
 import { errorMap, flatMap, map, raise, Validated, zip, zip3, zip6 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
 import { Vector3D } from '../geometry/vectors';
 
-export type HygProperty = { magnitude: number; name: string };
+export type HygProperty = { magnitude: number; name: string; distance: Parsec };
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -76,7 +76,7 @@ export function convertToGeoJson(
                     id: id,
                     type: 'Feature',
                     geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                    properties: { magnitude: star.apparentMagnitude, name: name },
+                    properties: { magnitude: star.apparentMagnitude, name: name, distance: star.distance },
                   });
 
                   return acc;

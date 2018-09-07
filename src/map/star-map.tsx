@@ -170,7 +170,8 @@ export class StarMap extends React.Component<Props, {}> {
       .style('cursor', 'pointer')
       .on('mouseover', (d) => {
         if (d.properties) {
-          tooltip.style('visibility', 'visible').text(d.properties.name);
+          const round = (num: number) => Math.round(num * 100) / 100
+          tooltip.style('visibility', 'visible').text(d.properties.name+': '+round(d.properties.distance)+'pc, '+round(d.properties.magnitude));
         }
       })
       .on('mousemove', function() {
