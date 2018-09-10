@@ -1,11 +1,9 @@
 import { Feature, Point } from 'geojson';
 import { mkParsec, Parsec } from '../measures/parsec';
-import { moveOrigin } from './hygdata.utils';
-import { errorMap, flatMap, map, raise, Validated, zip, zip3, zip6 } from '../utils/validated';
-import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
-import { Vector3D } from '../geometry/vectors';
+import { errorMap, flatMap, map, raise, Validated, zip4, zip6 } from '../utils/validated';
+import { Declination, decRaToGeo, mkLatitude, mkRightAscension, RightAscension } from '../geometry/coordinates';
 
-export type HygProperty = { magnitude: number; name: string; distance: Parsec };
+export type HygProperty = { magnitude: number; name: string; distance: Parsec; ra: RightAscension; dec: Declination };
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -25,11 +23,7 @@ function parseToFloat(n: string): Validated<number> {
   }
 }
 
-export function convertToGeoJson(
-  csv: Array<Array<string>>,
-  moveTo: Vector3D,
-  shouldDisplay: (magnitude: number) => boolean
-): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
+export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
   const headers = csv[0];
   const indexOf = indexOfHeader(headers);
 
@@ -57,31 +51,18 @@ export function convertToGeoJson(
             const maybeRa = flatMap(parseToFloat(row[raIndex]), mkRightAscension);
             const maybeDec = flatMap(parseToFloat(row[decIndex]), mkLatitude);
 
-            const newStar = map(zip3(maybeDec, maybeRa, maybeDist), ([dec, ra, distance]) => {
-              return moveOrigin(moveTo, {
-                ra,
-                dec,
-                distance,
-                apparentMagnitude,
-              });
-            });
-
-            return map(zip(maybeAcc, newStar), ([acc, star]) => {
-              if (!shouldDisplay(star.apparentMagnitude)) {
-                return acc;
-              } else {
-                const id = row[idIndex];
-                return map(decRaToGeo([star.dec, star.ra]), (coordinates) => {
-                  acc.push({
-                    id: id,
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                    properties: { magnitude: star.apparentMagnitude, name: name, distance: star.distance },
-                  });
-
-                  return acc;
+            return map(zip4(maybeAcc, maybeDec, maybeRa, maybeDist), ([acc, dec, ra, distance]) => {
+              const id = row[idIndex];
+              return map(decRaToGeo([dec, ra]), (coordinates) => {
+                acc.push({
+                  id: id,
+                  type: 'Feature',
+                  geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
+                  properties: { magnitude: apparentMagnitude, name, distance, ra, dec },
                 });
-              }
+
+                return acc;
+              });
             });
           });
 

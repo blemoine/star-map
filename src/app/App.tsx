@@ -8,11 +8,13 @@ import { Controls } from '../controls/controls';
 import { Rotation } from '../geometry/rotation';
 import { Vector3D } from '../geometry/vectors';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
+import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
+import { decRaToGeo } from '../geometry/coordinates';
 
 type State = {
   geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null;
-  maxMagnitude: number;
   rotation: Rotation;
+  maxMagnitude: number;
   position: Vector3D;
 };
 
@@ -28,7 +30,7 @@ export class App extends React.Component<{}, State> {
     position: [0, 0, 0],
   };
 
-  private csv: Array<Array<string>> = [];
+  private baseGeoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null = null;
 
   private keyPressListener = (e: KeyboardEvent) => {
     const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
@@ -38,21 +40,12 @@ export class App extends React.Component<{}, State> {
     const y = Math.cos(lat) * Math.sin(lon);
     const z = -Math.sin(lat);
 
+    const s = this.state;
     //TODO refactor c'est la meme fonction que lonlat2xyz
     if (e.key === 'ArrowUp') {
-      this.setState((s: State) => ({
-        ...s,
-        position: [s.position[0] + x, s.position[1] + y, s.position[2] + z],
-      }));
-      this.reloadGeoJson();
+      this.reloadGeoJson(this.state.maxMagnitude, [s.position[0] + x, s.position[1] + y, s.position[2] + z]);
     } else if (e.key === 'ArrowDown') {
-      this.setState(
-        (s: State): State => ({
-          ...s,
-          position: [s.position[0] - x, s.position[1] - y, s.position[2] - z],
-        })
-      );
-      this.reloadGeoJson();
+      this.reloadGeoJson(this.state.maxMagnitude, [s.position[0] - x, s.position[1] - y, s.position[2] - z]);
     }
   };
 
@@ -75,33 +68,70 @@ export class App extends React.Component<{}, State> {
           */
           console.error(parsed.errors);
         }
-        this.csv = parsed.data;
-        this.reloadGeoJson();
+        const csv = parsed.data;
+        const geoJson = convertToGeoJson(csv);
+        if (isError(geoJson)) {
+          console.error(geoJson.errors());
+        } else {
+          this.baseGeoJson = geoJson;
+          this.reloadGeoJson(this.state.maxMagnitude, this.state.position);
+        }
       });
   }
 
-  private reloadGeoJson() {
-    const geoJson = convertToGeoJson(
-      this.csv,
-      this.state.position,
-      (magnitude: number) => magnitude < this.state.maxMagnitude
+  private reloadGeoJson(maxMagnitude: number, position: Vector3D) {
+    if (!this.baseGeoJson) {
+      throw new Error('At this point, baseGeoJson should be set');
+    }
+    const geoJson = geoJsonCollect(
+      this.baseGeoJson,
+      (f: GeoJSON.Feature<Point, HygProperty>) => {
+        return f.properties.magnitude < maxMagnitude;
+      },
+      (f: GeoJSON.Feature<Point, HygProperty>) => {
+        const oldStar: Star = {
+          ra: f.properties.ra,
+          dec: f.properties.dec,
+          distance: f.properties.distance,
+          apparentMagnitude: f.properties.magnitude,
+        };
+        const newStar = moveOrigin(position, oldStar);
+        if (isError(newStar)) {
+          console.error(newStar.errors());
+          return f;
+        } else {
+          const coordinates = decRaToGeo([newStar.dec, newStar.ra]);
+          if (isError(coordinates)) {
+            console.error(coordinates.errors());
+            return f;
+          }
+
+          return {
+            id: f.id,
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
+            properties: {
+              magnitude: newStar.apparentMagnitude,
+              name,
+              distance: newStar.distance,
+              ra: newStar.ra,
+              dec: newStar.dec,
+            },
+          };
+        }
+      }
     );
+
     if (isError(geoJson)) {
       console.error(...geoJson.errors());
     } else {
-      this.setState((prevState) => ({ ...prevState, geoJson }));
+      this.setState((prevState) => ({ ...prevState, geoJson, maxMagnitude, position }));
       document.addEventListener('keydown', this.keyPressListener);
     }
   }
 
   private updateMagnitude(maxMagnitude: number) {
-    this.setState((prevState) => ({ ...prevState, maxMagnitude }));
-    const geoJson = convertToGeoJson(this.csv, this.state.position, (magnitude: number) => magnitude < maxMagnitude);
-    if (isError(geoJson)) {
-      console.error(...geoJson.errors());
-    } else {
-      this.setState((prevState) => ({ ...prevState, geoJson }));
-    }
+    this.reloadGeoJson(maxMagnitude, this.state.position);
   }
 
   private updateRotation(rotation: Rotation) {

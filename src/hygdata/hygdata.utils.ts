@@ -10,6 +10,8 @@ import {
 } from '../geometry/coordinates';
 import { flatMap, map, Validated } from '../utils/validated';
 import { Vector3D } from '../geometry/vectors';
+import { Point } from 'geojson';
+import { HygProperty } from './hygdata';
 
 export type Star = {
   ra: RightAscension;
@@ -56,4 +58,21 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
       apparentMagnitude,
     };
   });
+}
+
+export function geoJsonCollect(
+  geoJson: GeoJSON.FeatureCollection<Point, HygProperty>,
+  filter: (f: GeoJSON.Feature<Point, HygProperty>) => boolean,
+  mapper: (f: GeoJSON.Feature<Point, HygProperty>) => GeoJSON.Feature<Point, HygProperty>
+): GeoJSON.FeatureCollection<Point, HygProperty> {
+  return {
+    type: geoJson.type,
+    features: geoJson.features.reduce((acc: Array<GeoJSON.Feature<Point, HygProperty>>, f) => {
+      const newValue = mapper(f);
+      if (filter(newValue)) {
+        acc.push(newValue);
+      }
+      return acc;
+    }, []),
+  };
 }

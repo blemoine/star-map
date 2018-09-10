@@ -1,6 +1,5 @@
 import { convertToGeoJson } from '../hygdata';
 import { isError, Validated } from '../../utils/validated';
-import { Vector3D } from '../../geometry/vectors';
 
 function expectToBeError<A>(result: Validated<A>, messages: Array<string> = []): void {
   if (isError(result)) {
@@ -25,30 +24,29 @@ describe('convertToGeoJson', () => {
   const oneRowWithHighMagnitude = '2076,2081,2261,99,,Alp Phe,Ankaa,0.438056,-42.305981,25.9740,232.76,-353.64,75.0,10.400,8.327,K0III...,1.083,19.083654,2.198282,-17.483284,0.00002323,0.00003218,-0.00008456,0.11468290295782503,-0.7383786688321162,0.000001128452322861111,-0.000001714495099,Alp,,Phe,1,2076,,64.44659847416881,,,'.split(
     ','
   );
-  const moveToZero: Vector3D = [0, 0, 0];
   describe('header parsing', () => {
     it('should return an error if there is no "proper" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
+      const result = convertToGeoJson([oneValidCsvRow]);
 
       expectToBeError(result, [`proper header was not found in the list of headers`]);
     });
     it('should return an error if there is no "mag" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
+      const result = convertToGeoJson([oneValidCsvRow]);
 
       expectToBeError(result, [`mag header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dist" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
+      const result = convertToGeoJson([oneValidCsvRow]);
 
       expectToBeError(result, [`dist header was not found in the list of headers`]);
     });
     it('should return an error if there is no "ra" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
+      const result = convertToGeoJson([oneValidCsvRow]);
 
       expectToBeError(result, [`ra header was not found in the list of headers`]);
     });
     it('should return an error if there is no "dec" header ', () => {
-      const result = convertToGeoJson([oneValidCsvRow], moveToZero, () => true);
+      const result = convertToGeoJson([oneValidCsvRow]);
 
       expectToBeError(result, [`dec header was not found in the list of headers`]);
     });
@@ -56,47 +54,23 @@ describe('convertToGeoJson', () => {
 
   describe('parsing', () => {
     it('invert longitude coordinate', () => {
-      const result = convertToGeoJson([headerRow, oneRowWithHighMagnitude], moveToZero, () => true);
+      const result = convertToGeoJson([headerRow, oneRowWithHighMagnitude]);
       if (isError(result)) {
         throw new Error(`${result} should not be an error`);
       }
       expect(result.features).toEqual([
         {
           geometry: {
-            coordinates: [-6.570840000000003, -42.30598099999999],
+            coordinates: [-6.5708400000000005, -42.305981],
             type: 'Point',
           },
           id: '2076',
           properties: {
-            distance: 25.973999999999997,
+            dec: -42.305981,
+            ra: 0.438056,
+            distance: 25.974,
             magnitude: 10.4,
             name: 'Ankaa',
-          },
-          type: 'Feature',
-        },
-      ]);
-    });
-
-    it('should ignore row with magnitude < 6', () => {
-      const result = convertToGeoJson(
-        [headerRow, oneValidCsvRow, oneRowWithHighMagnitude, []],
-        moveToZero,
-        (magnitude) => magnitude < 6
-      );
-      if (isError(result)) {
-        throw new Error(`${result} should not be an error`);
-      }
-      expect(result.features).toEqual([
-        {
-          geometry: {
-            coordinates: [-2.096865, 29.090431999999996],
-            type: 'Point',
-          },
-          id: '676',
-          properties: {
-            distance: 29.744200000000003,
-            magnitude: 2.0700000000000003,
-            name: 'Alpheratz',
           },
           type: 'Feature',
         },
