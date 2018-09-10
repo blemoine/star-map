@@ -39,6 +39,7 @@ describe('moveOrigin', () => {
         distance: Parsec
       ) {
         const star: Star = {
+          name: 'test',
           ra,
           dec,
           distance,
@@ -66,6 +67,7 @@ describe('moveOrigin', () => {
 
         const origin: Vector3D = [newCoord, 0, 0];
         const star: Star = {
+          name: 'test',
           dec,
           ra,
           distance: getOrThrow(mkParsec(Math.abs(baseDistance))),

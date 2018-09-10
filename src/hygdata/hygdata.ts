@@ -1,9 +1,8 @@
 import { Feature, Point } from 'geojson';
-import { mkParsec, Parsec } from '../measures/parsec';
+import { mkParsec } from '../measures/parsec';
 import { errorMap, flatMap, map, raise, Validated, zip4, zip6 } from '../utils/validated';
-import { Declination, decRaToGeo, mkLatitude, mkRightAscension, RightAscension } from '../geometry/coordinates';
-
-export type HygProperty = { magnitude: number; name: string; distance: Parsec; ra: RightAscension; dec: Declination };
+import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
+import { Star } from './hygdata.utils';
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -23,7 +22,7 @@ function parseToFloat(n: string): Validated<number> {
   }
 }
 
-export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.FeatureCollection<Point, HygProperty>> {
+export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.FeatureCollection<Point, Star>> {
   const headers = csv[0];
   const indexOf = indexOfHeader(headers);
 
@@ -32,10 +31,10 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
     ([properIndex, magIndex, distIndex, raIndex, decIndex, idIndex]) => {
       const maybeFeatures = csv.reduce(
         (
-          maybeAcc: Validated<Array<Feature<Point, HygProperty>>>,
+          maybeAcc: Validated<Array<Feature<Point, Star>>>,
           row: Array<string>,
           rowIndex: number
-        ): Validated<Array<Feature<Point, HygProperty>>> => {
+        ): Validated<Array<Feature<Point, Star>>> => {
           if (rowIndex === 0) {
             return maybeAcc;
           }
@@ -58,7 +57,7 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                   id: id,
                   type: 'Feature',
                   geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                  properties: { magnitude: apparentMagnitude, name, distance, ra, dec },
+                  properties: { apparentMagnitude, name, distance, ra, dec },
                 });
 
                 return acc;
@@ -82,7 +81,7 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
 
       return map(
         maybeFeatures,
-        (features): GeoJSON.FeatureCollection<Point, HygProperty> => {
+        (features): GeoJSON.FeatureCollection<Point, Star> => {
           return {
             type: 'FeatureCollection',
             features,

@@ -10,10 +10,10 @@ import {
 } from '../geometry/coordinates';
 import { flatMap, map, Validated } from '../utils/validated';
 import { Vector3D } from '../geometry/vectors';
-import { Point } from 'geojson';
-import { HygProperty } from './hygdata';
+import { GeometryObject } from 'geojson';
 
 export type Star = {
+  name: string;
   ra: RightAscension;
   dec: Declination;
   distance: Parsec;
@@ -52,6 +52,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
     // TODO refactor to magnitude convert
     const apparentMagnitude = magnitudeAt(star.apparentMagnitude, star.distance, distance);
     return {
+      name: star.name,
       ra,
       dec,
       distance,
@@ -60,14 +61,14 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
   });
 }
 
-export function geoJsonCollect(
-  geoJson: GeoJSON.FeatureCollection<Point, HygProperty>,
-  filter: (f: GeoJSON.Feature<Point, HygProperty>) => boolean,
-  mapper: (f: GeoJSON.Feature<Point, HygProperty>) => GeoJSON.Feature<Point, HygProperty>
-): GeoJSON.FeatureCollection<Point, HygProperty> {
+export function geoJsonCollect<G extends GeometryObject | null, P>(
+  geoJson: GeoJSON.FeatureCollection<G, P>,
+  filter: (f: GeoJSON.Feature<G, P>) => boolean,
+  mapper: (f: GeoJSON.Feature<G, P>) => GeoJSON.Feature<G, P>
+): GeoJSON.FeatureCollection<G, P> {
   return {
     type: geoJson.type,
-    features: geoJson.features.reduce((acc: Array<GeoJSON.Feature<Point, HygProperty>>, f) => {
+    features: geoJson.features.reduce((acc: Array<GeoJSON.Feature<G, P>>, f) => {
       const newValue = mapper(f);
       if (filter(newValue)) {
         acc.push(newValue);

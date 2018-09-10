@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StarMap } from '../map/star-map';
 import { Point } from 'geojson';
-import { convertToGeoJson, HygProperty } from '../hygdata/hygdata';
+import { convertToGeoJson } from '../hygdata/hygdata';
 import { parse } from 'papaparse';
 import { isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
@@ -12,7 +12,7 @@ import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { decRaToGeo } from '../geometry/coordinates';
 
 type State = {
-  geoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null;
+  geoJson: GeoJSON.FeatureCollection<Point, Star> | null;
   rotation: Rotation;
   maxMagnitude: number;
   position: Vector3D;
@@ -30,7 +30,7 @@ export class App extends React.Component<{}, State> {
     position: [0, 0, 0],
   };
 
-  private baseGeoJson: GeoJSON.FeatureCollection<Point, HygProperty> | null = null;
+  private baseGeoJson: GeoJSON.FeatureCollection<Point, Star> | null = null;
 
   private keyPressListener = (e: KeyboardEvent) => {
     const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
@@ -85,16 +85,11 @@ export class App extends React.Component<{}, State> {
     }
     const geoJson = geoJsonCollect(
       this.baseGeoJson,
-      (f: GeoJSON.Feature<Point, HygProperty>) => {
-        return f.properties.magnitude < maxMagnitude;
+      (f: GeoJSON.Feature<Point, Star>) => {
+        return f.properties.apparentMagnitude < maxMagnitude;
       },
-      (f: GeoJSON.Feature<Point, HygProperty>) => {
-        const oldStar: Star = {
-          ra: f.properties.ra,
-          dec: f.properties.dec,
-          distance: f.properties.distance,
-          apparentMagnitude: f.properties.magnitude,
-        };
+      (f: GeoJSON.Feature<Point, Star>) => {
+        const oldStar: Star = f.properties;
         const newStar = moveOrigin(position, oldStar);
         if (isError(newStar)) {
           console.error(newStar.errors());
@@ -110,13 +105,7 @@ export class App extends React.Component<{}, State> {
             id: f.id,
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-            properties: {
-              magnitude: newStar.apparentMagnitude,
-              name,
-              distance: newStar.distance,
-              ra: newStar.ra,
-              dec: newStar.dec,
-            },
+            properties: newStar,
           };
         }
       }

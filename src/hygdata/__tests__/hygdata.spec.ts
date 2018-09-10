@@ -69,7 +69,7 @@ describe('convertToGeoJson', () => {
             dec: -42.305981,
             ra: 0.438056,
             distance: 25.974,
-            magnitude: 10.4,
+            apparentMagnitude: 10.4,
             name: 'Ankaa',
           },
           type: 'Feature',

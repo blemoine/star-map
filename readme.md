@@ -10,4 +10,3 @@ TODO:
   * attacher le listener de mouvenebt au svg et pas au document ( pour qu'on puisse utiliser les fleches dans les input)
   * gestion de l'acceleration sur le deplacement:
   * faire tout les controles au clavier
-  * Virer hygData properties et utiliser directement star

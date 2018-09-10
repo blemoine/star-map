@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Point } from 'geojson';
-import { HygProperty } from '../hygdata/hygdata';
 import * as d3 from 'd3';
 import './star-map.css';
 import { Rotation } from '../geometry/rotation';
@@ -8,9 +7,10 @@ import { multiplyQuaternion, quaternionForRotation } from '../geometry/quaternio
 import { Degree, euler2quat, mkDegree, quat2euler } from '../geometry/euler-angle';
 import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry/coordinates';
 import { isError, raise, Validated, zip } from '../utils/validated';
+import { Star } from '../hygdata/hygdata.utils';
 
 type Props = {
-  geoJson: GeoJSON.FeatureCollection<Point, HygProperty>;
+  geoJson: GeoJSON.FeatureCollection<Point, Star>;
   rotation: Rotation;
   rotationChange: (rotation: Rotation) => void;
 };
@@ -160,7 +160,7 @@ export class StarMap extends React.Component<Props, {}> {
         const minMagnitude = 2;
         const maxMagnitude = 6;
 
-        const normalizedMagnitude = Math.min(Math.max(d.properties.magnitude, minMagnitude), maxMagnitude);
+        const normalizedMagnitude = Math.min(Math.max(d.properties.apparentMagnitude, minMagnitude), maxMagnitude);
 
         const opacity = (maxMagnitude - normalizedMagnitude) / (maxMagnitude - minMagnitude);
 
@@ -171,7 +171,7 @@ export class StarMap extends React.Component<Props, {}> {
       .on('mouseover', (d) => {
         if (d.properties) {
           const round = (num: number) => Math.round(num * 100) / 100
-          tooltip.style('visibility', 'visible').text(d.properties.name+': '+round(d.properties.distance)+'pc, '+round(d.properties.magnitude));
+          tooltip.style('visibility', 'visible').text(d.properties.name+': '+round(d.properties.distance)+'pc, '+round(d.properties.apparentMagnitude));
         }
       })
       .on('mousemove', function() {
