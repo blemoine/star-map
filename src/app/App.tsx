@@ -129,6 +129,10 @@ export class App extends React.Component<{}, State> {
     this.setState((s) => ({ ...s, rotation }));
   }
 
+  private updatePostion(position: Vector3D) {
+    this.reloadGeoJson(this.state.maxMagnitude, position);
+  }
+
   render() {
     const geoJson = this.state.geoJson;
 
@@ -147,6 +151,8 @@ export class App extends React.Component<{}, State> {
             magnitudeChange={(magnitude) => this.updateMagnitude(magnitude)}
             rotation={this.state.rotation}
             rotationChange={(rotation) => this.updateRotation(rotation)}
+            position={this.state.position}
+            positionChange={(position) => this.updatePostion(position)}
           />
         </div>
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
