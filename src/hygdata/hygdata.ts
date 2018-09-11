@@ -53,11 +53,11 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
             return map(zip4(maybeAcc, maybeDec, maybeRa, maybeDist), ([acc, dec, ra, distance]) => {
               const id = row[idIndex];
               return map(decRaToGeo([dec, ra]), (coordinates) => {
-                const maxNavigationRadius = 200
+                const maxNavigationRadius = 200;
                 if (distance > maxNavigationRadius) {
-                  const newD = mkParsec(distance - maxNavigationRadius)
-                  if(!isError(newD) && magnitudeAt(apparentMagnitude, distance, newD ) > 6) {
-                    return acc
+                  const newD = mkParsec(distance - maxNavigationRadius);
+                  if (!isError(newD) && magnitudeAt(apparentMagnitude, distance, newD) > 6) {
+                    return acc;
                   }
                 }
 

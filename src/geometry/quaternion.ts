@@ -1,13 +1,10 @@
-import { cross, dot, Vector3D } from './vectors';
+import { cross, dot, Vector3D, vectorLength } from './vectors';
 
 export type Quaternion = [number, number, number, number];
 
-export function quaternionForRotation(
-  v0: Vector3D,
-  v1: Vector3D
-): Quaternion | null {
-  const w = cross(v0, v1), // vector pendicular to v0 & v1
-    w_len = Math.sqrt(dot(w, w)); // length of w
+export function quaternionForRotation(v0: Vector3D, v1: Vector3D): Quaternion | null {
+  const w = cross(v0, v1);
+  const w_len = vectorLength(w);
 
   if (w_len == 0) return null;
 
@@ -24,11 +21,7 @@ export function quaternionForRotation(
   }
 }
 
-
-export function multiplyQuaternion(
-  q1: Quaternion,
-  q2: Quaternion
-): Quaternion {
+export function multiplyQuaternion(q1: Quaternion, q2: Quaternion): Quaternion {
   const a = q1[0],
     b = q1[1],
     c = q1[2],

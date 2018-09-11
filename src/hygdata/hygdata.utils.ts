@@ -9,7 +9,7 @@ import {
   xyzToLonLat,
 } from '../geometry/coordinates';
 import { flatMap, map, Validated } from '../utils/validated';
-import { Vector3D } from '../geometry/vectors';
+import { Vector3D, vectorLength } from '../geometry/vectors';
 import { GeometryObject } from 'geojson';
 
 export type Star = {
@@ -39,7 +39,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
     ];
     const lonlat: Validated<GeoCoordinates> = xyzToLonLat(xyz);
     return flatMap(flatMap(lonlat, geoToDecRa), ([dec, ra]) => {
-      const maybeDistance = mkParsec(Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1] + xyz[2] * xyz[2]));
+      const maybeDistance = mkParsec(vectorLength(xyz));
       return map(maybeDistance, (distance) => ({
         ra,
         dec,

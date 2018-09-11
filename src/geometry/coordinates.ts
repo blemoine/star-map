@@ -1,5 +1,5 @@
 import { map, raise, Validated, zip } from '../utils/validated';
-import { Vector3D } from './vectors';
+import { Vector3D, vectorLength } from './vectors';
 import { DegreeTag, toDegree, toRadians } from './euler-angle';
 
 declare class LatitudeTag {
@@ -67,8 +67,9 @@ export function lonlat2xyz(coord: GeoCoordinates): Vector3D {
   return [x, y, z];
 }
 
-export function xyzToLonLat([x, y, z]: Vector3D): Validated<GeoCoordinates> {
-  const dist = Math.sqrt(x * x + y * y + z * z);
+export function xyzToLonLat(v: Vector3D): Validated<GeoCoordinates> {
+  const [x, y, z] = v;
+  const dist = vectorLength(v);
   const lat = mkLatitude(toDegree(Math.asin(z / dist)));
   const lon = mkLongitude(toDegree(Math.atan2(y / dist, x / dist)));
 

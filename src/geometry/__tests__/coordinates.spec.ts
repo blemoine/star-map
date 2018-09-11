@@ -7,7 +7,8 @@ import {
   xyzToLonLat,
   Latitude,
   Longitude,
-  GeoCoordinates, geoToDecRa,
+  GeoCoordinates,
+  geoToDecRa,
 } from '../coordinates';
 import * as fc from 'fast-check';
 import { arbitray } from '../../tests/utils/arbitraries';
