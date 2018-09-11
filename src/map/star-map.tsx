@@ -117,7 +117,7 @@ export class StarMap extends React.Component<Props, {}> {
       .projection(this.projection)
       .pointRadius(function(d) {
         if (d && 'properties' in d && d.properties !== null) {
-          const magnitude = d.properties.magnitude;
+          const magnitude = d.properties.apparentMagnitude;
           if (magnitude === -Infinity) {
             return 0;
           } else if (magnitude < 0) {

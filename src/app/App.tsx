@@ -74,6 +74,8 @@ export class App extends React.Component<{}, State> {
           console.error(geoJson.errors());
         } else {
           this.baseGeoJson = geoJson;
+          console.log(geoJson.features.length) //119614
+
           this.reloadGeoJson(this.state.maxMagnitude, this.state.position);
         }
       });

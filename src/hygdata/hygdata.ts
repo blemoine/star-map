@@ -1,8 +1,8 @@
 import { Feature, Point } from 'geojson';
 import { mkParsec } from '../measures/parsec';
-import { errorMap, flatMap, map, raise, Validated, zip4, zip6 } from '../utils/validated';
+import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip6 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
-import { Star } from './hygdata.utils';
+import { magnitudeAt, Star } from './hygdata.utils';
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -53,6 +53,14 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
             return map(zip4(maybeAcc, maybeDec, maybeRa, maybeDist), ([acc, dec, ra, distance]) => {
               const id = row[idIndex];
               return map(decRaToGeo([dec, ra]), (coordinates) => {
+                const maxNavigationRadius = 200
+                if (distance > maxNavigationRadius) {
+                  const newD = mkParsec(distance - maxNavigationRadius)
+                  if(!isError(newD) && magnitudeAt(apparentMagnitude, distance, newD ) > 6) {
+                    return acc
+                  }
+                }
+
                 acc.push({
                   id: id,
                   type: 'Feature',

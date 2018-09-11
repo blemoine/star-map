@@ -20,7 +20,7 @@ export type Star = {
   apparentMagnitude: number;
 };
 
-function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
+export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
   return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }
 
