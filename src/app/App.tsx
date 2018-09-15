@@ -1,141 +1,57 @@
 import * as React from 'react';
-import { StarMap } from '../map/star-map';
-import { Point } from 'geojson';
-import { convertToGeoJson } from '../hygdata/hygdata';
-import { parse } from 'papaparse';
-import { isError } from '../utils/validated';
 import { Controls } from '../controls/controls';
-import { Rotation } from '../geometry/rotation';
-import { Vector3D } from '../geometry/vectors';
-import { mkDegree, toRadians } from '../geometry/euler-angle';
+import { StarMap } from '../map/star-map';
 import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
+import { Point } from 'geojson';
+import { isError } from '../utils/validated';
 import { decRaToGeo } from '../geometry/coordinates';
+import { AppState } from './AppState';
+import { Vector3D } from '../geometry/vectors';
+import { Rotation } from '../geometry/rotation';
 
-type State = {
-  geoJson: GeoJSON.FeatureCollection<Point, Star> | null;
-  rotation: Rotation;
-  maxMagnitude: number;
-  position: Vector3D;
-};
-
-export class App extends React.Component<{}, State> {
-  state: State = {
-    geoJson: null,
-    maxMagnitude: 4,
-    rotation: {
-      rotateLambda: 0,
-      rotatePhi: 0,
-      rotateGamma: 0,
+function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
+  return geoJsonCollect(
+    baseGeoJson,
+    (f: GeoJSON.Feature<Point, Star>) => {
+      return f.properties.apparentMagnitude < maxMagnitude;
     },
-    position: [0, 0, 0],
-  };
-
-  private baseGeoJson: GeoJSON.FeatureCollection<Point, Star> | null = null;
-
-  private keyPressListener = (e: KeyboardEvent) => {
-    const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
-    const lat = toRadians(mkDegree(this.state.rotation.rotatePhi));
-
-    const x = Math.cos(lat) * Math.cos(lon);
-    const y = Math.cos(lat) * Math.sin(lon);
-    const z = -Math.sin(lat);
-
-    const s = this.state;
-    //TODO refactor c'est la meme fonction que lonlat2xyz
-    if (e.key === 'ArrowUp') {
-      this.reloadGeoJson(this.state.maxMagnitude, [s.position[0] + x, s.position[1] + y, s.position[2] + z]);
-    } else if (e.key === 'ArrowDown') {
-      this.reloadGeoJson(this.state.maxMagnitude, [s.position[0] - x, s.position[1] - y, s.position[2] - z]);
-    }
-  };
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.keyPressListener);
-  }
-
-  componentDidMount() {
-    fetch('data/hygdata_v3.csv')
-      .then((r) => r.text())
-      .then((rawCsv) => {
-        const parsed = parse(rawCsv);
-        if (parsed.errors.length > 0) {
-          /*
-          TODO display errors ?
-          const [headError, ...tailErrors] = parsed.errors;
-
-          const baseErr = raise(headError.message, headError);
-          return tailErrors.reduce((err, e) => err.combine(raise(e.message, e)), baseErr);
-          */
-          console.error(parsed.errors);
-        }
-        const csv = parsed.data;
-        const geoJson = convertToGeoJson(csv);
-        if (isError(geoJson)) {
-          console.error(geoJson.errors());
-        } else {
-          this.baseGeoJson = geoJson;
-          console.log(geoJson.features.length); //119614
-
-          this.reloadGeoJson(this.state.maxMagnitude, this.state.position);
-        }
-      });
-  }
-
-  private reloadGeoJson(maxMagnitude: number, position: Vector3D) {
-    if (!this.baseGeoJson) {
-      throw new Error('At this point, baseGeoJson should be set');
-    }
-    const geoJson = geoJsonCollect(
-      this.baseGeoJson,
-      (f: GeoJSON.Feature<Point, Star>) => {
-        return f.properties.apparentMagnitude < maxMagnitude;
-      },
-      (f: GeoJSON.Feature<Point, Star>) => {
-        const oldStar: Star = f.properties;
-        const newStar = moveOrigin(position, oldStar);
-        if (isError(newStar)) {
-          console.error(newStar.errors());
+    (f: GeoJSON.Feature<Point, Star>) => {
+      const oldStar: Star = f.properties;
+      const newStar = moveOrigin(position, oldStar);
+      if (isError(newStar)) {
+        console.error(newStar.errors());
+        return f;
+      } else {
+        const coordinates = decRaToGeo([newStar.dec, newStar.ra]);
+        if (isError(coordinates)) {
+          console.error(coordinates.errors());
           return f;
-        } else {
-          const coordinates = decRaToGeo([newStar.dec, newStar.ra]);
-          if (isError(coordinates)) {
-            console.error(coordinates.errors());
-            return f;
-          }
-
-          return {
-            id: f.id,
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-            properties: newStar,
-          };
         }
+
+        return {
+          id: f.id,
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
+          properties: newStar,
+        };
       }
-    );
-
-    if (isError(geoJson)) {
-      console.error(...geoJson.errors());
-    } else {
-      this.setState((prevState) => ({ ...prevState, geoJson, maxMagnitude, position }));
-      document.addEventListener('keydown', this.keyPressListener);
     }
-  }
+  );
+}
 
-  private updateMagnitude(maxMagnitude: number) {
-    this.reloadGeoJson(maxMagnitude, this.state.position);
-  }
-
-  private updateRotation(rotation: Rotation) {
-    this.setState((s) => ({ ...s, rotation }));
-  }
-
-  private updatePostion(position: Vector3D) {
-    this.reloadGeoJson(this.state.maxMagnitude, position);
-  }
-
-  render() {
-    const geoJson = this.state.geoJson;
-
+export const App = (props: {
+  baseGeoJson: GeoJSON.FeatureCollection<Point, Star>;
+  maxMagnitude: number;
+  rotation: Rotation;
+  position: Vector3D;
+  updateState: (s: Partial<AppState>) => void;
+}) => {
+  const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
+  if (isError(geoJson)) {
+    console.error(geoJson.errors());
+    // TODO beautiful error
+    return <div>ERROR</div>;
+  } else {
     return (
       <>
         <div
@@ -147,20 +63,20 @@ export class App extends React.Component<{}, State> {
           }}
         >
           <Controls
-            magnitude={this.state.maxMagnitude}
-            magnitudeChange={(magnitude) => this.updateMagnitude(magnitude)}
-            rotation={this.state.rotation}
-            rotationChange={(rotation) => this.updateRotation(rotation)}
-            position={this.state.position}
-            positionChange={(position) => this.updatePostion(position)}
+            magnitude={props.maxMagnitude}
+            magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
+            rotation={props.rotation}
+            rotationChange={(rotation) => props.updateState({ rotation })}
+            position={props.position}
+            positionChange={(position) => props.updateState({ position })}
           />
         </div>
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
           {geoJson ? (
             <StarMap
               geoJson={geoJson}
-              rotation={this.state.rotation}
-              rotationChange={(rotation) => this.updateRotation(rotation)}
+              rotation={props.rotation}
+              rotationChange={(rotation) => props.updateState({ rotation })}
             />
           ) : (
             'LOADING...'
@@ -169,4 +85,4 @@ export class App extends React.Component<{}, State> {
       </>
     );
   }
-}
+};
