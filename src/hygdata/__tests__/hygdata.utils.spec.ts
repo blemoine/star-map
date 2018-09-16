@@ -44,6 +44,7 @@ describe('moveOrigin', () => {
           dec,
           distance,
           apparentMagnitude,
+          color: [255, 255, 255],
         };
 
         const result = moveOrigin(origin, star);
@@ -72,6 +73,7 @@ describe('moveOrigin', () => {
           ra,
           distance: getOrThrow(mkParsec(Math.abs(baseDistance))),
           apparentMagnitude: 5,
+          color: [255, 255, 255],
         };
         const result = moveOrigin(origin, star);
         if (isError(result)) {

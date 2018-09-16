@@ -71,6 +71,7 @@ describe('convertToGeoJson', () => {
             distance: 25.974,
             apparentMagnitude: 10.4,
             name: 'Ankaa',
+            color: [255, 227, 190],
           },
           type: 'Feature',
         },

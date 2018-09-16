@@ -1,8 +1,9 @@
 import { Feature, Point } from 'geojson';
 import { mkParsec } from '../measures/parsec';
-import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip6 } from '../utils/validated';
+import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip7 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
 import { magnitudeAt, Star } from './hygdata.utils';
+import { findColorOf } from '../data/spectral-types-informations';
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -27,8 +28,16 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
   const indexOf = indexOfHeader(headers);
 
   return flatMap(
-    zip6(indexOf('proper'), indexOf('mag'), indexOf('dist'), indexOf('ra'), indexOf('dec'), indexOf('id')),
-    ([properIndex, magIndex, distIndex, raIndex, decIndex, idIndex]) => {
+    zip7(
+      indexOf('proper'),
+      indexOf('mag'),
+      indexOf('dist'),
+      indexOf('ra'),
+      indexOf('dec'),
+      indexOf('id'),
+      indexOf('spect')
+    ),
+    ([properIndex, magIndex, distIndex, raIndex, decIndex, idIndex, spectralTypeIndex]) => {
       const maybeFeatures = csv.reduce(
         (
           maybeAcc: Validated<Array<Feature<Point, Star>>>,
@@ -60,12 +69,13 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                     return acc;
                   }
                 }
+                const color = findColorOf(row[spectralTypeIndex]);
 
                 acc.push({
                   id: id,
                   type: 'Feature',
                   geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                  properties: { apparentMagnitude, name, distance, ra, dec },
+                  properties: { apparentMagnitude, name, distance, ra, dec, color },
                 });
 
                 return acc;

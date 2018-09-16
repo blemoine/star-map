@@ -164,14 +164,13 @@ export class StarMap extends React.Component<Props, {}> {
         const normalizedMagnitude = Math.min(Math.max(d.properties.apparentMagnitude, minMagnitude), maxMagnitude);
 
         const opacity = (maxMagnitude - normalizedMagnitude) / (maxMagnitude - minMagnitude);
-
-        return `rgba(255,255,255,${opacity})`;
+        const color = d.properties.color;
+        return `rgba(${color.join(',')},${opacity})`;
       })
       .style('stroke', 'transparent')
       .style('cursor', 'pointer')
       .on('mouseover', (d) => {
         if (d.properties) {
-
           tooltip
             .style('visibility', 'visible')
             .text(
