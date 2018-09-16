@@ -5,10 +5,13 @@ import { isError } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
+import { add, mkParsec } from '../measures/parsec';
+import { debounce } from 'lodash';
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
     baseGeoJson: null,
+    currentAcceleration: mkParsec(0.01),
     maxMagnitude: 4,
     rotation: {
       rotateLambda: 0,
@@ -17,21 +20,39 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     },
     position: [0, 0, 0],
   };
+
+  private reinitAcceleration = debounce(() => {
+    this.setState((s) => ({ ...s, currentAcceleration: mkParsec(0.01) }));
+  }, 300);
+
   private keyPressListener = (e: KeyboardEvent) => {
     if (!e.srcElement || e.srcElement.tagName.toLowerCase() !== 'input') {
       const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
       const lat = toRadians(mkDegree(this.state.rotation.rotatePhi));
 
-      const x = Math.cos(lat) * Math.cos(lon);
-      const y = Math.cos(lat) * Math.sin(lon);
-      const z = -Math.sin(lat);
+      const acceleration = this.state.currentAcceleration;
+      const x = Math.cos(lat) * Math.cos(lon) * acceleration;
+      const y = Math.cos(lat) * Math.sin(lon) * acceleration;
+      const z = -Math.sin(lat) * acceleration;
 
       const s = this.state;
+      const newAcceleration =
+        s.currentAcceleration < 2 ? add(s.currentAcceleration, mkParsec(0.03)) : s.currentAcceleration;
       //TODO refactor c'est la meme fonction que lonlat2xyz
       if (e.key === 'ArrowUp') {
-        this.setState((state) => ({ ...state, position: [s.position[0] + x, s.position[1] + y, s.position[2] + z] }));
+        this.setState((state) => ({
+          ...state,
+          currentAcceleration: newAcceleration,
+          position: [s.position[0] + x, s.position[1] + y, s.position[2] + z],
+        }));
+        this.reinitAcceleration();
       } else if (e.key === 'ArrowDown') {
-        this.setState((state) => ({ ...state, position: [s.position[0] - x, s.position[1] - y, s.position[2] - z] }));
+        this.setState((state) => ({
+          ...state,
+          currentAcceleration: newAcceleration,
+          position: [s.position[0] - x, s.position[1] - y, s.position[2] - z],
+        }));
+        this.reinitAcceleration();
       }
     }
   };
@@ -72,6 +93,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       return (
         <App
           baseGeoJson={baseGeoJson}
+          acceleration={this.state.currentAcceleration}
           maxMagnitude={this.state.maxMagnitude}
           position={this.state.position}
           rotation={this.state.rotation}

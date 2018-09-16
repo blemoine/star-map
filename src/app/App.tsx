@@ -8,6 +8,7 @@ import { decRaToGeo } from '../geometry/coordinates';
 import { AppState } from './AppState';
 import { Vector3D } from '../geometry/vectors';
 import { Rotation } from '../geometry/rotation';
+import { Parsec } from '../measures/parsec';
 
 function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
   return geoJsonCollect(
@@ -44,6 +45,7 @@ export const App = (props: {
   maxMagnitude: number;
   rotation: Rotation;
   position: Vector3D;
+  acceleration: Parsec,
   updateState: (s: Partial<AppState>) => void;
 }) => {
   const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
