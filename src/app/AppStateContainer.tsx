@@ -53,6 +53,37 @@ export class AppStateContainer extends React.Component<{}, AppState> {
           position: [s.position[0] - x, s.position[1] - y, s.position[2] - z],
         }));
         this.reinitAcceleration();
+      } else if (e.code === 'KeyW') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotatePhi:state.rotation.rotatePhi - 3}
+        }));
+      } else if (e.code === 'KeyS') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotatePhi:state.rotation.rotatePhi + 3}
+        }));
+      } else if (e.code === 'KeyA') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotateLambda:state.rotation.rotateLambda + 3}
+        }));
+      } else if (e.code === 'KeyD') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotateLambda:state.rotation.rotateLambda - 3}
+        }));
+      }
+      else if (e.code === 'KeyQ') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotateGamma:state.rotation.rotateGamma + 3}
+        }));
+      } else if (e.code === 'KeyE') {
+        this.setState((state) => ({
+          ...state,
+          rotation: {...state.rotation, rotateGamma:state.rotation.rotateGamma - 3}
+        }));
       }
     }
   };
