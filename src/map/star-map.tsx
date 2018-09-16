@@ -8,6 +8,7 @@ import { Degree, euler2quat, mkDegree, quat2euler } from '../geometry/euler-angl
 import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry/coordinates';
 import { isError, raise, Validated, zip } from '../utils/validated';
 import { Star } from '../hygdata/hygdata.utils';
+import { round } from '../utils/number';
 
 type Props = {
   geoJson: GeoJSON.FeatureCollection<Point, Star>;
@@ -170,7 +171,7 @@ export class StarMap extends React.Component<Props, {}> {
       .style('cursor', 'pointer')
       .on('mouseover', (d) => {
         if (d.properties) {
-          const round = (num: number) => Math.round(num * 100) / 100;
+
           tooltip
             .style('visibility', 'visible')
             .text(

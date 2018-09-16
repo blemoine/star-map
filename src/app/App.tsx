@@ -9,6 +9,7 @@ import { AppState } from './AppState';
 import { Vector3D } from '../geometry/vectors';
 import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
+import { Informations } from '../informations/informations';
 
 function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
   return geoJsonCollect(
@@ -45,7 +46,7 @@ export const App = (props: {
   maxMagnitude: number;
   rotation: Rotation;
   position: Vector3D;
-  acceleration: Parsec,
+  acceleration: Parsec;
   updateState: (s: Partial<AppState>) => void;
 }) => {
   const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
@@ -67,11 +68,19 @@ export const App = (props: {
           <Controls
             magnitude={props.maxMagnitude}
             magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
-            rotation={props.rotation}
-            rotationChange={(rotation) => props.updateState({ rotation })}
-            position={props.position}
-            positionChange={(position) => props.updateState({ position })}
           />
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            width: '300px',
+            top: '100px',
+            left: 0,
+            border: '1px solid #AAA',
+            backgroundColor: 'rgba(55,55,55,0.8)',
+          }}
+        >
+          <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
         </div>
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
           {geoJson ? (
@@ -81,6 +90,7 @@ export const App = (props: {
               rotationChange={(rotation) => props.updateState({ rotation })}
             />
           ) : (
+            //TODO beautiful loadin
             'LOADING...'
           )}
         </div>

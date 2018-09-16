@@ -49,7 +49,6 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
   });
 
   return map(newCoord, ({ dec, ra, distance }) => {
-    // TODO refactor to magnitude convert
     const apparentMagnitude = magnitudeAt(star.apparentMagnitude, star.distance, distance);
     return {
       name: star.name,
