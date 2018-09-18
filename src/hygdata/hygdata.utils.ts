@@ -18,7 +18,8 @@ export type Star = {
   dec: Declination;
   distance: Parsec;
   apparentMagnitude: number;
-  color: [number,number,number]
+  color: [number,number,number],
+  radius: Parsec | null,
 };
 
 export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
@@ -27,6 +28,10 @@ export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDist
 
 export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number): number {
   return magnitudeAt(absoluteMagnitude, mkParsec(10), distance);
+}
+
+export function toAbsoluteMagnitude(baseMagnitude: number, baseDistance: Parsec,): number {
+  return magnitudeAt(baseMagnitude, baseDistance, mkParsec(10))
 }
 
 export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
@@ -54,6 +59,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
     return {
       name: star.name,
       color: star.color,
+      radius: star.radius,
       ra,
       dec,
       distance,

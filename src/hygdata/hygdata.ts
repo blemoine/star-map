@@ -2,8 +2,9 @@ import { Feature, Point } from 'geojson';
 import { mkParsec } from '../measures/parsec';
 import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip7 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
-import { magnitudeAt, Star } from './hygdata.utils';
-import { findColorOf } from '../data/spectral-types-informations';
+import { magnitudeAt, Star, toAbsoluteMagnitude } from './hygdata.utils';
+import { findColorOf, findTemperatureOf } from '../data/spectral-types-informations';
+import { computeRadius } from '../stars/stars.utils';
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -69,13 +70,23 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                     return acc;
                   }
                 }
-                const color = findColorOf(row[spectralTypeIndex]);
-
+                const spectralType = row[spectralTypeIndex];
+                const color = findColorOf(spectralType);
+                const temperature = findTemperatureOf(spectralType);
+                if (isError(temperature)) {
+                  return temperature;
+                }
+                const radius = temperature
+                  ? computeRadius(temperature, toAbsoluteMagnitude(apparentMagnitude, distance))
+                  : null;
+                if (isError(radius)) {
+                  return acc;
+                }
                 acc.push({
                   id: id,
                   type: 'Feature',
                   geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                  properties: { apparentMagnitude, name, distance, ra, dec, color },
+                  properties: { apparentMagnitude, name, distance, ra, dec, color, radius },
                 });
 
                 return acc;

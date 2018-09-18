@@ -5,13 +5,15 @@ import { isError } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
-import { add, mkParsec } from '../measures/parsec';
+import { add, maxParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
+
+const baseAcceleration = mkParsec(0.000001);
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
     baseGeoJson: null,
-    currentAcceleration: mkParsec(0.01),
+    currentAcceleration: baseAcceleration,
     maxMagnitude: 4,
     rotation: {
       rotateLambda: 0,
@@ -22,7 +24,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   };
 
   private reinitAcceleration = debounce(() => {
-    this.setState((s) => ({ ...s, currentAcceleration: mkParsec(0.01) }));
+    this.setState((s) => ({ ...s, currentAcceleration: baseAcceleration }));
   }, 300);
 
   private keyPressListener = (e: KeyboardEvent) => {
@@ -37,8 +39,10 @@ export class AppStateContainer extends React.Component<{}, AppState> {
 
       const s = this.state;
       const newAcceleration =
-        s.currentAcceleration < 2 ? add(s.currentAcceleration, mkParsec(0.03)) : s.currentAcceleration;
-      //TODO refactor c'est la meme fonction que lonlat2xyz
+        s.currentAcceleration < 2
+          ? add(s.currentAcceleration, maxParsec(mkParsec(0.03), s.currentAcceleration))
+          : s.currentAcceleration;
+
       if (e.key === 'ArrowUp') {
         this.setState((state) => ({
           ...state,
@@ -56,33 +60,32 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       } else if (e.code === 'KeyW') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotatePhi:state.rotation.rotatePhi - 3}
+          rotation: { ...state.rotation, rotatePhi: state.rotation.rotatePhi - 3 },
         }));
       } else if (e.code === 'KeyS') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotatePhi:state.rotation.rotatePhi + 3}
+          rotation: { ...state.rotation, rotatePhi: state.rotation.rotatePhi + 3 },
         }));
       } else if (e.code === 'KeyA') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotateLambda:state.rotation.rotateLambda + 3}
+          rotation: { ...state.rotation, rotateLambda: state.rotation.rotateLambda + 3 },
         }));
       } else if (e.code === 'KeyD') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotateLambda:state.rotation.rotateLambda - 3}
+          rotation: { ...state.rotation, rotateLambda: state.rotation.rotateLambda - 3 },
         }));
-      }
-      else if (e.code === 'KeyQ') {
+      } else if (e.code === 'KeyQ') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotateGamma:state.rotation.rotateGamma + 3}
+          rotation: { ...state.rotation, rotateGamma: state.rotation.rotateGamma + 3 },
         }));
       } else if (e.code === 'KeyE') {
         this.setState((state) => ({
           ...state,
-          rotation: {...state.rotation, rotateGamma:state.rotation.rotateGamma - 3}
+          rotation: { ...state.rotation, rotateGamma: state.rotation.rotateGamma - 3 },
         }));
       }
     }

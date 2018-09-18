@@ -9,6 +9,7 @@ import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry
 import { isError, raise, Validated, zip } from '../utils/validated';
 import { Star } from '../hygdata/hygdata.utils';
 import { round } from '../utils/number';
+import { toKm } from '../measures/parsec';
 
 type Props = {
   geoJson: GeoJSON.FeatureCollection<Point, Star>;
@@ -113,22 +114,32 @@ export class StarMap extends React.Component<Props, {}> {
   }
 
   private update() {
+    const projection = this.projection;
     const geoGenerator = d3
       .geoPath()
-      .projection(this.projection)
+      .projection(projection)
       .pointRadius(function(d) {
+        //TODO real radius if > 0.1
         if (d && 'properties' in d && d.properties !== null) {
-          const magnitude = d.properties.apparentMagnitude;
-          if (magnitude === -Infinity) {
-            return 0;
-          } else if (magnitude < 0) {
-            return 3 - magnitude;
-          } else if (magnitude < 2) {
-            return 3;
-          } else if (magnitude < 3) {
-            return 2;
+          const star = d.properties;
+          const demiAngle = ((star.radius ? Math.atan2(star.radius, star.distance) : 0) * 360) / (2 * Math.PI);
+          if (demiAngle > 0.015) {
+            const [x0, y0] = projection([0, 0]) || [0, 0];
+            const [x1, y1] = projection([demiAngle, demiAngle]) || [0, 0];
+            const result = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)));
+
+            return result * 2;
           } else {
-            return 1;
+            const magnitude = star.apparentMagnitude;
+            if (magnitude === -Infinity) {
+              return 0;
+            } else if (magnitude < 2) {
+              return 3;
+            } else if (magnitude < 3) {
+              return 2;
+            } else {
+              return 1;
+            }
           }
         } else {
           return 0;
@@ -173,8 +184,13 @@ export class StarMap extends React.Component<Props, {}> {
         if (d.properties) {
           tooltip
             .style('visibility', 'visible')
-            .text(
-              d.properties.name + ': ' + round(d.properties.distance) + 'pc, ' + round(d.properties.apparentMagnitude)
+            .html(
+              [
+                d.properties.name,
+                'distance: ' + round(d.properties.distance, 8), //TODO display en k; si petit
+                'magnitude: ' + round(d.properties.apparentMagnitude),
+                'radius: ' + (d.properties.radius ? round(toKm(d.properties.radius)) : '?') + 'Km',
+              ].join('<br />')
             );
         }
       })

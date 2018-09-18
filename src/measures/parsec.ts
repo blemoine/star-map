@@ -6,12 +6,14 @@ declare class ParsecTag {
 export type Parsec = number & ParsecTag;
 
 export function mkParsec(n: 0): Parsec;
+export function mkParsec(n: 0.000001): Parsec;
+export function mkParsec(n: 0.0001): Parsec;
 export function mkParsec(n: 0.01): Parsec;
 export function mkParsec(n: 0.03): Parsec;
 export function mkParsec(n: 1): Parsec;
 export function mkParsec(n: 10): Parsec;
 export function mkParsec(n: number): Validated<Parsec>;
-export function mkParsec(n: number | 0 | 0.01 | 0.03 | 1 | 10): Validated<Parsec> {
+export function mkParsec(n: number | 0 | 0.000001 | 0.0001 | 0.01 | 0.03 | 1 | 10): Validated<Parsec> {
   if (n < 0) {
     return raise(`Cannot transform ${n} to parsec, must be positive`);
   } else {
@@ -25,4 +27,12 @@ export function add(p1: Parsec, p2: Parsec): Parsec {
     throw new Error(`It cannot happen, as ${p1} and ${p2} are parsec, there sum IS positive`);
   }
   return r;
+}
+
+export function toKm(p: Parsec): number {
+  return p * 3.08567758e13;
+}
+
+export function maxParsec(p1: Parsec, p2: Parsec): Parsec {
+  return p1 > p2 ? p1 : p2;
 }
