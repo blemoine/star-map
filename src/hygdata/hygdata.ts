@@ -86,7 +86,7 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                   id: id,
                   type: 'Feature',
                   geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                  properties: { apparentMagnitude, name, distance, ra, dec, color, radius },
+                  properties: { id, apparentMagnitude, name, distance, ra, dec, color, radius },
                 });
 
                 return acc;

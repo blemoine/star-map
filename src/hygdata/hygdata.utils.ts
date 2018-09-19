@@ -13,6 +13,7 @@ import { Vector3D, vectorLength } from '../geometry/vectors';
 import { GeometryObject } from 'geojson';
 
 export type Star = {
+  id: string,
   name: string;
   ra: RightAscension;
   dec: Declination;
@@ -57,6 +58,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
   return map(newCoord, ({ dec, ra, distance }) => {
     const apparentMagnitude = magnitudeAt(star.apparentMagnitude, star.distance, distance);
     return {
+      id: star.id,
       name: star.name,
       color: star.color,
       radius: star.radius,

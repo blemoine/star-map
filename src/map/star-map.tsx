@@ -22,6 +22,8 @@ export class StarMap extends React.Component<Props, {}> {
   private tooltipNode: HTMLDivElement | null = null;
   private projection: d3.GeoProjection = d3.geoOrthographic();
 
+  private selectedStar: Star | null = null;
+
   componentDidMount() {
     const height = this.svgNode ? this.svgNode.clientHeight : 600;
     const width = this.svgNode ? this.svgNode.clientWidth : 800;
@@ -182,19 +184,10 @@ export class StarMap extends React.Component<Props, {}> {
       .style('cursor', 'pointer')
       .on('mouseover', (d) => {
         if (d.properties) {
-          const radius = d.properties.radius;
-          const distance = d.properties.distance;
-
-          tooltip
-            .style('visibility', 'visible')
-            .html(
-              [
-                d.properties.name,
-                'distance: ' + (distance < 10e8 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
-                'magnitude: ' + round(d.properties.apparentMagnitude),
-                'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
-              ].join('<br />')
-            );
+          this.selectedStar = d.properties;
+          this.displayTooltip(d.properties);
+        } else {
+          this.selectedStar = null;
         }
       })
       .on('mousemove', function() {
@@ -203,7 +196,32 @@ export class StarMap extends React.Component<Props, {}> {
       })
       .on('mouseout', () => {
         tooltip.style('visibility', 'hidden');
+        this.selectedStar = null;
       });
+
+    if (!!this.selectedStar) {
+      const id = this.selectedStar.id;
+      const d = this.props.geoJson.features.find((feature) => feature.properties.id === id);
+      if (d) {
+        this.displayTooltip(d.properties);
+      }
+    }
+  }
+
+  private displayTooltip(star: Star) {
+    const tooltip =d3.select(this.tooltipNode)
+    const radius = star.radius;
+    const distance = star.distance;
+    tooltip
+      .style('visibility', 'visible')
+      .html(
+        [
+          star.name,
+          'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
+          'magnitude: ' + round(star.apparentMagnitude),
+          'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
+        ].join('<br />')
+      );
   }
 
   render() {
