@@ -182,14 +182,17 @@ export class StarMap extends React.Component<Props, {}> {
       .style('cursor', 'pointer')
       .on('mouseover', (d) => {
         if (d.properties) {
+          const radius = d.properties.radius;
+          const distance = d.properties.distance;
+
           tooltip
             .style('visibility', 'visible')
             .html(
               [
                 d.properties.name,
-                'distance: ' + round(d.properties.distance, 8), //TODO display en k; si petit
+                'distance: ' + (distance < 10e8 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
                 'magnitude: ' + round(d.properties.apparentMagnitude),
-                'radius: ' + (d.properties.radius ? round(toKm(d.properties.radius)) : '?') + 'Km',
+                'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
               ].join('<br />')
             );
         }
