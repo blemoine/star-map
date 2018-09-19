@@ -5,7 +5,7 @@ import { isError } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
-import { add, maxParsec, mkParsec } from '../measures/parsec';
+import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
 
 const baseAcceleration = mkParsec(0.000001);
@@ -32,7 +32,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
       const lat = toRadians(mkDegree(this.state.rotation.rotatePhi));
 
-      const acceleration = this.state.currentAcceleration;
+      const acceleration = e.shiftKey ? 1 : this.state.currentAcceleration;
       const x = Math.cos(lat) * Math.cos(lon) * acceleration;
       const y = Math.cos(lat) * Math.sin(lon) * acceleration;
       const z = -Math.sin(lat) * acceleration;
@@ -40,7 +40,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       const s = this.state;
       const newAcceleration =
         s.currentAcceleration < 2
-          ? add(s.currentAcceleration, maxParsec(mkParsec(0.03), s.currentAcceleration))
+          ? add(s.currentAcceleration, minParsec(mkParsec(0.003), s.currentAcceleration))
           : s.currentAcceleration;
 
       if (e.key === 'ArrowUp') {

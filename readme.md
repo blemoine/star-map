@@ -1,7 +1,8 @@
 TODO:
 
  
- * change displayed magnitude
+ 
+  * changer le style de projection
  
  * faire un beau loading
  * display error to the user
