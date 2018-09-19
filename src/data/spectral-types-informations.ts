@@ -1116,7 +1116,7 @@ const spectralTypeTable: { [key: string]: Kelvin } = rgbBySpectralType
   }, {});
 
 export function findTemperatureOf(spectralType: string): Kelvin | null {
-  const maybeSpectralTypePrincipal = spectralType.match(/^([A-Za-z0-9]+)/);
+  const maybeSpectralTypePrincipal = spectralType.match(/^([A-Z][0-9][IVab0=9]*)/);
 
   if (!maybeSpectralTypePrincipal) {
     return null;
@@ -1141,7 +1141,7 @@ const spectralTypeRgbTable: { [key: string]: [number, number, number] } = rgbByS
 
 const white: [number, number, number] = [255, 255, 255];
 export function findColorOf(spectralType: string): [number, number, number] {
-  const maybeSpectralTypePrincipal = spectralType.match(/^([A-Za-z0-9]+)/);
+  const maybeSpectralTypePrincipal = spectralType.match(/^([A-Z][0-9][IVab0=9]*)/);
 
   if (!maybeSpectralTypePrincipal) {
     return white;

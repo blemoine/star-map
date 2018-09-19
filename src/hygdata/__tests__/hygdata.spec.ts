@@ -60,18 +60,17 @@ describe('convertToGeoJson', () => {
       }
       expect(result.features).toEqual([
         {
-          geometry: {
-            coordinates: [-6.5708400000000005, -42.305981],
-            type: 'Point',
-          },
+          geometry: { coordinates: [-6.5708400000000005, -42.305981], type: 'Point' },
           id: '2076',
           properties: {
-            dec: -42.305981,
-            ra: 0.438056,
-            distance: 25.974,
             apparentMagnitude: 10.4,
-            name: 'Ankaa',
             color: [255, 227, 190],
+            dec: -42.305981,
+            distance: 25.974,
+            id: '2076',
+            name: 'Ankaa',
+            ra: 0.438056,
+            radius: 8.121814873393534e-9,
           },
           type: 'Feature',
         },
