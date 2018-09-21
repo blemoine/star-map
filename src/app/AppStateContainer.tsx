@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { parse } from 'papaparse';
 import { convertToGeoJson } from '../hygdata/hygdata';
-import { flatMap, isError, map } from '../utils/validated';
+import { isError } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
-import { convertConstellationToGeoJson } from '../constellations/constellations';
 
 const baseAcceleration = mkParsec(0.000001);
 
@@ -16,7 +15,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     baseGeoJson: null,
     baseConstellation: null,
     currentAcceleration: baseAcceleration,
-    maxMagnitude: 4,
+    maxMagnitude: 4.5,
     rotation: {
       rotateLambda: 0,
       rotatePhi: 0,
@@ -111,16 +110,12 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       }
       const csv = parsed.data;
 
-      const r = flatMap(convertToGeoJson(csv), (geoJson) => {
-        return map(convertConstellationToGeoJson(constellationJson, geoJson), (constellation) => {
-          return { geoJson, constellation };
-        });
-      });
+      const geoJson = convertToGeoJson(csv);
 
-      if (isError(r)) {
-        console.error(r.errors());
+      if (isError(geoJson)) {
+        console.error(geoJson.errors());
       } else {
-        this.setState((s) => ({ ...s, baseGeoJson: r.geoJson, baseConstellation: r.constellation }));
+        this.setState((s) => ({ ...s, baseGeoJson: geoJson, baseConstellation: constellationJson }));
       }
     });
 

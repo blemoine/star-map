@@ -1,15 +1,14 @@
-import { map, raise, sequence, Validated } from '../utils/validated';
-import { Feature, LineString, Point, Position } from 'geojson';
+import { LineString, Point, Position } from 'geojson';
 import { Star } from '../hygdata/hygdata.utils';
 
 export function convertConstellationToGeoJson(
   constellations: Array<Array<[string, string]>>,
   starsGeoJson: GeoJSON.FeatureCollection<Point, Star>
-): Validated<GeoJSON.FeatureCollection<LineString, {}>> {
-  const maybeFeatures = sequence(
-    constellations.map((constellation) => {
-      const maybeGeometry: Validated<Array<Position>> = sequence(
-        constellation.map(([con, bayer]) => {
+): GeoJSON.FeatureCollection<LineString, {}> {
+  const features: Array<GeoJSON.Feature<LineString, {}>> = constellations.map(
+    (constellation): GeoJSON.Feature<LineString, {}> => {
+      const coordinates: Array<Position> = constellation
+        .map(([con, bayer]) => {
           const bayerLower = bayer.toLowerCase();
           const conLower = con.toLowerCase();
           const star = starsGeoJson.features.find((f) => {
@@ -25,28 +24,21 @@ export function convertConstellationToGeoJson(
           if (star) {
             return star.geometry.coordinates;
           } else {
-            return raise(`Count not find a star for constellation ${con} and  bayer '${bayer}'`);
+            return null;
           }
         })
-      );
+        .filter((x): x is Position => x !== null);
 
-      return map(
-        maybeGeometry,
-        (geometry): Feature<LineString, {}> => {
-          return {
-            type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: geometry,
-            },
-            properties: {},
-          };
-        }
-      );
-    })
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates,
+        },
+        properties: {},
+      };
+    }
   );
-  return map(
-    maybeFeatures,
-    (features): GeoJSON.FeatureCollection<LineString, {}> => ({ type: 'FeatureCollection', features })
-  );
+
+  return { type: 'FeatureCollection', features };
 }
