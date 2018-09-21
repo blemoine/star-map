@@ -21,7 +21,7 @@ type Props = {
 export class StarMap extends React.Component<Props, {}> {
   private svgNode: SVGSVGElement | null = null;
   private tooltipNode: HTMLDivElement | null = null;
-  private projection: d3.GeoProjection = d3.geoOrthographic();
+  private projection: d3.GeoProjection = d3.geoStereographic();
 
   private selectedStar: Star | null = null;
 
@@ -29,7 +29,7 @@ export class StarMap extends React.Component<Props, {}> {
     const height = this.svgNode ? this.svgNode.clientHeight : 600;
     const width = this.svgNode ? this.svgNode.clientWidth : 800;
 
-    const defaultScale = Math.min(width / Math.PI, height / Math.PI);
+    const defaultScale = Math.min(width / Math.PI, height / Math.PI) * 3;
     const rotation = this.props.rotation;
     this.projection
       .scale(defaultScale)
@@ -158,18 +158,19 @@ export class StarMap extends React.Component<Props, {}> {
       .attr('d', geoGenerator);
 
     const tooltip = d3.select(this.tooltipNode);
-    const constellationPath = svg.select('g.map')
+    const constellationPath = svg
+      .select('g.map')
       .selectAll('path.constellation')
       .data(this.props.constellation.features);
-    constellationPath.exit().remove()
-    constellationPath.enter()
+    constellationPath.exit().remove();
+    constellationPath
+      .enter()
       .append('path')
       .merge(constellationPath)
       .attr('d', geoGenerator)
       .attr('class', 'constellation')
       .style('stroke', '#444')
-      .style('fill', 'transparent')
-
+      .style('fill', 'transparent');
 
     const starsPath = svg
       .select('g.map')
@@ -224,14 +225,14 @@ export class StarMap extends React.Component<Props, {}> {
   }
 
   private displayTooltip(star: Star) {
-    const tooltip =d3.select(this.tooltipNode)
+    const tooltip = d3.select(this.tooltipNode);
     const radius = star.radius;
     const distance = star.distance;
     tooltip
       .style('visibility', 'visible')
       .html(
         [
-          star.name,
+          star.name + ' - ' + star.constellation + ', ' + star.bayer,
           'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',

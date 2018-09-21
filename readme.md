@@ -5,8 +5,6 @@ What does the night sky look like in other places in the galaxy?
  * merci hygdata
  * navgiate with arrozs and qweasd
  
-
-
 TODO:
 
  * Use a webworker for intensive computation 
