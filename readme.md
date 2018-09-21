@@ -10,7 +10,7 @@ TODO:
  * Use a webworker for intensive computation 
  * faire un beau loading
  * display error to the user
- * le zoom es tpourri, l'ameliorer
+ * le zoom es tpourri, l'ameliorer 
  * Rendre Configurable la limit de deplacement 
  * Avoir un script qui precompute les donnés que l'on veut (couleur + radius) et charger ses données la
  

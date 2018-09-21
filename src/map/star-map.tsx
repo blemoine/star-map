@@ -180,6 +180,7 @@ export class StarMap extends React.Component<Props, {}> {
     starsPath
       .enter()
       .append('path')
+      .raise()
       .merge(starsPath)
       .attr('d', geoGenerator)
       .attr('class', 'star')
