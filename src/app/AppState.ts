@@ -11,4 +11,5 @@ export type AppState = {
   rotation: Rotation;
   position: Vector3D;
   currentAcceleration: Parsec;
+  displayConstellation: boolean;
 };

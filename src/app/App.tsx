@@ -10,7 +10,7 @@ import { Vector3D } from '../geometry/vectors';
 import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
-import { convertConstellationToGeoJson } from '../constellations/constellations';
+import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
 
 function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
   return geoJsonCollect(
@@ -49,6 +49,7 @@ export const App = (props: {
   rotation: Rotation;
   position: Vector3D;
   acceleration: Parsec;
+  displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
 }) => {
   const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
@@ -57,7 +58,9 @@ export const App = (props: {
     // TODO beautiful error
     return <div>ERROR geoJson</div>;
   } else {
-    const constellation = convertConstellationToGeoJson(props.baseConstellation, geoJson);
+    const constellation = props.displayConstellation
+      ? convertConstellationToGeoJson(props.baseConstellation, geoJson)
+      : emptyConstellations;
 
     return (
       <>
@@ -70,6 +73,8 @@ export const App = (props: {
           }}
         >
           <Controls
+            displayConstellation={props.displayConstellation}
+            displayConstellationChange={(displayConstellation) => props.updateState({ displayConstellation })}
             magnitude={props.maxMagnitude}
             magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
           />

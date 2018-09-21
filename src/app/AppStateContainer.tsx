@@ -22,6 +22,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       rotateGamma: 0,
     },
     position: [0, 0, 0],
+    displayConstellation: true,
   };
 
   private reinitAcceleration = debounce(() => {
@@ -136,6 +137,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
           baseConstellation={baseConstellation}
           acceleration={this.state.currentAcceleration}
           maxMagnitude={this.state.maxMagnitude}
+          displayConstellation={this.state.displayConstellation}
           position={this.state.position}
           rotation={this.state.rotation}
           updateState={(partialState) => this.setState((previousState) => ({ ...previousState, ...partialState }))}

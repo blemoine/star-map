@@ -1,6 +1,8 @@
 import { LineString, Point, Position } from 'geojson';
 import { Star } from '../hygdata/hygdata.utils';
 
+export const emptyConstellations: GeoJSON.FeatureCollection<LineString, {}> = { type: 'FeatureCollection', features: [] };
+
 export function convertConstellationToGeoJson(
   constellations: Array<Array<[string, string]>>,
   starsGeoJson: GeoJSON.FeatureCollection<Point, Star>
