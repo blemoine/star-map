@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { parse } from 'papaparse';
 import { convertToGeoJson } from '../hygdata/hygdata';
-import { isError } from '../utils/validated';
+import { flatMap, isError, map } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
+import { convertConstellationToGeoJson } from '../constellations/constellations';
 
 const baseAcceleration = mkParsec(0.000001);
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
     baseGeoJson: null,
+    baseConstellation: null,
     currentAcceleration: baseAcceleration,
     maxMagnitude: 4,
     rotation: {
@@ -92,28 +94,36 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   };
 
   componentDidMount() {
-    fetch('data/hygdata_v3.csv')
-      .then((r) => r.text())
-      .then((rawCsv) => {
-        const parsed = parse(rawCsv);
-        if (parsed.errors.length > 0) {
-          /*
-          TODO display errors ?
-          const [headError, ...tailErrors] = parsed.errors;
+    Promise.all([
+      fetch('data/constellation.json').then((r) => r.json()),
+      fetch('data/hygdata_v3.csv').then((r) => r.text()),
+    ]).then(([constellationJson, rawCsv]: [Array<Array<[string, string]>>, string]) => {
+      const parsed = parse(rawCsv);
+      if (parsed.errors.length > 0) {
+        /*
+        TODO display errors ?
+        const [headError, ...tailErrors] = parsed.errors;
 
-          const baseErr = raise(headError.message, headError);
-          return tailErrors.reduce((err, e) => err.combine(raise(e.message, e)), baseErr);
-          */
-          console.error(parsed.errors);
-        }
-        const csv = parsed.data;
-        const geoJson = convertToGeoJson(csv);
-        if (isError(geoJson)) {
-          console.error(geoJson.errors());
-        } else {
-          this.setState((s) => ({ ...s, baseGeoJson: geoJson }));
-        }
+        const baseErr = raise(headError.message, headError);
+        return tailErrors.reduce((err, e) => err.combine(raise(e.message, e)), baseErr);
+        */
+        console.error(parsed.errors);
+      }
+      const csv = parsed.data;
+
+      const r = flatMap(convertToGeoJson(csv), (geoJson) => {
+        return map(convertConstellationToGeoJson(constellationJson, geoJson), (constellation) => {
+          return { geoJson, constellation };
+        });
       });
+
+      if (isError(r)) {
+        console.error(r.errors());
+      } else {
+        this.setState((s) => ({ ...s, baseGeoJson: r.geoJson, baseConstellation: r.constellation }));
+      }
+    });
+
     document.addEventListener('keydown', this.keyPressListener);
   }
 
@@ -123,10 +133,12 @@ export class AppStateContainer extends React.Component<{}, AppState> {
 
   render() {
     const baseGeoJson = this.state.baseGeoJson;
-    if (!!baseGeoJson) {
+    const baseConstellation = this.state.baseConstellation;
+    if (!!baseGeoJson && !!baseConstellation) {
       return (
         <App
           baseGeoJson={baseGeoJson}
+          baseConstellation={baseConstellation}
           acceleration={this.state.currentAcceleration}
           maxMagnitude={this.state.maxMagnitude}
           position={this.state.position}

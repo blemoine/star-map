@@ -36,6 +36,21 @@ export function isError<A>(v: Validated<A>): v is Err {
   return v && (v as Err).kind === 'error';
 }
 
+export function sequence<A>(arr: Array<Validated<A>>): Validated<Array<A>> {
+  return arr.reduce((v1: Validated<Array<A>>, v2) => {
+    if (isError(v1) && isError(v2)) {
+      return v1.combine(v2);
+    } else if (isError(v1)) {
+      return v1;
+    } else if (isError(v2)) {
+      return v2;
+    } else {
+      v1.push(v2);
+      return v1;
+    }
+  }, []);
+}
+
 export function getOrElse<A>(v: Validated<A>, orElse: A): A {
   if (isError(v)) {
     return orElse;
@@ -118,5 +133,56 @@ export function zip7<A, B, C, D, E, F, G>(
   return map(
     zip(zip6(v1, v2, v3, v4, v5, v6), v7),
     ([[a, b, c, d, e, f], g]): [A, B, C, D, E, F, G] => [a, b, c, d, e, f, g]
+  );
+}
+
+export function zip8<A, B, C, D, E, F, G, H>(
+  v1: Validated<A>,
+  v2: Validated<B>,
+  v3: Validated<C>,
+  v4: Validated<D>,
+  v5: Validated<E>,
+  v6: Validated<F>,
+  v7: Validated<G>,
+  v8: Validated<H>
+): Validated<[A, B, C, D, E, F, G, H]> {
+  return map(
+    zip(zip7(v1, v2, v3, v4, v5, v6, v7), v8),
+    ([[a, b, c, d, e, f, g], h]): [A, B, C, D, E, F, G, H] => [a, b, c, d, e, f, g, h]
+  );
+}
+
+export function zip9<A, B, C, D, E, F, G, H, I>(
+  v1: Validated<A>,
+  v2: Validated<B>,
+  v3: Validated<C>,
+  v4: Validated<D>,
+  v5: Validated<E>,
+  v6: Validated<F>,
+  v7: Validated<G>,
+  v8: Validated<H>,
+  v9: Validated<I>
+): Validated<[A, B, C, D, E, F, G, H, I]> {
+  return map(
+    zip(zip8(v1, v2, v3, v4, v5, v6, v7, v8), v9),
+    ([[a, b, c, d, e, f, g, h], i]): [A, B, C, D, E, F, G, H, I] => [a, b, c, d, e, f, g, h, i]
+  );
+}
+
+export function zip10<A, B, C, D, E, F, G, H, I, J>(
+  v1: Validated<A>,
+  v2: Validated<B>,
+  v3: Validated<C>,
+  v4: Validated<D>,
+  v5: Validated<E>,
+  v6: Validated<F>,
+  v7: Validated<G>,
+  v8: Validated<H>,
+  v9: Validated<I>,
+  v10: Validated<J>
+): Validated<[A, B, C, D, E, F, G, H, I, J]> {
+  return map(
+    zip(zip9(v1, v2, v3, v4, v5, v6, v7, v8, v9), v10),
+    ([[a, b, c, d, e, f, g, h, i], j]): [A, B, C, D, E, F, G, H, I, J] => [a, b, c, d, e, f, g, h, i, j]
   );
 }

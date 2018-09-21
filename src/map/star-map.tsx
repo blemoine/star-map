@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Point } from 'geojson';
+import { LineString, Point } from 'geojson';
 import * as d3 from 'd3';
 import './star-map.css';
 import { Rotation } from '../geometry/rotation';
@@ -12,6 +12,7 @@ import { round } from '../utils/number';
 import { toKm } from '../measures/parsec';
 
 type Props = {
+  constellation: GeoJSON.FeatureCollection<LineString, {}>;
   geoJson: GeoJSON.FeatureCollection<Point, Star>;
   rotation: Rotation;
   rotationChange: (rotation: Rotation) => void;
@@ -157,9 +158,22 @@ export class StarMap extends React.Component<Props, {}> {
       .attr('d', geoGenerator);
 
     const tooltip = d3.select(this.tooltipNode);
+    const constellationPath = svg.select('g.map')
+      .selectAll('path.constellation')
+      .data(this.props.constellation.features);
+    constellationPath.exit().remove()
+    constellationPath.enter()
+      .append('path')
+      .merge(constellationPath)
+      .attr('d', geoGenerator)
+      .attr('class', 'constellation')
+      .style('stroke', '#444')
+      .style('fill', 'transparent')
+
+
     const starsPath = svg
       .select('g.map')
-      .selectAll('path')
+      .selectAll('path.star')
       .data(this.props.geoJson.features);
     starsPath.exit().remove();
     starsPath
@@ -167,6 +181,7 @@ export class StarMap extends React.Component<Props, {}> {
       .append('path')
       .merge(starsPath)
       .attr('d', geoGenerator)
+      .attr('class', 'star')
       .style('fill', (d) => {
         if (d === null || d.properties === null) {
           return '';

@@ -1,6 +1,6 @@
 import { Feature, Point } from 'geojson';
 import { mkParsec } from '../measures/parsec';
-import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip7 } from '../utils/validated';
+import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip10 } from '../utils/validated';
 import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
 import { magnitudeAt, Star, toAbsoluteMagnitude } from './hygdata.utils';
 import { findColorOf, findTemperatureOf } from '../data/spectral-types-informations';
@@ -29,16 +29,30 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
   const indexOf = indexOfHeader(headers);
 
   return flatMap(
-    zip7(
+    zip10(
       indexOf('proper'),
       indexOf('mag'),
       indexOf('dist'),
       indexOf('ra'),
       indexOf('dec'),
       indexOf('id'),
-      indexOf('spect')
+      indexOf('spect'),
+      indexOf('con'),
+      indexOf('bayer'),
+      indexOf('flam')
     ),
-    ([properIndex, magIndex, distIndex, raIndex, decIndex, idIndex, spectralTypeIndex]) => {
+    ([
+      properIndex,
+      magIndex,
+      distIndex,
+      raIndex,
+      decIndex,
+      idIndex,
+      spectralTypeIndex,
+      conIndex,
+      bayerIndex,
+      flamIndex,
+    ]) => {
       const maybeFeatures = csv.reduce(
         (
           maybeAcc: Validated<Array<Feature<Point, Star>>>,
@@ -82,11 +96,25 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                 if (isError(radius)) {
                   return acc;
                 }
+                const constellation = row[conIndex].toLowerCase();
+                const bayer = row[bayerIndex].toLowerCase();
+                const flam = row[flamIndex].toLowerCase();
                 acc.push({
                   id: id,
                   type: 'Feature',
                   geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-                  properties: { id, apparentMagnitude, name, distance, ra, dec, color, radius },
+                  properties: {
+                    id,
+                    apparentMagnitude,
+                    name,
+                    distance,
+                    ra,
+                    dec,
+                    color,
+                    radius,
+                    bayer: bayer || flam,
+                    constellation,
+                  },
                 });
 
                 return acc;

@@ -64,6 +64,8 @@ describe('convertToGeoJson', () => {
           id: '2076',
           properties: {
             apparentMagnitude: 10.4,
+            bayer: 'alp',
+            constellation: 'phe',
             color: [255, 227, 190],
             dec: -42.305981,
             distance: 25.974,

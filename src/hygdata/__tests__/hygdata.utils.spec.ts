@@ -47,6 +47,8 @@ describe('moveOrigin', () => {
           apparentMagnitude,
           color: [255, 255, 255],
           radius: null,
+          bayer: null,
+          constellation: 'test'
         };
 
         const result = moveOrigin(origin, star);
@@ -78,6 +80,8 @@ describe('moveOrigin', () => {
           apparentMagnitude: 5,
           color: [255, 255, 255],
           radius: null,
+          bayer: null,
+          constellation: 'test'
         };
         const result = moveOrigin(origin, star);
         if (isError(result)) {

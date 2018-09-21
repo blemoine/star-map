@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Controls } from '../controls/controls';
 import { StarMap } from '../map/star-map';
 import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
-import { Point } from 'geojson';
+import { LineString, Point } from 'geojson';
 import { isError } from '../utils/validated';
 import { decRaToGeo } from '../geometry/coordinates';
 import { AppState } from './AppState';
@@ -43,12 +43,14 @@ function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, max
 
 export const App = (props: {
   baseGeoJson: GeoJSON.FeatureCollection<Point, Star>;
+  baseConstellation: GeoJSON.FeatureCollection<LineString, {}>;
   maxMagnitude: number;
   rotation: Rotation;
   position: Vector3D;
   acceleration: Parsec;
   updateState: (s: Partial<AppState>) => void;
 }) => {
+  const constellation = props.baseConstellation
   const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
   if (isError(geoJson)) {
     console.error(geoJson.errors());
@@ -85,6 +87,7 @@ export const App = (props: {
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
           {geoJson ? (
             <StarMap
+              constellation={constellation}
               geoJson={geoJson}
               rotation={props.rotation}
               rotationChange={(rotation) => props.updateState({ rotation })}
