@@ -1,28 +1,18 @@
 import { mkParsec, Parsec } from '../measures/parsec';
-import {
-  Declination,
-  decRaToGeo,
-  GeoCoordinates,
-  geoToDecRa,
-  lonlat2xyz,
-  RightAscension,
-  xyzToLonLat,
-} from '../geometry/coordinates';
-import { flatMap, map, Validated } from '../utils/validated';
+import { map, Validated } from '../utils/validated';
 import { Vector3D, vectorLength } from '../geometry/vectors';
 import { GeometryObject } from 'geojson';
 
 export type Star = {
-  id: string,
+  id: string;
   name: string;
-  ra: RightAscension;
-  dec: Declination;
   distance: Parsec;
   apparentMagnitude: number;
-  color: [number,number,number],
-  radius: Parsec | null,
-  constellation: string,
-  bayer: string | null
+  color: [number, number, number];
+  radius: Parsec | null;
+  constellation: string;
+  bayer: string | null;
+  coordinates: Vector3D;
 };
 
 export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
@@ -33,31 +23,23 @@ export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number)
   return magnitudeAt(absoluteMagnitude, mkParsec(10), distance);
 }
 
-export function toAbsoluteMagnitude(baseMagnitude: number, baseDistance: Parsec,): number {
-  return magnitudeAt(baseMagnitude, baseDistance, mkParsec(10))
+export function toAbsoluteMagnitude(baseMagnitude: number, baseDistance: Parsec): number {
+  return magnitudeAt(baseMagnitude, baseDistance, mkParsec(10));
 }
 
 export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
-  const newCoord = flatMap(decRaToGeo([star.dec, star.ra]), (latLon) => {
-    const unitXyz = lonlat2xyz(latLon);
+  const coordinates: Vector3D = [
+    star.coordinates[0] - newOrigin[0],
+    star.coordinates[1] - newOrigin[1],
+    star.coordinates[2] - newOrigin[2],
+  ];
+  const maybeDistance = mkParsec(vectorLength(coordinates));
+  const newCoord = map(maybeDistance, (distance) => ({
+    distance,
+    coordinates,
+  }));
 
-    const xyz: Vector3D = [
-      unitXyz[0] * star.distance - newOrigin[0],
-      unitXyz[1] * star.distance - newOrigin[1],
-      unitXyz[2] * star.distance - newOrigin[2],
-    ];
-    const lonlat: Validated<GeoCoordinates> = xyzToLonLat(xyz);
-    return flatMap(flatMap(lonlat, geoToDecRa), ([dec, ra]) => {
-      const maybeDistance = mkParsec(vectorLength(xyz));
-      return map(maybeDistance, (distance) => ({
-        ra,
-        dec,
-        distance,
-      }));
-    });
-  });
-
-  return map(newCoord, ({ dec, ra, distance }) => {
+  return map(newCoord, ({ distance, coordinates }) => {
     const apparentMagnitude = magnitudeAt(star.apparentMagnitude, star.distance, distance);
     return {
       id: star.id,
@@ -66,8 +48,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
       radius: star.radius,
       constellation: star.constellation,
       bayer: star.bayer,
-      ra,
-      dec,
+      coordinates,
       distance,
       apparentMagnitude,
     };

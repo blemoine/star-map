@@ -4,7 +4,7 @@ import { StarMap } from '../map/star-map';
 import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { Point } from 'geojson';
 import { isError } from '../utils/validated';
-import { decRaToGeo } from '../geometry/coordinates';
+import { xyzToLonLat } from '../geometry/coordinates';
 import { AppState } from './AppState';
 import { Vector3D } from '../geometry/vectors';
 import { Rotation } from '../geometry/rotation';
@@ -25,7 +25,7 @@ function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, max
         console.error(newStar.errors());
         return f;
       } else {
-        const coordinates = decRaToGeo([newStar.dec, newStar.ra]);
+        const coordinates = xyzToLonLat(newStar.coordinates);
         if (isError(coordinates)) {
           console.error(coordinates.errors());
           return f;

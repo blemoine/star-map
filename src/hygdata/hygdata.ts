@@ -1,10 +1,11 @@
 import { Feature, Point } from 'geojson';
 import { mkParsec } from '../measures/parsec';
-import { errorMap, flatMap, isError, map, raise, Validated, zip4, zip10 } from '../utils/validated';
-import { decRaToGeo, mkLatitude, mkRightAscension } from '../geometry/coordinates';
+import { errorMap, flatMap, isError, map, raise, Validated, zip11, zip5 } from '../utils/validated';
+import { xyzToLonLat } from '../geometry/coordinates';
 import { magnitudeAt, Star, toAbsoluteMagnitude } from './hygdata.utils';
 import { findColorOf, findTemperatureOf } from '../data/spectral-types-informations';
 import { computeRadius } from '../stars/stars.utils';
+import { Vector3D } from '../geometry/vectors';
 
 const indexOfHeader = (headers: Array<string>) => (needle: string): Validated<number> => {
   const result = headers.indexOf(needle);
@@ -29,12 +30,13 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
   const indexOf = indexOfHeader(headers);
 
   return flatMap(
-    zip10(
+    zip11(
       indexOf('proper'),
       indexOf('mag'),
       indexOf('dist'),
-      indexOf('ra'),
-      indexOf('dec'),
+      indexOf('x'),
+      indexOf('y'),
+      indexOf('z'),
       indexOf('id'),
       indexOf('spect'),
       indexOf('con'),
@@ -45,8 +47,9 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
       properIndex,
       magIndex,
       distIndex,
-      raIndex,
-      decIndex,
+      xIndex,
+      yIndex,
+      zIndex,
       idIndex,
       spectralTypeIndex,
       conIndex,
@@ -71,12 +74,15 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
           const result = flatMap(maybeMag, (apparentMagnitude) => {
             const name = row[properIndex];
 
-            const maybeRa = flatMap(parseToFloat(row[raIndex]), mkRightAscension);
-            const maybeDec = flatMap(parseToFloat(row[decIndex]), mkLatitude);
+            const maybeX = parseToFloat(row[xIndex]);
+            const maybeY = parseToFloat(row[yIndex]);
+            const maybeZ = parseToFloat(row[zIndex]);
 
-            return map(zip4(maybeAcc, maybeDec, maybeRa, maybeDist), ([acc, dec, ra, distance]) => {
+            return map(zip5(maybeAcc, maybeX, maybeY, maybeZ, maybeDist), ([acc, x, y, z, distance]) => {
               const id = row[idIndex];
-              return map(decRaToGeo([dec, ra]), (coordinates) => {
+              const coordXYZ: Vector3D = [x, y, z];
+
+              return map(xyzToLonLat(coordXYZ), (coordinates) => {
                 const maxNavigationRadius = 200;
                 if (distance > maxNavigationRadius) {
                   const newD = mkParsec(distance - maxNavigationRadius);
@@ -108,8 +114,7 @@ export function convertToGeoJson(csv: Array<Array<string>>): Validated<GeoJSON.F
                     apparentMagnitude,
                     name,
                     distance,
-                    ra,
-                    dec,
+                    coordinates: coordXYZ,
                     color,
                     radius,
                     bayer: bayer || flam,

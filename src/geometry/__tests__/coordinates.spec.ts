@@ -52,11 +52,11 @@ describe('lonlat2xyz and xyzToLonLat', () => {
 
         const result = xyzToLonLat(lonlat2xyz(input));
         if (isError(result)) {
-          return fail(`For input ${input}, to result valid were generated, ` + result);
+          return fail(`For input ${input}, to result valid were generated, ` + JSON.stringify(result));
         }
         expect(result.length).toEqual(2);
-        expect(result[0]).toBeCloseTo(input[0], 5);
-        expect(result[1]).toBeCloseTo(input[1], 5);
+        expect(result[0]).toBeCloseTo(input[0], 3);
+        expect(result[1]).toBeCloseTo(input[1], 3);
       })
     );
   });

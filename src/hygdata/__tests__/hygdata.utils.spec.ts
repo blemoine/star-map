@@ -1,11 +1,10 @@
 import { moveOrigin, Star, toApparentMagnitude } from '../hygdata.utils';
-import { mkParsec, Parsec } from '../../measures/parsec';
+import { mkParsec } from '../../measures/parsec';
 import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
-import { Declination, geoToDecRa, RightAscension, xyzToLonLat } from '../../geometry/coordinates';
 import { arbitray } from '../../tests/utils/arbitraries';
-import { flatMap, isError } from '../../utils/validated';
-import { Vector3D } from '../../geometry/vectors';
+import { isError } from '../../utils/validated';
+import { Vector3D, vectorLength } from '../../geometry/vectors';
 
 describe('toApparentMagnitude', () => {
   it('should work as identity function if distance is 10 parsec', () => {
@@ -32,23 +31,23 @@ describe('moveOrigin', () => {
     const origin: Vector3D = [0, 0, 0];
 
     fc.assert(
-      fc.property(fc.float(), arbitray.ra, arbitray.dec, arbitray.parsec, function(
+      fc.property(fc.float(), fc.float(), fc.float(), fc.float(), function(
         apparentMagnitude: number,
-        ra: RightAscension,
-        dec: Declination,
-        distance: Parsec
+        x: number,
+        y: number,
+        z: number
       ) {
+        const coordinates: Vector3D = [x, y, z];
         const star: Star = {
           id: '123',
           name: 'test',
-          ra,
-          dec,
-          distance,
+          coordinates: coordinates,
+          distance: getOrThrow(mkParsec(vectorLength(coordinates))),
           apparentMagnitude,
           color: [255, 255, 255],
           radius: null,
           bayer: null,
-          constellation: 'test'
+          constellation: 'test',
         };
 
         const result = moveOrigin(origin, star);
@@ -56,8 +55,7 @@ describe('moveOrigin', () => {
           return fail(`The result should be a star for inputs ${origin} and ${star}`);
         }
 
-        expect(result.ra).toBeCloseTo(star.ra, 6);
-        expect(result.dec).toBeCloseTo(star.dec, 6);
+        expect(result.coordinates).toEqual(star.coordinates);
         expect(result.distance).toBeCloseTo(star.distance, 6);
         expect(result.apparentMagnitude).toBeCloseTo(star.apparentMagnitude, 6);
       })
@@ -67,28 +65,28 @@ describe('moveOrigin', () => {
   it('should substract distance if going in the original direction', () => {
     fc.assert(
       fc.property(fc.float().filter((i) => i > 0), arbitray.parsec, function(baseDistance: number, newCoord: number) {
-        const starCartesian: Vector3D = [baseDistance, 0, 0];
-        const [dec, ra] = getOrThrow(flatMap(xyzToLonLat(starCartesian), geoToDecRa));
+        const coordinates: Vector3D = [baseDistance, 0, 0];
 
         const origin: Vector3D = [newCoord, 0, 0];
         const star: Star = {
           id: '123',
           name: 'test',
-          dec,
-          ra,
           distance: getOrThrow(mkParsec(Math.abs(baseDistance))),
           apparentMagnitude: 5,
           color: [255, 255, 255],
           radius: null,
           bayer: null,
-          constellation: 'test'
+          coordinates: coordinates,
+          constellation: 'test',
         };
         const result = moveOrigin(origin, star);
         if (isError(result)) {
           return fail(`The result should be a star for inputs ${origin} and ${star}`);
         }
 
-        expect(result.dec).toBe(0);
+        expect(result.coordinates[0]).toBe(baseDistance - newCoord);
+        expect(result.coordinates[1]).toBe(0);
+        expect(result.coordinates[2]).toBe(0);
         expect(result.distance).toBeCloseTo(Math.abs(baseDistance - newCoord), 6);
       })
     );

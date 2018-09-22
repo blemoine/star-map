@@ -8,7 +8,7 @@ import { Degree, euler2quat, mkDegree, quat2euler } from '../geometry/euler-angl
 import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry/coordinates';
 import { isError, raise, Validated, zip } from '../utils/validated';
 import { Star } from '../hygdata/hygdata.utils';
-import { round } from '../utils/number';
+import { fastAtan2, round } from '../utils/number';
 import { toKm } from '../measures/parsec';
 
 type Props = {
@@ -125,7 +125,7 @@ export class StarMap extends React.Component<Props, {}> {
         //TODO real radius if > 0.1
         if (d && 'properties' in d && d.properties !== null) {
           const star = d.properties;
-          const demiAngle = ((star.radius ? Math.atan2(star.radius, star.distance) : 0) * 360) / (2 * Math.PI);
+          const demiAngle = ((star.radius ? fastAtan2(star.radius, star.distance) : 0) * 360) / (2 * Math.PI);
           if (demiAngle > 0.015) {
             const [x0, y0] = projection([0, 0]) || [0, 0];
             const [x1, y1] = projection([demiAngle, demiAngle]) || [0, 0];

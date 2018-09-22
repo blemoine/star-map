@@ -186,3 +186,22 @@ export function zip10<A, B, C, D, E, F, G, H, I, J>(
     ([[a, b, c, d, e, f, g, h, i], j]): [A, B, C, D, E, F, G, H, I, J] => [a, b, c, d, e, f, g, h, i, j]
   );
 }
+
+export function zip11<A, B, C, D, E, F, G, H, I, J, K>(
+  v1: Validated<A>,
+  v2: Validated<B>,
+  v3: Validated<C>,
+  v4: Validated<D>,
+  v5: Validated<E>,
+  v6: Validated<F>,
+  v7: Validated<G>,
+  v8: Validated<H>,
+  v9: Validated<I>,
+  v10: Validated<J>,
+  v11: Validated<K>
+): Validated<[A, B, C, D, E, F, G, H, I, J, K]> {
+  return map(
+    zip(zip10(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10), v11),
+    ([[a, b, c, d, e, f, g, h, i, j], k]): [A, B, C, D, E, F, G, H, I, J, K] => [a, b, c, d, e, f, g, h, i, j, k]
+  );
+}

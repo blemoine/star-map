@@ -40,15 +40,20 @@ describe('convertToGeoJson', () => {
 
       expectToBeError(result, [`dist header was not found in the list of headers`]);
     });
-    it('should return an error if there is no "ra" header ', () => {
+    it('should return an error if there is no "x" header ', () => {
       const result = convertToGeoJson([oneValidCsvRow]);
 
-      expectToBeError(result, [`ra header was not found in the list of headers`]);
+      expectToBeError(result, [`x header was not found in the list of headers`]);
     });
-    it('should return an error if there is no "dec" header ', () => {
+    it('should return an error if there is no "y" header ', () => {
       const result = convertToGeoJson([oneValidCsvRow]);
 
-      expectToBeError(result, [`dec header was not found in the list of headers`]);
+      expectToBeError(result, [`y header was not found in the list of headers`]);
+    });
+    it('should return an error if there is no "z" header ', () => {
+      const result = convertToGeoJson([oneValidCsvRow]);
+
+      expectToBeError(result, [`z header was not found in the list of headers`]);
     });
   });
 
@@ -60,18 +65,17 @@ describe('convertToGeoJson', () => {
       }
       expect(result.features).toEqual([
         {
-          geometry: { coordinates: [-6.5708400000000005, -42.305981], type: 'Point' },
+          geometry: { coordinates: [-6.5710427108462115, -42.30598180870714], type: 'Point' },
           id: '2076',
           properties: {
             apparentMagnitude: 10.4,
             bayer: 'alp',
             constellation: 'phe',
             color: [255, 227, 190],
-            dec: -42.305981,
             distance: 25.974,
             id: '2076',
             name: 'Ankaa',
-            ra: 0.438056,
+            coordinates: [19.083654, 2.198282, -17.483284],
             radius: 8.121814873393534e-9,
           },
           type: 'Feature',
