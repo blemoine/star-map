@@ -55,8 +55,8 @@ describe('lonlat2xyz and xyzToLonLat', () => {
           return fail(`For input ${input}, to result valid were generated, ` + JSON.stringify(result));
         }
         expect(result.length).toEqual(2);
-        expect(result[0]).toBeCloseTo(input[0], 3);
-        expect(result[1]).toBeCloseTo(input[1], 3);
+        expect(result[0]).toBeCloseTo(input[0], 2);
+        expect(result[1]).toBeCloseTo(input[1], 2);
       })
     );
   });

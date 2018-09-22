@@ -1,7 +1,7 @@
 import { flatMap, map, raise, Validated, zip } from '../utils/validated';
 import { Vector3D, vectorLength } from './vectors';
 import { DegreeTag, mkRadian, toDegree, toRadians } from './euler-angle';
-import { fastAtan2 } from '../utils/number';
+import { fastAsin, fastAtan2 } from '../utils/number';
 
 declare class LatitudeTag {
   private _kind: 'latitude';
@@ -14,11 +14,11 @@ export type Latitude = number & LatitudeTag & DegreeTag;
 export type Longitude = number & LongitudeTag & DegreeTag;
 
 export function mkLatitude(n: number): Validated<Latitude> {
-  //if (n < -90 || n > 90) {
-    //return raise(`The latitude ${n} should be between -90 and 90`);
-  //} else {
+  if (n < -90 || n > 90) {
+    return raise(`The latitude ${n} should be between -90 and 90`);
+  } else {
     return n as Latitude;
-  //}
+  }
 }
 export function mkLongitude(n: number): Validated<Longitude> {
   if (n < -180 || n > 180) {
@@ -71,7 +71,7 @@ export function lonlat2xyz(coord: GeoCoordinates): Vector3D {
 export function xyzToLonLat(v: Vector3D): Validated<GeoCoordinates> {
   const [x, y, z] = v;
   const dist = vectorLength(v);
-  return flatMap(zip(mkRadian(Math.asin(z / dist)), mkRadian(fastAtan2(y / dist, x / dist))), ([asin, atan]) => {
+  return flatMap(zip(mkRadian(fastAsin(z / dist)), mkRadian(fastAtan2(y / dist, x / dist))), ([asin, atan]) => {
     const lat = mkLatitude(toDegree(asin));
     const lon = mkLongitude(toDegree(atan));
 

@@ -29,3 +29,15 @@ export function fastAtan2(y: number, x: number): number {
 
   return t3;
 }
+
+const pi_2 = Math.PI / 2;
+export function fastAsin(a: number): number {
+  const result = fastAtan2(a, Math.sqrt(1 - a * a));
+  if (result < -pi_2) {
+    return -pi_2;
+  } else if (result > pi_2) {
+    return pi_2;
+  } else {
+    return result;
+  }
+}

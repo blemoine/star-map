@@ -65,7 +65,7 @@ describe('convertToGeoJson', () => {
       }
       expect(result.features).toEqual([
         {
-          geometry: { coordinates: [-6.5710427108462115, -42.30598180870714], type: 'Point' },
+          geometry: { coordinates: [-6.5710427108462115, -42.305928475316286,], type: 'Point' },
           id: '2076',
           properties: {
             apparentMagnitude: 10.4,
