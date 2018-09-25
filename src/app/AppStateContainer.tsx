@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { parse } from 'papaparse';
-import { convertToGeoJson } from '../hygdata/hygdata';
-import { isError } from '../utils/validated';
 import { AppState } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
+import { Star } from '../hygdata/hygdata.utils';
 
 const baseAcceleration = mkParsec(0.000001);
 
@@ -94,31 +92,11 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   };
 
   componentDidMount() {
-    Promise.all([
-      fetch('data/constellation.json').then((r) => r.json()),
-      fetch('data/hygdata_v3.csv').then((r) => r.text()),
-    ]).then(([constellationJson, rawCsv]: [Array<Array<[string, string]>>, string]) => {
-      const parsed = parse(rawCsv);
-      if (parsed.errors.length > 0) {
-        /*
-        TODO display errors ?
-        const [headError, ...tailErrors] = parsed.errors;
-
-        const baseErr = raise(headError.message, headError);
-        return tailErrors.reduce((err, e) => err.combine(raise(e.message, e)), baseErr);
-        */
-        console.error(parsed.errors);
-      }
-      const csv = parsed.data;
-
-      const geoJson = convertToGeoJson(csv);
-
-      if (isError(geoJson)) {
-        console.error(geoJson.errors());
-      } else {
-        this.setState((s) => ({ ...s, baseGeoJson: geoJson, baseConstellation: constellationJson }));
-      }
-    });
+    fetch('data/precomputation.json')
+      .then((r) => r.json())
+      .then((json: { stars: { [key: string]: Star }; constellations: Array<Array<string>> }) => {
+        this.setState((s) => ({ ...s, baseGeoJson: json.stars, baseConstellation: json.constellations }));
+      });
 
     document.addEventListener('keydown', this.keyPressListener);
   }

@@ -1,0 +1,53 @@
+import { flatMap, isError, map, sequence, Validated, zip } from '../utils/validated';
+import { Star } from '../hygdata/hygdata.utils';
+import { constellationAsStarId, validateConstellationJson } from './constellations.helpers';
+import { parseJson, parseToCsv, readFile } from './file.helper';
+import { RawHygCsvRow, rowsToStars } from './hyg-csv.helpers';
+
+const hygDataCsvFileName = process.argv[2];
+if (!hygDataCsvFileName) {
+  console.error('The first argument must be a valid csv filename');
+  process.exit(1);
+}
+const constallationJsonFileName = process.argv[3];
+if (!constallationJsonFileName) {
+  console.error('The second argument must be a valid constellation.json filename');
+  process.exit(1);
+}
+
+type Result = { stars: { [key: string]: Star }; constellations: Array<Array<string>> };
+
+const maxNavigationRadius = 200;
+
+Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
+  .then(([rawCsvFileContent, rawConstellationJsonFileContent]) => {
+    const parsed = parseToCsv<RawHygCsvRow>(rawCsvFileContent);
+    const maybeFilteredStars = flatMap(parsed, (row) => rowsToStars(maxNavigationRadius, row));
+    const maybeParsedConstellation = parseJson(rawConstellationJsonFileContent, validateConstellationJson);
+
+    const result = flatMap(
+      zip(maybeFilteredStars, maybeParsedConstellation),
+      ([filteredStars, parsedConstellation]): Validated<Result> => {
+        const maybeConstellations = sequence(
+          parsedConstellation.map((constellation) => constellationAsStarId(filteredStars, constellation))
+        );
+
+        return map(maybeConstellations, (constellations) => ({
+          stars: filteredStars,
+          constellations: constellations,
+        }));
+      }
+    );
+
+    if (isError(result)) {
+      return Promise.reject<any>(result);
+    } else {
+      return result;
+    }
+  })
+  .then((r: Result) => {
+    console.log(JSON.stringify(r, null, 2));
+  })
+  .catch((error) => {
+    console.error('An error happenened', error);
+  });

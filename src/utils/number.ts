@@ -1,3 +1,5 @@
+import { raise, Validated } from './validated';
+
 export const round = (num: number, precision: number = 2) => {
   const exp = Math.pow(10, precision);
   return Math.round(num * exp) / exp;
@@ -39,5 +41,14 @@ export function fastAsin(a: number): number {
     return pi_2;
   } else {
     return result;
+  }
+}
+
+export function parseToFloat(n: string): Validated<number> {
+  const result = parseFloat(n);
+  if (Number.isFinite(result)) {
+    return result;
+  } else {
+    return raise(`Cannot parse ${n} to number`);
   }
 }

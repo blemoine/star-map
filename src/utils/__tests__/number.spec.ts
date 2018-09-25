@@ -1,5 +1,6 @@
 import * as fc from 'fast-check';
-import { fastAsin, fastAtan2 } from '../number';
+import { fastAsin, fastAtan2, parseToFloat } from '../number';
+import { isError } from '../validated';
 
 describe('fastAtan2', () => {
   it('should give a result equal to atan2m rounded at 3', () => {
@@ -21,6 +22,21 @@ describe('fastAsin', () => {
         } else {
           expect(actual).toBeCloseTo(Math.asin(a), 2);
         }
+      })
+    );
+  });
+});
+
+describe('parseToFloat', () => {
+  it('should fail if the string is not a number', () => {
+    const result = parseToFloat('toto');
+    expect(isError(result)).toBe(true);
+  });
+  it('should return the value if the string is a number', () => {
+    fc.assert(
+      fc.property(fc.float(), (n) => {
+        const result = parseToFloat(n + '');
+        expect(result).toBe(n);
       })
     );
   });

@@ -3,7 +3,7 @@ import { Controls } from '../controls/controls';
 import { StarMap } from '../map/star-map';
 import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { Point } from 'geojson';
-import { isError } from '../utils/validated';
+import { flatMap, isError } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
 import { AppState } from './AppState';
 import { Vector3D } from '../geometry/vectors';
@@ -11,6 +11,7 @@ import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
+import { convertToGeoJson } from '../hygdata/hygdata';
 
 function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
   return geoJsonCollect(
@@ -43,8 +44,8 @@ function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, max
 }
 
 export const App = (props: {
-  baseGeoJson: GeoJSON.FeatureCollection<Point, Star>;
-  baseConstellation: Array<Array<[string, string]>>;
+  baseGeoJson: { [key: string]: Star };
+  baseConstellation: Array<Array<string>>;
   maxMagnitude: number;
   rotation: Rotation;
   position: Vector3D;
@@ -52,7 +53,10 @@ export const App = (props: {
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
 }) => {
-  const geoJson = computeGeoJson(props.baseGeoJson, props.maxMagnitude, props.position);
+  const maybeBaseGeoJson = convertToGeoJson(props.baseGeoJson);
+  const geoJson = flatMap(maybeBaseGeoJson, (baseGeoJson) =>
+    computeGeoJson(baseGeoJson, props.maxMagnitude, props.position)
+  );
   if (isError(geoJson)) {
     console.error(geoJson.errors());
     // TODO beautiful error
