@@ -5,6 +5,7 @@ export const round = (num: number, precision: number = 2) => {
   return Math.round(num * exp) / exp;
 };
 
+const pi_2 = Math.PI / 2;
 //http://developer.download.nvidia.com/cg/atan2.html
 export function fastAtan2(y: number, x: number): number {
   let t0, t1, t3, t4;
@@ -29,10 +30,17 @@ export function fastAtan2(y: number, x: number): number {
   t3 = x < 0 ? 3.141592654 - t3 : t3;
   t3 = y < 0 ? -t3 : t3;
 
-  return t3;
+  const result = t3;
+
+  if (result < -Math.PI) {
+    return -Math.PI;
+  } else if (result > Math.PI) {
+    return Math.PI;
+  } else {
+    return result;
+  }
 }
 
-const pi_2 = Math.PI / 2;
 export function fastAsin(a: number): number {
   const result = fastAtan2(a, Math.sqrt(1 - a * a));
   if (result < -pi_2) {

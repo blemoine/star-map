@@ -28,7 +28,7 @@ function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, max
       } else {
         const coordinates = xyzToLonLat(newStar.coordinates);
         if (isError(coordinates)) {
-          console.error(coordinates.errors());
+          console.error(newStar, coordinates.errors());
           return f;
         }
 

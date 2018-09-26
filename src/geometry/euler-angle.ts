@@ -20,7 +20,9 @@ export function toRadians(d: Degree): Radian {
   return mkRadian((d * Math.PI) / 180);
 }
 export function toDegree(r: Radian): Degree {
-  return mkDegree((r * 180) / Math.PI);
+  const n = (r * 180) / Math.PI;
+
+  return mkDegree(n);
 }
 
 function multiplyDegree(n: number, t: Degree): Degree {
