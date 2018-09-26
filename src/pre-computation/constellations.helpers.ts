@@ -12,10 +12,10 @@ export function constellationAsStarId(
 function constellationPointAsStarId(
   stars: { [key: string]: Star },
   con: string,
-  bayerOrFlam: string
+  bayerOrFlam: string,
 ): Validated<string> {
   const exactStar = _.find(stars, (star: Star) => {
-    return star.bayer === bayerOrFlam && star.constellation === con.toLowerCase();
+    return (star.bayer === bayerOrFlam || star.flamsteed === bayerOrFlam) && star.constellation === con.toLowerCase();
   });
   if (exactStar) {
     return exactStar.id;

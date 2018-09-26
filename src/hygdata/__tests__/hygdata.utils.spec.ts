@@ -47,6 +47,7 @@ describe('moveOrigin', () => {
           color: [255, 255, 255],
           radius: null,
           bayer: null,
+          flamsteed: null,
           constellation: 'test',
         };
 
@@ -76,6 +77,7 @@ describe('moveOrigin', () => {
           color: [255, 255, 255],
           radius: null,
           bayer: null,
+          flamsteed: null,
           coordinates: coordinates,
           constellation: 'test',
         };

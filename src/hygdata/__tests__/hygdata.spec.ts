@@ -10,6 +10,7 @@ describe('convertToGeoJson', () => {
         2076: {
           apparentMagnitude: 10.4,
           bayer: 'alp',
+          flamsteed: '1',
           constellation: 'phe',
           color: [255, 227, 190],
           distance: getOrThrow(mkParsec(25.974)),
@@ -29,6 +30,7 @@ describe('convertToGeoJson', () => {
           properties: {
             apparentMagnitude: 10.4,
             bayer: 'alp',
+            flamsteed: '1',
             constellation: 'phe',
             color: [255, 227, 190],
             distance: 25.974,

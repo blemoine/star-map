@@ -233,7 +233,7 @@ export class StarMap extends React.Component<Props, {}> {
       .style('visibility', 'visible')
       .html(
         [
-          star.name + ' - ' + star.constellation + ', ' + star.bayer,
+          star.name + ' - ' + star.constellation + ', ' + (star.bayer ||  star.flamsteed),
           'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',

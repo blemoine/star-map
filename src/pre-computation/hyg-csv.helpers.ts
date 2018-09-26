@@ -65,7 +65,8 @@ function rowToStar(row: RawHygCsvRow): Validated<Star> {
       return {
         id: row.id,
         name: row.proper,
-        bayer: convertStarNameToFullName(row.bayer || row.flam),
+        bayer: convertStarNameToFullName(row.bayer),
+        flamsteed: row.flam,
         constellation: row.con.toLowerCase(),
         color: color,
         distance: distance,

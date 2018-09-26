@@ -13,6 +13,7 @@ export type Star = {
   radius: Parsec | null;
   constellation: string;
   bayer: string | null;
+  flamsteed: string | null,
   coordinates: Vector3D;
 };
 
@@ -49,6 +50,7 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
       radius: star.radius,
       constellation: star.constellation,
       bayer: star.bayer,
+      flamsteed: star.flamsteed,
       coordinates,
       distance,
       apparentMagnitude,

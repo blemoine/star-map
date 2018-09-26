@@ -25,6 +25,7 @@ describe('rowsToStars', () => {
       '676': {
         apparentMagnitude: 2.07,
         bayer: 'alpha',
+        flamsteed: '21',
         color: [255, 255, 255],
         constellation: 'and',
         coordinates: [25.97457, 0.951042, 14.461264],
