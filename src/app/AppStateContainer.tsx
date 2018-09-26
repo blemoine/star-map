@@ -111,7 +111,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     if (!!baseGeoJson && !!baseConstellation) {
       return (
         <App
-          baseGeoJson={baseGeoJson}
+          baseStarDictionnary={baseGeoJson}
           baseConstellation={baseConstellation}
           acceleration={this.state.currentAcceleration}
           maxMagnitude={this.state.maxMagnitude}

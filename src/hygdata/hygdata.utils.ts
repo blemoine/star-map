@@ -2,6 +2,7 @@ import { mkParsec, Parsec } from '../measures/parsec';
 import { map, Validated } from '../utils/validated';
 import { Vector3D, vectorLength } from '../geometry/vectors';
 import { GeometryObject } from 'geojson';
+import { reduce } from 'lodash'
 
 export type Star = {
   id: string;
@@ -56,15 +57,15 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
 }
 
 export function geoJsonCollect<G extends GeometryObject | null, P>(
-  geoJson: GeoJSON.FeatureCollection<G, P>,
+  stars: { [key: string]: Star },
   filter: (f: GeoJSON.Feature<G, P>) => boolean,
-  mapper: (f: GeoJSON.Feature<G, P>) => GeoJSON.Feature<G, P>
+  mapper: (f: Star) => GeoJSON.Feature<G, P> | null
 ): GeoJSON.FeatureCollection<G, P> {
   return {
-    type: geoJson.type,
-    features: geoJson.features.reduce((acc: Array<GeoJSON.Feature<G, P>>, f) => {
+    type: "FeatureCollection",
+    features: reduce(stars, (acc: Array<GeoJSON.Feature<G, P>>, f) => {
       const newValue = mapper(f);
-      if (filter(newValue)) {
+      if (!!newValue && filter(newValue)) {
         acc.push(newValue);
       }
       return acc;

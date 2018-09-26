@@ -3,7 +3,7 @@ import { Controls } from '../controls/controls';
 import { StarMap } from '../map/star-map';
 import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { Point } from 'geojson';
-import { flatMap, isError } from '../utils/validated';
+import { isError } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
 import { AppState } from './AppState';
 import { Vector3D } from '../geometry/vectors';
@@ -11,29 +11,27 @@ import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
-import { convertToGeoJson } from '../hygdata/hygdata';
 
-function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, maxMagnitude: number, position: Vector3D) {
+function computeGeoJson(baseGeoJson: { [key: string]: Star }, maxMagnitude: number, position: Vector3D) {
   return geoJsonCollect(
     baseGeoJson,
     (f: GeoJSON.Feature<Point, Star>) => {
       return f.properties.apparentMagnitude < maxMagnitude;
     },
-    (f: GeoJSON.Feature<Point, Star>) => {
-      const oldStar: Star = f.properties;
+    (oldStar: Star) => {
       const newStar = moveOrigin(position, oldStar);
       if (isError(newStar)) {
         console.error(newStar.errors());
-        return f;
+        return null;
       } else {
         const coordinates = xyzToLonLat(newStar.coordinates);
         if (isError(coordinates)) {
           console.error(newStar, coordinates.errors());
-          return f;
+          return null;
         }
 
         return {
-          id: f.id,
+          id: oldStar.id,
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
           properties: newStar,
@@ -44,7 +42,7 @@ function computeGeoJson(baseGeoJson: GeoJSON.FeatureCollection<Point, Star>, max
 }
 
 export const App = (props: {
-  baseGeoJson: { [key: string]: Star };
+  baseStarDictionnary: { [key: string]: Star };
   baseConstellation: Array<Array<string>>;
   maxMagnitude: number;
   rotation: Rotation;
@@ -53,10 +51,8 @@ export const App = (props: {
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
 }) => {
-  const maybeBaseGeoJson = convertToGeoJson(props.baseGeoJson);
-  const geoJson = flatMap(maybeBaseGeoJson, (baseGeoJson) =>
-    computeGeoJson(baseGeoJson, props.maxMagnitude, props.position)
-  );
+  const geoJson = computeGeoJson(props.baseStarDictionnary, props.maxMagnitude, props.position)
+
   if (isError(geoJson)) {
     console.error(geoJson.errors());
     // TODO beautiful error
