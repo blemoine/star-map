@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Controls } from '../controls/controls';
 import { StarMap } from '../map/star-map';
-import { geoJsonCollect, moveOrigin, Star } from '../hygdata/hygdata.utils';
+import { moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { Point } from 'geojson';
 import { isError } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
@@ -11,40 +11,45 @@ import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
-import { flatten } from 'lodash';
+import { flatten, reduce } from 'lodash';
 
 function computeGeoJson(
-  baseGeoJson: { [key: string]: Star },
+  stars: { [key: string]: Star },
   mandatoryStars: Array<string>,
   maxMagnitude: number,
   position: Vector3D
-) {
-  return geoJsonCollect(
-    baseGeoJson,
-    (f: GeoJSON.Feature<Point, Star>) => {
-      return f.properties.apparentMagnitude < maxMagnitude || mandatoryStars.indexOf(f.properties.id) >= 0;
-    },
-    (oldStar: Star) => {
-      const newStar = moveOrigin(position, oldStar);
-      if (isError(newStar)) {
-        console.error(newStar.errors());
-        return null;
-      } else {
-        const coordinates = xyzToLonLat(newStar.coordinates);
-        if (isError(coordinates)) {
-          console.error(newStar, coordinates.errors());
-          return null;
+): GeoJSON.FeatureCollection<Point, Star> {
+  return {
+    type: 'FeatureCollection',
+    features: reduce(
+      stars,
+      (acc: Array<GeoJSON.Feature<Point, Star>>, oldStar) => {
+        const newStar = moveOrigin(position, oldStar);
+        if (isError(newStar)) {
+          console.error(newStar.errors());
+          return acc;
+        } else {
+          const coordinates = xyzToLonLat(newStar.coordinates);
+          if (isError(coordinates)) {
+            console.error(newStar, coordinates.errors());
+            return acc;
+          } else {
+            const newValue: GeoJSON.Feature<Point, Star> = {
+              id: oldStar.id,
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
+              properties: newStar,
+            };
+            if (newStar.apparentMagnitude < maxMagnitude || mandatoryStars.indexOf(newStar.id) >= 0) {
+              acc.push(newValue);
+            }
+            return acc;
+          }
         }
-
-        return {
-          id: oldStar.id,
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-          properties: newStar,
-        };
-      }
-    }
-  );
+      },
+      []
+    ),
+  };
 }
 
 export const App = (props: {
@@ -99,12 +104,12 @@ export const App = (props: {
           <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
         </div>
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
-            <StarMap
-              constellation={constellation}
-              geoJson={geoJson}
-              rotation={props.rotation}
-              rotationChange={(rotation) => props.updateState({ rotation })}
-            />
+          <StarMap
+            constellation={constellation}
+            geoJson={geoJson}
+            rotation={props.rotation}
+            rotationChange={(rotation) => props.updateState({ rotation })}
+          />
         </div>
       </>
     );
