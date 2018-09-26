@@ -2,7 +2,7 @@ import { mkParsec, Parsec } from '../measures/parsec';
 import { map, Validated } from '../utils/validated';
 import { Vector3D, vectorLength } from '../geometry/vectors';
 import { GeometryObject } from 'geojson';
-import { reduce } from 'lodash'
+import { reduce } from 'lodash';
 
 export type Star = {
   id: string;
@@ -62,13 +62,17 @@ export function geoJsonCollect<G extends GeometryObject | null, P>(
   mapper: (f: Star) => GeoJSON.Feature<G, P> | null
 ): GeoJSON.FeatureCollection<G, P> {
   return {
-    type: "FeatureCollection",
-    features: reduce(stars, (acc: Array<GeoJSON.Feature<G, P>>, f) => {
-      const newValue = mapper(f);
-      if (!!newValue && filter(newValue)) {
-        acc.push(newValue);
-      }
-      return acc;
-    }, []),
+    type: 'FeatureCollection',
+    features: reduce(
+      stars,
+      (acc: Array<GeoJSON.Feature<G, P>>, f) => {
+        const newValue = mapper(f);
+        if (!!newValue && filter(newValue)) {
+          acc.push(newValue);
+        }
+        return acc;
+      },
+      []
+    ),
   };
 }

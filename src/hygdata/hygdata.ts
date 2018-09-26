@@ -5,7 +5,7 @@ import { Star } from './hygdata.utils';
 
 export function convertToGeoJson(json: { [key: string]: Star }): Validated<GeoJSON.FeatureCollection<Point, Star>> {
   const entries = Object.entries(json);
-  const features: Array<Feature<Point, Star>> = new Array(entries.length);
+  const features: Array<Feature<Point, Star>> = [];
   entries.forEach(([id, star]) => {
     const coordinates = xyzToLonLat(star.coordinates);
     if (!isError(coordinates)) {
