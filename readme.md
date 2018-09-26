@@ -19,5 +19,4 @@ TODO:
  * le zoom es tpourri, l'ameliorer 
  * Rendre Configurable la limit de deplacement 
  * Avoir un script qui precompute les donnés que l'on veut (couleur + radius) et charger ses données la
- * constellation must not depend on what is seen or not
  * rename bayer dans star parce que c'est bayer ou flamstede

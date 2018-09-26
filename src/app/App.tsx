@@ -11,12 +11,18 @@ import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
+import { flatten } from 'lodash';
 
-function computeGeoJson(baseGeoJson: { [key: string]: Star }, maxMagnitude: number, position: Vector3D) {
+function computeGeoJson(
+  baseGeoJson: { [key: string]: Star },
+  mandatoryStars: Array<string>,
+  maxMagnitude: number,
+  position: Vector3D
+) {
   return geoJsonCollect(
     baseGeoJson,
     (f: GeoJSON.Feature<Point, Star>) => {
-      return f.properties.apparentMagnitude < maxMagnitude;
+      return f.properties.apparentMagnitude < maxMagnitude || mandatoryStars.indexOf(f.properties.id) >= 0;
     },
     (oldStar: Star) => {
       const newStar = moveOrigin(position, oldStar);
@@ -51,7 +57,8 @@ export const App = (props: {
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
 }) => {
-  const geoJson = computeGeoJson(props.baseStarDictionnary, props.maxMagnitude, props.position)
+  const mandatoryStars = flatten(props.baseConstellation);
+  const geoJson = computeGeoJson(props.baseStarDictionnary, mandatoryStars, props.maxMagnitude, props.position);
 
   if (isError(geoJson)) {
     console.error(geoJson.errors());
