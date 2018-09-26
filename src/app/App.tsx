@@ -99,17 +99,12 @@ export const App = (props: {
           <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
         </div>
         <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
-          {geoJson ? (
             <StarMap
               constellation={constellation}
               geoJson={geoJson}
               rotation={props.rotation}
               rotationChange={(rotation) => props.updateState({ rotation })}
             />
-          ) : (
-            //TODO beautiful loadin
-            'LOADING...'
-          )}
         </div>
       </>
     );

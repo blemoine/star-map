@@ -5,6 +5,7 @@ import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
 import { Star } from '../hygdata/hygdata.utils';
+import { Spinner } from '../spinner/spinner';
 
 const baseAcceleration = mkParsec(0.000001);
 
@@ -123,7 +124,18 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       );
     } else {
       //todo beautiful LOADING
-      return <div>LOADING</div>;
+      return (
+        <div
+          style={{
+            position: 'fixed',
+            top: '45%',
+            textAlign: 'center',
+            width: '100%',
+          }}
+        >
+          <Spinner/>
+        </div>
+      );
     }
   }
 }

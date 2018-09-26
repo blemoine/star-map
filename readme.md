@@ -12,9 +12,7 @@ The objective of this project - that you can see live here: TODO - was to answer
  * Simplification: pas de planete, voisinage immediat
  
 TODO:
-
- * Use a webworker for intensive computation 
- * faire un beau loading
+ 
  * display error to the user
- * le zoom es tpourri, l'ameliorer 
- * Rendre Configurable la limit de deplacement 
+ * le zoom es tpourri, l'ameliorer
+ * cancel previous call to execute the last one 
