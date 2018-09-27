@@ -16,3 +16,4 @@ TODO:
  * display error to the user
  * le zoom es tpourri, l'ameliorer
  * cancel previous call to execute the last one 
+ * Use pure component where it's pertinent

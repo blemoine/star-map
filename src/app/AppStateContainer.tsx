@@ -96,7 +96,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     fetch('data/precomputation.json')
       .then((r) => r.json())
       .then((json: { stars: { [key: string]: Star }; constellations: Array<Array<string>> }) => {
-        this.setState((s) => ({ ...s, baseGeoJson: json.stars, baseConstellation: json.constellations }));
+        this.setState((s): AppState => ({ ...s, baseStars: json.stars, baseConstellation: json.constellations }));
       });
 
     document.addEventListener('keydown', this.keyPressListener);
