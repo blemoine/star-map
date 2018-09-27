@@ -4,7 +4,7 @@ import { Vector3D } from '../geometry/vectors';
 import { Parsec } from '../measures/parsec';
 
 export type AppState = {
-  baseGeoJson: { [key: string]: Star } | null;
+  baseStars: { [key: string]: Star } | null;
   baseConstellation: Array<Array<string>> | null;
   maxMagnitude: number;
   rotation: Rotation;

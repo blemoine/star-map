@@ -11,7 +11,7 @@ const baseAcceleration = mkParsec(0.000001);
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
-    baseGeoJson: null,
+    baseStars: null,
     baseConstellation: null,
     currentAcceleration: baseAcceleration,
     maxMagnitude: 4.5,
@@ -107,12 +107,12 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   }
 
   render() {
-    const baseGeoJson = this.state.baseGeoJson;
+    const baseStars = this.state.baseStars;
     const baseConstellation = this.state.baseConstellation;
-    if (!!baseGeoJson && !!baseConstellation) {
+    if (!!baseStars && !!baseConstellation) {
       return (
         <App
-          baseStarDictionnary={baseGeoJson}
+          baseStarDictionnary={baseStars}
           baseConstellation={baseConstellation}
           acceleration={this.state.currentAcceleration}
           maxMagnitude={this.state.maxMagnitude}

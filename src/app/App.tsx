@@ -52,7 +52,7 @@ function computeGeoJson(
   };
 }
 
-export const App = (props: {
+type Props = {
   baseStarDictionnary: { [key: string]: Star };
   baseConstellation: Array<Array<string>>;
   maxMagnitude: number;
@@ -61,7 +61,8 @@ export const App = (props: {
   acceleration: Parsec;
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
-}) => {
+};
+export const App = (props: Props) => {
   const mandatoryStars = flatten(props.baseConstellation);
   const geoJson = computeGeoJson(props.baseStarDictionnary, mandatoryStars, props.maxMagnitude, props.position);
 
