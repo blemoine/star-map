@@ -129,7 +129,6 @@ export class AppStateContainer extends React.Component<{}, AppState> {
         />
       );
     } else {
-      //todo beautiful LOADING
       return (
         <div
           style={{
