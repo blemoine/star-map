@@ -5,6 +5,7 @@ import { parseToFloat } from '../utils/number';
 import { findColorOf, findTemperatureOf } from '../data/spectral-types-informations';
 import { computeRadius } from '../stars/stars.utils';
 import { convertStarNameToFullName } from './constellations.helpers';
+import { StarDictionnary } from '../app/AppState';
 
 export type RawHygCsvRow = {
   id: string;
@@ -25,7 +26,7 @@ export type RawHygCsvRow = {
 export function rowsToStars(
   maxNavigationRadius: number,
   rows: Array<RawHygCsvRow>
-): Validated<{ [key: string]: Star }> {
+): Validated<StarDictionnary> {
   return rows.reduce((maybeAcc: Validated<{ [starId: string]: Star }>, row) => {
     return flatMap(maybeAcc, (acc) => {
       return map(rowToStar(row), (star) => {

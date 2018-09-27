@@ -1,16 +1,17 @@
 import { Star } from '../hygdata/hygdata.utils';
 import { raise, sequence, Validated } from '../utils/validated';
 import _ from 'lodash';
+import { StarDictionnary } from '../app/AppState';
 
 export function constellationAsStarId(
-  stars: { [key: string]: Star },
+  stars: StarDictionnary,
   constellation: Array<[string, string]>
 ): Validated<Array<string>> {
   return sequence(constellation.map(([con, bayerOrFlam]) => constellationPointAsStarId(stars, con, bayerOrFlam)));
 }
 
 function constellationPointAsStarId(
-  stars: { [key: string]: Star },
+  stars: StarDictionnary,
   con: string,
   bayerOrFlam: string,
 ): Validated<string> {

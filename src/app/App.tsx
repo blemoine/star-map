@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Controls } from '../controls/controls';
-import { Star } from '../hygdata/hygdata.utils';
-import { AppState } from './AppState';
+import { AppState, StarDictionnary } from './AppState';
 import { Vector3D } from '../geometry/vectors';
 import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
@@ -9,7 +8,7 @@ import { Informations } from '../informations/informations';
 import { StarMapContainer } from '../map/star-map.container';
 
 type Props = {
-  baseStarDictionnary: { [key: string]: Star };
+  baseStarDictionnary: StarDictionnary;
   baseConstellation: Array<Array<string>>;
   maxMagnitude: number;
   rotation: Rotation;

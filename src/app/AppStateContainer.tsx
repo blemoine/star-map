@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { AppState } from './AppState';
+import { AppState, StarDictionnary } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
-import { Star } from '../hygdata/hygdata.utils';
 import { Spinner } from '../spinner/spinner';
 
 const baseAcceleration = mkParsec(0.000001);
@@ -95,7 +94,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   componentDidMount() {
     fetch('data/precomputation.json')
       .then((r) => r.json())
-      .then((json: { stars: { [key: string]: Star }; constellations: Array<Array<string>> }) => {
+      .then((json: { stars: StarDictionnary; constellations: Array<Array<string>> }) => {
         this.setState((s): AppState => ({ ...s, baseStars: json.stars, baseConstellation: json.constellations }));
       });
 

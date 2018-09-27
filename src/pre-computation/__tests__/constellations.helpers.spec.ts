@@ -1,11 +1,11 @@
-import { Star } from '../../hygdata/hygdata.utils';
 import { mkParsec } from '../../measures/parsec';
 import { getOrThrow } from '../../tests/utils/utils';
 import { constellationAsStarId, convertStarNameToFullName, validateConstellationJson } from '../constellations.helpers';
 import { isError } from '../../utils/validated';
+import { StarDictionnary } from '../../app/AppState';
 
 describe('constellationAsStarId', () => {
-  const stars: { [key: string]: Star } = {
+  const stars: StarDictionnary = {
     '112601': {
       id: '112601',
       name: '',

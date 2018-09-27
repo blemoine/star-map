@@ -8,9 +8,10 @@ import { Vector3D } from '../geometry/vectors';
 import { Point } from 'geojson';
 import { isError } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
+import { StarDictionnary } from '../app/AppState';
 
 type Props = {
-  starDictionnary: { [key: string]: Star };
+  starDictionnary: StarDictionnary;
   constellations: Array<Array<string>>;
   rotation: Rotation;
   updateRotation: (rotation: Rotation) => void;
@@ -38,7 +39,7 @@ export const StarMapContainer = (props: Props) => {
 };
 
 function computeGeoJson(
-  stars: { [key: string]: Star },
+  stars: StarDictionnary,
   mandatoryStars: Array<string>,
   maxMagnitude: number,
   position: Vector3D

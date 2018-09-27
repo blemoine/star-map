@@ -2,8 +2,9 @@ import { Feature, Point } from 'geojson';
 import { isError, Validated } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
 import { Star } from './hygdata.utils';
+import { StarDictionnary } from '../app/AppState';
 
-export function convertToGeoJson(json: { [key: string]: Star }): Validated<GeoJSON.FeatureCollection<Point, Star>> {
+export function convertToGeoJson(json: StarDictionnary): Validated<GeoJSON.FeatureCollection<Point, Star>> {
   const entries = Object.entries(json);
   const features: Array<Feature<Point, Star>> = [];
   entries.forEach(([id, star]) => {

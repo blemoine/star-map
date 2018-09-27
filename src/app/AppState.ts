@@ -4,7 +4,7 @@ import { Vector3D } from '../geometry/vectors';
 import { Parsec } from '../measures/parsec';
 
 export type AppState = {
-  baseStars: { [key: string]: Star } | null;
+  baseStars: StarDictionnary | null;
   baseConstellation: Array<Array<string>> | null;
   maxMagnitude: number;
   rotation: Rotation;
@@ -12,3 +12,5 @@ export type AppState = {
   currentAcceleration: Parsec;
   displayConstellation: boolean;
 };
+
+export type StarDictionnary = { [key: string]: Star }

@@ -1,8 +1,8 @@
 import { flatMap, isError, map, sequence, Validated, zip } from '../utils/validated';
-import { Star } from '../hygdata/hygdata.utils';
 import { constellationAsStarId, validateConstellationJson } from './constellations.helpers';
 import { parseJson, parseToCsv, readFile } from './file.helper';
 import { RawHygCsvRow, rowsToStars } from './hyg-csv.helpers';
+import { StarDictionnary } from '../app/AppState';
 
 const hygDataCsvFileName = process.argv[2];
 if (!hygDataCsvFileName) {
@@ -15,7 +15,7 @@ if (!constallationJsonFileName) {
   process.exit(1);
 }
 
-type Result = { stars: { [key: string]: Star }; constellations: Array<Array<string>> };
+type Result = { stars: StarDictionnary; constellations: Array<Array<string>> };
 
 const maxNavigationRadius = 130;
 
