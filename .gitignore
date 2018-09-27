@@ -7,3 +7,4 @@ dist
 build
 .env
 precomputation.json
+coverage

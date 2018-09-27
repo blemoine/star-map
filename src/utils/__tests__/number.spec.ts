@@ -10,6 +10,9 @@ describe('fastAtan2', () => {
       })
     );
   });
+  it('should return the correct value for 0,0', () => {
+    expect(fastAtan2(0,0)).toBe(0)
+  })
 });
 
 describe('fastAsin', () => {
