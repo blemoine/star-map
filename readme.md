@@ -14,6 +14,7 @@ The objective of this project - that you can see live here: TODO - was to answer
 TODO:
  
  * display error to the user
- * le zoom es tpourri, l'ameliorer
+ * Remove remaining TODO
+ 
   
  

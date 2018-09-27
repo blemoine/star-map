@@ -123,7 +123,6 @@ export class StarMap extends React.Component<Props, {}> {
       .geoPath()
       .projection(projection)
       .pointRadius(function(d) {
-        //TODO real radius if > 0.1
         if (d && 'properties' in d && d.properties !== null) {
           const star = d.properties;
           const demiAngle = ((star.radius ? fastAtan2(star.radius, star.distance) : 0) * 360) / (2 * Math.PI);
@@ -209,8 +208,7 @@ export class StarMap extends React.Component<Props, {}> {
         }
       })
       .on('mousemove', function() {
-        const point = d3.mouse(this as any);
-        tooltip.style('top', point[1] + 15 + 'px').style('left', point[0] + 15 + 'px');
+        tooltip.style('top', (d3.event.y + 15) + 'px').style('left', (d3.event.x + 15) + 'px');
       })
       .on('mouseout', () => {
         tooltip.style('visibility', 'hidden');
@@ -234,7 +232,7 @@ export class StarMap extends React.Component<Props, {}> {
       .style('visibility', 'visible')
       .html(
         [
-          star.name + ' - ' + toFullName(star.constellation) + ', ' + (star.bayer ||  star.flamsteed),
+          star.name + ' - ' + toFullName(star.constellation) + ', ' + (star.bayer || star.flamsteed),
           'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
