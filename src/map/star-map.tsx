@@ -10,6 +10,7 @@ import { isError, raise, Validated, zip } from '../utils/validated';
 import { Star } from '../hygdata/hygdata.utils';
 import { fastAtan2, round } from '../utils/number';
 import { toKm } from '../measures/parsec';
+import { toFullName } from '../constellations/constellations';
 
 type Props = {
   constellation: GeoJSON.FeatureCollection<LineString, {}>;
@@ -233,7 +234,7 @@ export class StarMap extends React.Component<Props, {}> {
       .style('visibility', 'visible')
       .html(
         [
-          star.name + ' - ' + star.constellation + ', ' + (star.bayer ||  star.flamsteed),
+          star.name + ' - ' + toFullName(star.constellation) + ', ' + (star.bayer ||  star.flamsteed),
           'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
