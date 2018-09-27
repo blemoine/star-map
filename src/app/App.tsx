@@ -66,53 +66,47 @@ export const App = (props: Props) => {
   const mandatoryStars = flatten(props.baseConstellation);
   const geoJson = computeGeoJson(props.baseStarDictionnary, mandatoryStars, props.maxMagnitude, props.position);
 
-  if (isError(geoJson)) {
-    console.error(geoJson.errors());
-    // TODO beautiful error
-    return <div>ERROR geoJson</div>;
-  } else {
-    const constellation = props.displayConstellation
-      ? convertConstellationToGeoJson(props.baseConstellation, geoJson)
-      : emptyConstellations;
+  const constellation = props.displayConstellation
+    ? convertConstellationToGeoJson(props.baseConstellation, geoJson)
+    : emptyConstellations;
 
-    return (
-      <>
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            minHeight: '50px',
-            backgroundColor: 'rgba(55,55,55,0.8)',
-          }}
-        >
-          <Controls
-            displayConstellation={props.displayConstellation}
-            displayConstellationChange={(displayConstellation) => props.updateState({ displayConstellation })}
-            magnitude={props.maxMagnitude}
-            magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
-          />
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            width: '300px',
-            top: '100px',
-            left: 0,
-            border: '1px solid #AAA',
-            backgroundColor: 'rgba(55,55,55,0.8)',
-          }}
-        >
-          <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
-        </div>
-        <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
-          <StarMap
-            constellation={constellation}
-            geoJson={geoJson}
-            rotation={props.rotation}
-            rotationChange={(rotation) => props.updateState({ rotation })}
-          />
-        </div>
-      </>
-    );
-  }
+  return (
+    <>
+      <div
+        style={{
+          position: 'absolute',
+          width: '100%',
+          minHeight: '50px',
+          backgroundColor: 'rgba(55,55,55,0.8)',
+        }}
+      >
+        <Controls
+          displayConstellation={props.displayConstellation}
+          displayConstellationChange={(displayConstellation) => props.updateState({ displayConstellation })}
+          magnitude={props.maxMagnitude}
+          magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
+        />
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          width: '300px',
+          top: '100px',
+          left: 0,
+          border: '1px solid #AAA',
+          backgroundColor: 'rgba(55,55,55,0.8)',
+        }}
+      >
+        <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
+      </div>
+      <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
+        <StarMap
+          constellation={constellation}
+          geoJson={geoJson}
+          rotation={props.rotation}
+          rotationChange={(rotation) => props.updateState({ rotation })}
+        />
+      </div>
+    </>
+  );
 };
