@@ -5,14 +5,14 @@ import { moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
 import { flatten, reduce } from 'lodash';
 import { Vector3D } from '../geometry/vectors';
-import { Point } from 'geojson';
+import { LineString, Point } from 'geojson';
 import { isError } from '../utils/validated';
 import { xyzToLonLat } from '../geometry/coordinates';
-import { StarDictionnary } from '../app/AppState';
+import { ConstellationWithUniqueId, StarDictionnary, StarDictionnaryWithUniqueId } from '../app/AppState';
 
 type Props = {
-  starDictionnary: StarDictionnary;
-  constellations: Array<Array<string>>;
+  starDictionnary: StarDictionnaryWithUniqueId;
+  constellations: ConstellationWithUniqueId;
   rotation: Rotation;
   updateRotation: (rotation: Rotation) => void;
   maxMagnitude: number;
@@ -20,13 +20,30 @@ type Props = {
   displayConstellation: boolean;
 };
 
-export const StarMapContainer = (props: Props) => {
-  const mandatoryStars = flatten(props.constellations);
-  const geoJson = computeGeoJson(props.starDictionnary, mandatoryStars, props.maxMagnitude, props.position);
+let starCache: { [key: string]: GeoJSON.FeatureCollection<Point, Star> } = {};
+let constellationCache: { [key: string]: GeoJSON.FeatureCollection<LineString, {}> } = {};
 
-  const constellation = props.displayConstellation
-    ? convertConstellationToGeoJson(props.constellations, geoJson)
-    : emptyConstellations;
+export const StarMapContainer = (props: Props) => {
+  let geoJson: GeoJSON.FeatureCollection<Point, Star>;
+  const starId = props.starDictionnary.id + '-' + props.maxMagnitude + '-' + props.position;
+  if (starCache[starId]) {
+    geoJson = starCache[starId];
+  } else {
+    const mandatoryStars = flatten(props.constellations.constellations);
+    geoJson = computeGeoJson(props.starDictionnary.stars, mandatoryStars, props.maxMagnitude, props.position);
+    starCache = { [starId]: geoJson };
+  }
+
+  let constellation: GeoJSON.FeatureCollection<LineString, {}>;
+  const constellationId = starId + '-' + props.constellations.id;
+  if (constellationCache[constellationId]) {
+    constellation = constellationCache[constellationId];
+  } else {
+    constellation = props.displayConstellation
+      ? convertConstellationToGeoJson(props.constellations.constellations, geoJson)
+      : emptyConstellations;
+    constellationCache = { [constellationId]: constellation };
+  }
 
   return (
     <StarMap

@@ -5,6 +5,7 @@ import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
 import { debounce } from 'lodash';
 import { Spinner } from '../spinner/spinner';
+import { uuid } from '../utils/uuid';
 
 const baseAcceleration = mkParsec(0.000001);
 
@@ -95,7 +96,13 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     fetch('data/precomputation.json')
       .then((r) => r.json())
       .then((json: { stars: StarDictionnary; constellations: Array<Array<string>> }) => {
-        this.setState((s): AppState => ({ ...s, baseStars: json.stars, baseConstellation: json.constellations }));
+        this.setState(
+          (s): AppState => ({
+            ...s,
+            baseStars: { id: uuid(), stars: json.stars },
+            baseConstellation: { id: uuid(), constellations: json.constellations },
+          })
+        );
       });
 
     document.addEventListener('keydown', this.keyPressListener);
@@ -132,7 +139,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
             width: '100%',
           }}
         >
-          <Spinner/>
+          <Spinner />
         </div>
       );
     }
