@@ -29,7 +29,7 @@ export const StarMapContainer = (props: Props) => {
   if (starCache[starId]) {
     geoJson = starCache[starId];
   } else {
-    const mandatoryStars = flatten(props.constellations.constellations);
+    const mandatoryStars = new Set(flatten(props.constellations.constellations));
     geoJson = computeGeoJson(props.starDictionnary.stars, mandatoryStars, props.maxMagnitude, props.position);
     starCache = { [starId]: geoJson };
   }
@@ -57,7 +57,7 @@ export const StarMapContainer = (props: Props) => {
 
 function computeGeoJson(
   stars: StarDictionnary,
-  mandatoryStars: Array<string>,
+  mandatoryStars: Set<string>,
   maxMagnitude: number,
   position: Vector3D
 ): GeoJSON.FeatureCollection<Point, Star> {
@@ -71,21 +71,24 @@ function computeGeoJson(
           console.error(newStar.errors());
           return acc;
         } else {
-          const coordinates = xyzToLonLat(newStar.coordinates);
-          if (isError(coordinates)) {
-            console.error(newStar, coordinates.errors());
+          const isMandatoryStar = mandatoryStars.has(newStar.id);
+          if (newStar.apparentMagnitude > maxMagnitude && !isMandatoryStar) {
             return acc;
           } else {
-            const newValue: GeoJSON.Feature<Point, Star> = {
-              id: oldStar.id,
-              type: 'Feature',
-              geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
-              properties: newStar,
-            };
-            if (newStar.apparentMagnitude < maxMagnitude || mandatoryStars.indexOf(newStar.id) >= 0) {
+            const coordinates = xyzToLonLat(newStar.coordinates);
+            if (isError(coordinates)) {
+              console.error(newStar, coordinates.errors());
+              return acc;
+            } else {
+              const newValue: GeoJSON.Feature<Point, Star> = {
+                id: oldStar.id,
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [-coordinates[0], coordinates[1]] },
+                properties: newStar,
+              };
               acc.push(newValue);
+              return acc;
             }
-            return acc;
           }
         }
       },
