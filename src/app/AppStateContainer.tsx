@@ -33,7 +33,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
       const lat = toRadians(mkDegree(this.state.rotation.rotatePhi));
 
-      const acceleration = e.shiftKey ? 1 : this.state.currentAcceleration;
+      const acceleration = e.shiftKey ? 0.3 : this.state.currentAcceleration;
       const x = Math.cos(lat) * Math.cos(lon) * acceleration;
       const y = Math.cos(lat) * Math.sin(lon) * acceleration;
       const z = -Math.sin(lat) * acceleration;
