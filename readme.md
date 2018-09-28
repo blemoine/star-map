@@ -17,8 +17,6 @@ And you will want to move faster, because as previously said: space is big.
 
 You can look at the sky around you either by rotating the point of view with the keyboard `q`,`w`,`e`,`a`,`s`,`d` or by doing a drag/drop move with your mouse.
 
-
-
 Simplification
 ---
 

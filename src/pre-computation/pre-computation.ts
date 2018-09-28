@@ -17,7 +17,7 @@ if (!constallationJsonFileName) {
 
 type Result = { stars: StarDictionnary; constellations: Array<Array<string>> };
 
-const maxNavigationRadius = 100;
+const maxNavigationRadius = 110;
 
 Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
   .then(([rawCsvFileContent, rawConstellationJsonFileContent]) => {

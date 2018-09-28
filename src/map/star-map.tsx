@@ -208,7 +208,7 @@ export class StarMap extends React.Component<Props, {}> {
         }
       })
       .on('mousemove', function() {
-        tooltip.style('top', (d3.event.y + 15) + 'px').style('left', (d3.event.x + 15) + 'px');
+        tooltip.style('top', d3.event.y + 15 + 'px').style('left', d3.event.x + 15 + 'px');
       })
       .on('mouseout', () => {
         tooltip.style('visibility', 'hidden');
@@ -232,7 +232,7 @@ export class StarMap extends React.Component<Props, {}> {
       .style('visibility', 'visible')
       .html(
         [
-          star.name + ' - ' + toFullName(star.constellation) + ', ' + (star.bayer || star.flamsteed),
+          (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toFullName(star.constellation),
           'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
