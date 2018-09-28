@@ -24,7 +24,8 @@ export const App = (props: Props) => {
         style={{
           position: 'absolute',
           width: '100%',
-          minHeight: '50px',
+          paddingBottom: '5px',
+          paddingTop: '5px',
           backgroundColor: 'rgba(55,55,55,0.8)',
         }}
       >

@@ -1,11 +1,11 @@
 What does the night sky look like in other places in the galaxy?
 ===
 
-The objective of this project - that you can see live here: [https://blemoine.github.io/star-map](https://blemoine.github.io/star-map) - was to answer the question: what would the night sky  be like in the neighbourhood of other stars?
+The aim of this project - which you can see live here: [https://blemoine.github.io/star-map](https://blemoine.github.io/star-map) - was to answer the question: what would the night sky be like in the neighbourhood of other stars?
 
-If you're an SF writer, you could want to know what the sky would look like around the planet or spaceship you're describing. 
-But this project is also useful for people to understand the size of the universe: you could see that moving 1 light-year in a direction will not change too mich the sky.
-That's because stars are really _really_ far apart from each other. In comparison, the Milky Way is 100 000 light-years wide. 
+If you're an SF writer, you might want to know what the sky would look like around the planet or spaceship you're describing. 
+But this project is also useful for people to understand the size of the universe: you could see that moving one light-year in a direction will not change the sky much, because stars are really _really_ far apart from each other. 
+As a base for comparison, the Milky Way is 100 000 light-years wide. 
 
 
 Navigation

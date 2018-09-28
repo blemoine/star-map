@@ -35,7 +35,7 @@ export const StarMapContainer = (props: Props) => {
   }
 
   let constellation: GeoJSON.FeatureCollection<LineString, {}>;
-  const constellationId = starId + '-' + props.constellations.id;
+  const constellationId = starId + '-' + props.constellations.id + '-' +props.displayConstellation;
   if (constellationCache[constellationId]) {
     constellation = constellationCache[constellationId];
   } else {
