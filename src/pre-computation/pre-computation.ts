@@ -46,7 +46,7 @@ Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
     }
   })
   .then((r: Result) => {
-    console.log(JSON.stringify(r, null, 2));
+    console.log(JSON.stringify(r));
   })
   .catch((error) => {
     console.error('An error happenened', error);

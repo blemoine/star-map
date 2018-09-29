@@ -4,11 +4,13 @@
   "description": "Map of the stars",
   "main": "",
   "scripts": {
+    "clean": "rm -rf dist node_modules src/data/precomputation.json",
     "pretty": "prettier --write 'src/**/*.ts*'",
     "start:dev": "webpack-dev-server --mode development",
     "test": "tsc --noEmit && jest --no-cache",
-    "prestart:dev": "tsc && node  dist/pre-computation/pre-computation.js src/data/hygdata_v3.csv src/data/constellation.json > src/data/precomputation.json",
-    "deploy": "webpack --mode production && gh-pages -d dist"
+    "precomputation": "node  dist/pre-computation/pre-computation.js src/data/hygdata_v3.csv src/data/constellation.json > src/data/precomputation.json",
+    "prestart:dev": "tsc && npm run precomputation",
+    "deploy": "npm run clean && npm i && webpack --mode production && gh-pages -d dist"
   },
   "jest": {
     "moduleFileExtensions": [
