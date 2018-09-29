@@ -48,9 +48,11 @@
     "webpack-dev-server": "^3.1.7"
   },
   "dependencies": {
+    "@types/rc-tooltip": "^3.4.12",
     "d3": "^5.7.0",
     "lodash": "^4.17.10",
     "papaparse": "^4.6.0",
+    "rc-tooltip": "^3.7.3",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"
   }

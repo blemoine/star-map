@@ -8,3 +8,11 @@
 .form-element label {
   padding: 5px 10px;
 }
+
+.rc-tooltip {
+    opacity: 1;
+}
+
+.rc-tooltip-arrow {
+    display: none;
+}

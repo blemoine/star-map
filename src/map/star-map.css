@@ -4,12 +4,12 @@ svg {
 
 .map path {
   fill: #87b687;
-  stroke: #777;
+  stroke: #999;
 }
 
 .graticule path {
   fill: none;
-  stroke: #454545;
+  stroke: #303030;
 }
 
 .main-wrapper {
