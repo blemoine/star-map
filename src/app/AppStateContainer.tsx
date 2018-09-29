@@ -3,11 +3,11 @@ import { AppState, StarDictionnary } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
-import { debounce } from 'lodash';
+import { debounce, throttle } from 'lodash';
 import { Spinner } from '../spinner/spinner';
 import { uuid } from '../utils/uuid';
 
-const baseAcceleration = mkParsec(0.000001);
+const baseAcceleration = mkParsec(0.01);
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
@@ -28,6 +28,10 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     this.setState((s) => ({ ...s, currentAcceleration: baseAcceleration }));
   }, 300);
 
+  private debounceSetState = throttle((fn: (s:AppState) => AppState) => {
+    this.setState(fn);
+  },200)
+
   private keyPressListener = (e: KeyboardEvent) => {
     if (!e.srcElement || e.srcElement.tagName.toLowerCase() !== 'input') {
       const lon = toRadians(mkDegree(this.state.rotation.rotateLambda));
@@ -45,14 +49,14 @@ export class AppStateContainer extends React.Component<{}, AppState> {
           : s.currentAcceleration;
 
       if (e.key === 'ArrowUp') {
-        this.setState((state) => ({
+        this.debounceSetState((state) => ({
           ...state,
           currentAcceleration: newAcceleration,
           position: [s.position[0] + x, s.position[1] + y, s.position[2] + z],
         }));
         this.reinitAcceleration();
       } else if (e.key === 'ArrowDown') {
-        this.setState((state) => ({
+        this.debounceSetState((state) => ({
           ...state,
           currentAcceleration: newAcceleration,
           position: [s.position[0] - x, s.position[1] - y, s.position[2] - z],

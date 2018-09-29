@@ -3,6 +3,7 @@ import { Parsec } from '../measures/parsec';
 import { Vector3D } from '../geometry/vectors';
 import { round } from '../utils/number';
 import { Rotation } from '../geometry/rotation';
+import Tooltip from 'rc-tooltip';
 
 type Props = {
   acceleration: Parsec;
@@ -17,7 +18,23 @@ export const Informations = (props: Props) => {
     <div>
       <ul>
         <li>
-          Acceleration: <em>{round(props.acceleration)}</em> Parsec
+          Acceleration: <em>{round(props.acceleration)}</em>
+          <Tooltip
+            placement="bottom"
+            overlay={
+              <span>
+                <a href="https://en.wikipedia.org/wiki/Parsec">Parsec</a> is a measurement of distance roughly equals to
+                3.26 light-years or 30 trillions kilometers.
+                <br />
+                The nearest star from earth is{' '}
+                <a href="https://en.wikipedia.org/wiki/Proxima_Centauri">Proxima Centauri</a>, which is ~1.3 Parsec from
+                earth.
+              </span>
+            }
+            destroyTooltipOnHide={true}
+          >
+            <span> Parsec</span>
+          </Tooltip>
         </li>
         <li>
           Postion:
