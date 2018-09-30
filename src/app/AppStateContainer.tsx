@@ -3,7 +3,8 @@ import { AppState, StarDictionnary } from './AppState';
 import { App } from './App';
 import { mkDegree, toRadians } from '../geometry/euler-angle';
 import { add, minParsec, mkParsec } from '../measures/parsec';
-import { debounce, throttle } from 'lodash';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import { Spinner } from '../spinner/spinner';
 import { uuid } from '../utils/uuid';
 
@@ -28,9 +29,9 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     this.setState((s) => ({ ...s, currentAcceleration: baseAcceleration }));
   }, 300);
 
-  private debounceSetState = throttle((fn: (s:AppState) => AppState) => {
+  private debounceSetState = throttle((fn: (s: AppState) => AppState) => {
     this.setState(fn);
-  },200)
+  }, 200);
 
   private keyPressListener = (e: KeyboardEvent) => {
     if (!e.srcElement || e.srcElement.tagName.toLowerCase() !== 'input') {

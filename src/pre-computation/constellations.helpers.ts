@@ -1,6 +1,6 @@
 import { Star } from '../hygdata/hygdata.utils';
 import { raise, sequence, Validated } from '../utils/validated';
-import _ from 'lodash';
+import find from 'lodash/find';
 import { StarDictionnary } from '../app/AppState';
 
 export function constellationAsStarId(
@@ -15,14 +15,14 @@ function constellationPointAsStarId(
   con: string,
   bayerOrFlam: string,
 ): Validated<string> {
-  const exactStar = _.find(stars, (star: Star) => {
+  const exactStar = find(stars, (star: Star) => {
     return (star.bayer === bayerOrFlam || star.flamsteed === bayerOrFlam) && star.constellation === con.toLowerCase();
   });
   if (exactStar) {
     return exactStar.id;
   } else {
     if (bayerOrFlam.match(/^[a-zA-Z]+$/)) {
-      const approxStar = _.find(stars, (star: Star) => {
+      const approxStar = find(stars, (star: Star) => {
         return !!star.bayer && star.bayer.startsWith(bayerOrFlam) && star.constellation === con.toLowerCase();
       });
       if (approxStar) {
