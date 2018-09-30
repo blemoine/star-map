@@ -6,12 +6,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const star_map_1 = require("./star-map");
 const React = __importStar(require("react"));
 const hygdata_utils_1 = require("../hygdata/hygdata.utils");
 const constellations_1 = require("../constellations/constellations");
-const lodash_1 = require("lodash");
+const reduce_1 = __importDefault(require("lodash/reduce"));
+const flatten_1 = __importDefault(require("lodash/flatten"));
 const validated_1 = require("../utils/validated");
 const coordinates_1 = require("../geometry/coordinates");
 let starCache = {};
@@ -23,7 +27,7 @@ exports.StarMapContainer = (props) => {
         geoJson = starCache[starId];
     }
     else {
-        const mandatoryStars = new Set(lodash_1.flatten(props.constellations.constellations));
+        const mandatoryStars = new Set(flatten_1.default(props.constellations.constellations));
         geoJson = computeGeoJson(props.starDictionnary.stars, mandatoryStars, props.maxMagnitude, props.position);
         starCache = { [starId]: geoJson };
     }
@@ -43,7 +47,7 @@ exports.StarMapContainer = (props) => {
 function computeGeoJson(stars, mandatoryStars, maxMagnitude, position) {
     return {
         type: 'FeatureCollection',
-        features: lodash_1.reduce(stars, (acc, oldStar) => {
+        features: reduce_1.default(stars, (acc, oldStar) => {
             const newStar = hygdata_utils_1.moveOrigin(position, oldStar);
             if (validated_1.isError(newStar)) {
                 console.error(newStar.errors());

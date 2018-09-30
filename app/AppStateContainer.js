@@ -6,12 +6,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
 const App_1 = require("./App");
 const euler_angle_1 = require("../geometry/euler-angle");
 const parsec_1 = require("../measures/parsec");
-const lodash_1 = require("lodash");
+const debounce_1 = __importDefault(require("lodash/debounce"));
+const throttle_1 = __importDefault(require("lodash/throttle"));
 const spinner_1 = require("../spinner/spinner");
 const uuid_1 = require("../utils/uuid");
 const baseAcceleration = parsec_1.mkParsec(0.01);
@@ -31,10 +35,10 @@ class AppStateContainer extends React.Component {
             position: [0, 0, 0],
             displayConstellation: true,
         };
-        this.reinitAcceleration = lodash_1.debounce(() => {
+        this.reinitAcceleration = debounce_1.default(() => {
             this.setState((s) => (Object.assign({}, s, { currentAcceleration: baseAcceleration })));
         }, 300);
-        this.debounceSetState = lodash_1.throttle((fn) => {
+        this.debounceSetState = throttle_1.default((fn) => {
             this.setState(fn);
         }, 200);
         this.keyPressListener = (e) => {

@@ -8,7 +8,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
-const d3 = __importStar(require("d3"));
+const d3_drag_1 = require("d3-drag");
+const d3_zoom_1 = require("d3-zoom");
+const d3_selection_1 = require("d3-selection");
+const d3_geo_1 = require("d3-geo");
 require("./star-map.css");
 const quaternion_1 = require("../geometry/quaternion");
 const euler_angle_1 = require("../geometry/euler-angle");
@@ -22,7 +25,7 @@ class StarMap extends React.Component {
         super(...arguments);
         this.svgNode = null;
         this.tooltipNode = null;
-        this.projection = d3.geoStereographic();
+        this.projection = d3_geo_1.geoStereographic();
         this.selectedStar = null;
     }
     componentDidMount() {
@@ -39,7 +42,7 @@ class StarMap extends React.Component {
         let gpos0 = null;
         let o0 = null;
         const self = this;
-        const svg = d3.select(this.svgNode);
+        const svg = d3_selection_1.select(this.svgNode);
         const projectionInvert = (point) => {
             if (!this.projection.invert) {
                 return validated_1.raise('The project has no projectionInvert function');
@@ -54,10 +57,9 @@ class StarMap extends React.Component {
             const baseRotate = self.projection.rotate();
             return [euler_angle_1.mkDegree(baseRotate[0]), euler_angle_1.mkDegree(baseRotate[1]), euler_angle_1.mkDegree(baseRotate[2])];
         };
-        const drag = d3
-            .drag()
+        const dragDefinition = d3_drag_1.drag()
             .on('start', function dragstarted() {
-            const point = d3.mouse(this);
+            const point = d3_selection_1.mouse(this);
             const maybeInverted = projectionInvert(point);
             if (validated_1.isError(maybeInverted)) {
                 console.error('There is an error in invert projection', maybeInverted.errors());
@@ -71,7 +73,7 @@ class StarMap extends React.Component {
             if (gpos0 === null) {
                 throw new Error('WTF');
             }
-            const point = d3.mouse(this);
+            const point = d3_selection_1.mouse(this);
             const gpos1 = projectionInvert(point);
             if (validated_1.isError(gpos1)) {
                 console.error('There is an error in invert projection', gpos1.errors());
@@ -88,16 +90,15 @@ class StarMap extends React.Component {
             .on('end', function dragended() {
             svg.selectAll('.point').remove();
         });
-        svg.call(drag);
-        const zoom = d3
-            .zoom()
+        svg.call(dragDefinition);
+        const zoomDefinition = d3_zoom_1.zoom()
             .scaleExtent([1, 10])
             .on('zoom', function () {
-            svg.select('.map').attr('transform', d3.event.transform);
-            svg.select('.graticule').attr('transform', d3.event.transform);
+            svg.select('.map').attr('transform', d3_selection_1.event.transform);
+            svg.select('.graticule').attr('transform', d3_selection_1.event.transform);
             self.update();
         });
-        svg.call(zoom);
+        svg.call(zoomDefinition);
     }
     componentDidUpdate() {
         const rotation = this.props.rotation;
@@ -106,8 +107,7 @@ class StarMap extends React.Component {
     }
     update() {
         const projection = this.projection;
-        const geoGenerator = d3
-            .geoPath()
+        const geoGenerator = d3_geo_1.geoPath()
             .projection(projection)
             .pointRadius(function (d) {
             if (d && 'properties' in d && d.properties !== null) {
@@ -139,13 +139,13 @@ class StarMap extends React.Component {
                 return 0;
             }
         });
-        const graticule = d3.geoGraticule();
-        const svg = d3.select(this.svgNode);
+        const graticule = d3_geo_1.geoGraticule();
+        const svg = d3_selection_1.select(this.svgNode);
         svg
             .select('.graticule path')
             .datum(graticule())
             .attr('d', geoGenerator);
-        const tooltip = d3.select(this.tooltipNode);
+        const tooltip = d3_selection_1.select(this.tooltipNode);
         const constellationPath = svg
             .select('g.map')
             .selectAll('path.constellation')
@@ -194,7 +194,7 @@ class StarMap extends React.Component {
             }
         })
             .on('mousemove', function () {
-            tooltip.style('top', d3.event.y + 15 + 'px').style('left', d3.event.x + 15 + 'px');
+            tooltip.style('top', d3_selection_1.event.y + 15 + 'px').style('left', d3_selection_1.event.x + 15 + 'px');
         })
             .on('mouseout', () => {
             tooltip.style('visibility', 'hidden');
@@ -209,7 +209,7 @@ class StarMap extends React.Component {
         }
     }
     displayTooltip(star) {
-        const tooltip = d3.select(this.tooltipNode);
+        const tooltip = d3_selection_1.select(this.tooltipNode);
         const radius = star.radius;
         const distance = star.distance;
         tooltip
