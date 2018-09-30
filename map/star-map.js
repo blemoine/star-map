@@ -29,8 +29,8 @@ class StarMap extends React.Component {
         this.selectedStar = null;
     }
     componentDidMount() {
-        const height = this.svgNode ? this.svgNode.clientHeight : 600;
-        const width = this.svgNode ? this.svgNode.clientWidth : 800;
+        const height = this.getHeight();
+        const width = this.getWidth();
         const defaultScale = Math.min(width / Math.PI, height / Math.PI) * 3;
         const rotation = this.props.rotation;
         this.projection
@@ -220,6 +220,36 @@ class StarMap extends React.Component {
             'magnitude: ' + number_1.round(star.apparentMagnitude),
             'radius: ' + (radius ? number_1.round(parsec_1.toKm(radius)) : '?') + 'Km',
         ].join('<br />'));
+    }
+    getHeight() {
+        if (this.svgNode) {
+            if (this.svgNode.clientHeight) {
+                return this.svgNode.clientHeight;
+            }
+            else {
+                const parentNode = this.svgNode.parentNode;
+                if (!!parentNode && 'clientHeight' in parentNode) {
+                    const castedNode = parentNode;
+                    return castedNode.clientHeight;
+                }
+            }
+        }
+        return 600;
+    }
+    getWidth() {
+        if (this.svgNode) {
+            if (this.svgNode.clientWidth) {
+                return this.svgNode.clientWidth;
+            }
+            else {
+                const parentNode = this.svgNode.parentNode;
+                if (!!parentNode && 'clientWidth' in parentNode) {
+                    const castedNode = parentNode;
+                    return castedNode.clientWidth;
+                }
+            }
+        }
+        return 800;
     }
     render() {
         return (React.createElement(React.Fragment, null,
