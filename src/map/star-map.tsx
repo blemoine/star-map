@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { LineString, Point } from 'geojson';
-import * as d3 from 'd3';
+
+import { drag } from 'd3-drag';
+import { zoom } from 'd3-zoom';
+import { select, event, mouse } from 'd3-selection';
+import { geoStereographic, geoPath, geoGraticule, GeoProjection } from 'd3-geo';
+
 import './star-map.css';
 import { Rotation } from '../geometry/rotation';
 import { multiplyQuaternion, quaternionForRotation } from '../geometry/quaternion';
@@ -22,7 +27,7 @@ type Props = {
 export class StarMap extends React.Component<Props, {}> {
   private svgNode: SVGSVGElement | null = null;
   private tooltipNode: HTMLDivElement | null = null;
-  private projection: d3.GeoProjection = d3.geoStereographic();
+  private projection: GeoProjection = geoStereographic();
 
   private selectedStar: Star | null = null;
 
@@ -43,7 +48,7 @@ export class StarMap extends React.Component<Props, {}> {
     let gpos0: GeoCoordinates | null = null;
     let o0: [Degree, Degree, Degree] | null = null;
     const self = this;
-    const svg = d3.select(this.svgNode);
+    const svg = select(this.svgNode);
 
     const projectionInvert = (point: [number, number]): Validated<GeoCoordinates> => {
       if (!this.projection.invert) {
@@ -62,10 +67,9 @@ export class StarMap extends React.Component<Props, {}> {
       return [mkDegree(baseRotate[0]), mkDegree(baseRotate[1]), mkDegree(baseRotate[2])];
     };
 
-    const drag = d3
-      .drag()
+    const dragDefinition = drag()
       .on('start', function dragstarted() {
-        const point = d3.mouse(this as any);
+        const point = mouse(this as any);
         const maybeInverted = projectionInvert(point);
         if (isError(maybeInverted)) {
           console.error('There is an error in invert projection', maybeInverted.errors());
@@ -78,7 +82,7 @@ export class StarMap extends React.Component<Props, {}> {
         if (gpos0 === null) {
           throw new Error('WTF');
         }
-        const point = d3.mouse(this as any);
+        const point = mouse(this as any);
         const gpos1 = projectionInvert(point);
         if (isError(gpos1)) {
           console.error('There is an error in invert projection', gpos1.errors());
@@ -98,18 +102,17 @@ export class StarMap extends React.Component<Props, {}> {
         svg.selectAll('.point').remove();
       });
 
-    svg.call(drag as any);
+    svg.call(dragDefinition as any);
 
-    const zoom = d3
-      .zoom()
+    const zoomDefinition = zoom()
       .scaleExtent([1, 10])
       .on('zoom', function() {
-        svg.select('.map').attr('transform', d3.event.transform);
-        svg.select('.graticule').attr('transform', d3.event.transform);
+        svg.select('.map').attr('transform', event.transform);
+        svg.select('.graticule').attr('transform', event.transform);
 
         self.update();
       });
-    svg.call(zoom as any);
+    svg.call(zoomDefinition as any);
   }
   componentDidUpdate() {
     const rotation = this.props.rotation;
@@ -119,8 +122,7 @@ export class StarMap extends React.Component<Props, {}> {
 
   private update() {
     const projection = this.projection;
-    const geoGenerator = d3
-      .geoPath()
+    const geoGenerator = geoPath()
       .projection(projection)
       .pointRadius(function(d) {
         if (d && 'properties' in d && d.properties !== null) {
@@ -149,15 +151,15 @@ export class StarMap extends React.Component<Props, {}> {
         }
       });
 
-    const graticule = d3.geoGraticule();
+    const graticule = geoGraticule();
 
-    const svg = d3.select(this.svgNode);
+    const svg = select(this.svgNode);
     svg
       .select('.graticule path')
       .datum(graticule())
       .attr('d', geoGenerator);
 
-    const tooltip = d3.select(this.tooltipNode);
+    const tooltip = select(this.tooltipNode);
     const constellationPath = svg
       .select('g.map')
       .selectAll('path.constellation')
@@ -208,7 +210,7 @@ export class StarMap extends React.Component<Props, {}> {
         }
       })
       .on('mousemove', function() {
-        tooltip.style('top', d3.event.y + 15 + 'px').style('left', d3.event.x + 15 + 'px');
+        tooltip.style('top', event.y + 15 + 'px').style('left', event.x + 15 + 'px');
       })
       .on('mouseout', () => {
         tooltip.style('visibility', 'hidden');
@@ -225,7 +227,7 @@ export class StarMap extends React.Component<Props, {}> {
   }
 
   private displayTooltip(star: Star) {
-    const tooltip = d3.select(this.tooltipNode);
+    const tooltip = select(this.tooltipNode);
     const radius = star.radius;
     const distance = star.distance;
     tooltip
