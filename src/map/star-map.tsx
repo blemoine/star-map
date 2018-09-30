@@ -32,8 +32,8 @@ export class StarMap extends React.Component<Props, {}> {
   private selectedStar: Star | null = null;
 
   componentDidMount() {
-    const height = this.svgNode ? this.svgNode.clientHeight : 600;
-    const width = this.svgNode ? this.svgNode.clientWidth : 800;
+    const height = this.getHeight();
+    const width = this.getWidth();
 
     const defaultScale = Math.min(width / Math.PI, height / Math.PI) * 3;
     const rotation = this.props.rotation;
@@ -240,6 +240,36 @@ export class StarMap extends React.Component<Props, {}> {
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
         ].join('<br />')
       );
+  }
+
+  private getHeight(): number {
+    if (this.svgNode) {
+      if (this.svgNode.clientHeight) {
+        return this.svgNode.clientHeight;
+      } else {
+        const parentNode = this.svgNode.parentNode;
+        if (!!parentNode && 'clientHeight' in parentNode) {
+          const castedNode: Node & { clientHeight: number } = parentNode;
+          return castedNode.clientHeight;
+        }
+      }
+    }
+    return 600;
+  }
+
+  private getWidth(): number {
+    if (this.svgNode) {
+      if (this.svgNode.clientWidth) {
+        return this.svgNode.clientWidth;
+      } else {
+        const parentNode = this.svgNode.parentNode;
+        if (!!parentNode && 'clientWidth' in parentNode) {
+          const castedNode: Node & { clientWidth: number } = parentNode;
+          return castedNode.clientWidth;
+        }
+      }
+    }
+    return 800;
   }
 
   render() {
