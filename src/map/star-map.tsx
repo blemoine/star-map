@@ -16,6 +16,7 @@ import { Star } from '../hygdata/hygdata.utils';
 import { fastAtan2, round } from '../utils/number';
 import { toKm } from '../measures/parsec';
 import { toFullName } from '../constellations/constellations';
+import { rafThrottle } from '../utils/raf-throttle';
 
 type Props = {
   constellation: GeoJSON.FeatureCollection<LineString, {}>;
@@ -30,6 +31,13 @@ export class StarMap extends React.Component<Props, {}> {
   private projection: GeoProjection = geoStereographic();
 
   private selectedStar: Star | null = null;
+
+  private throttledRotationChange = rafThrottle(
+    (rotation: Rotation): void => {
+      console.log(rotation);
+      this.props.rotationChange(rotation);
+    }
+  );
 
   componentDidMount() {
     const height = this.getHeight();
@@ -92,7 +100,7 @@ export class StarMap extends React.Component<Props, {}> {
 
         const o1 = eulerAngles(gpos0, gpos1, o0);
 
-        self.props.rotationChange({
+        self.throttledRotationChange({
           rotateLambda: o1[0],
           rotatePhi: o1[1],
           rotateGamma: o1[2],
