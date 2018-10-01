@@ -4,7 +4,6 @@ import { Rotation } from '../geometry/rotation';
 import { moveOrigin, Star } from '../hygdata/hygdata.utils';
 import { convertConstellationToGeoJson, emptyConstellations } from '../constellations/constellations';
 import reduce from 'lodash/reduce';
-import flatten from 'lodash/flatten';
 import { Vector3D } from '../geometry/vectors';
 import { LineString, Point } from 'geojson';
 import { isError } from '../utils/validated';
@@ -30,18 +29,18 @@ export const StarMapContainer = (props: Props) => {
   if (starCache[starId]) {
     geoJson = starCache[starId];
   } else {
-    const mandatoryStars = new Set(flatten(props.constellations.constellations));
-    geoJson = computeGeoJson(props.starDictionnary.stars, mandatoryStars, props.maxMagnitude, props.position);
+    geoJson = computeGeoJson(props.starDictionnary.stars, props.maxMagnitude, props.position);
     starCache = { [starId]: geoJson };
   }
 
   let constellation: GeoJSON.FeatureCollection<LineString, {}>;
-  const constellationId = starId + '-' + props.constellations.id + '-' +props.displayConstellation;
+  const constellationId =
+    props.starDictionnary.id + '-' + props.position + '-' + props.constellations.id + '-' + props.displayConstellation;
   if (constellationCache[constellationId]) {
     constellation = constellationCache[constellationId];
   } else {
     constellation = props.displayConstellation
-      ? convertConstellationToGeoJson(props.constellations.constellations, geoJson)
+      ? convertConstellationToGeoJson(props.constellations.constellations, props.starDictionnary.stars, props.position)
       : emptyConstellations;
     constellationCache = { [constellationId]: constellation };
   }
@@ -58,7 +57,6 @@ export const StarMapContainer = (props: Props) => {
 
 function computeGeoJson(
   stars: StarDictionnary,
-  mandatoryStars: Set<string>,
   maxMagnitude: number,
   position: Vector3D
 ): GeoJSON.FeatureCollection<Point, Star> {
@@ -72,8 +70,7 @@ function computeGeoJson(
           console.error(newStar.errors());
           return acc;
         } else {
-          const isMandatoryStar = mandatoryStars.has(newStar.id);
-          if (newStar.apparentMagnitude > maxMagnitude && !isMandatoryStar) {
+          if (newStar.apparentMagnitude > maxMagnitude) {
             return acc;
           } else {
             const coordinates = xyzToLonLat(newStar.coordinates);

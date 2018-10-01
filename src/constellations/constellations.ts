@@ -1,5 +1,9 @@
-import { LineString, Point, Position } from 'geojson';
-import { Star } from '../hygdata/hygdata.utils';
+import { LineString, Position } from 'geojson';
+import { moveOrigin } from '../hygdata/hygdata.utils';
+import { Vector3D } from '../geometry/vectors';
+import { StarDictionnary } from '../app/AppState';
+import { xyzToLonLat } from '../geometry/coordinates';
+import { flatMap, isError, map } from '../utils/validated';
 
 export const emptyConstellations: GeoJSON.FeatureCollection<LineString, {}> = {
   type: 'FeatureCollection',
@@ -8,20 +12,25 @@ export const emptyConstellations: GeoJSON.FeatureCollection<LineString, {}> = {
 
 export function convertConstellationToGeoJson(
   constellations: Array<Array<string>>,
-  starsGeoJson: GeoJSON.FeatureCollection<Point, Star>
+  starDictionnary: StarDictionnary,
+  newOrigin: Vector3D
 ): GeoJSON.FeatureCollection<LineString, {}> {
   const features: Array<GeoJSON.Feature<LineString, {}>> = constellations.map(
     (constellation): GeoJSON.Feature<LineString, {}> => {
       const coordinates: Array<Position> = constellation
         .map((id) => {
-          const star = starsGeoJson.features.find((feature) => feature.properties.id === id);
+          const star = starDictionnary[id];
           if (star) {
-            return star.geometry.coordinates;
+            return flatMap(moveOrigin(newOrigin, star), (newStar) => {
+              return map(xyzToLonLat(newStar.coordinates), newCoordinates => {
+                return [-newCoordinates[0], newCoordinates[1]];
+              })
+            })
           } else {
             return null;
           }
         })
-        .filter((x): x is Position => x !== null);
+        .filter((x): x is Position => x !== null && !isError(x));
 
       return {
         type: 'Feature',
