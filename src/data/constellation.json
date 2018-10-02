@@ -23,7 +23,7 @@
   [["GEM", "kappa"], ["GEM", "upsilon"], ["GEM", "iota"], ["GEM", "tau"], ["GEM", "theta"]],
   [["GEM", "beta"], ["GEM", "upsilon"], ["GEM", "delta"], ["GEM", "zeta"], ["GEM", "gamma"]],
   [["GEM", "delta"], ["GEM", "lambda"], ["GEM", "xi"]],
-  [["CNC", "iota"], ["CNC", "gamma"], ["CNC", "delta"], ["CNC", "beta"], ["CNC", "8"], ["CNC", "gamma"]],
+  [["CNC", "iota"], ["CNC", "gamma"], ["CNC", "delta"], ["CNC", "beta"]],
   [["CNC", "delta"], ["CNC", "alpha"]],
   [["CMI", "alpha"], ["CMI", "beta"]],
   [
@@ -162,8 +162,7 @@
 
     ["CAR", "iota"]
   ],
-  [["CAS", "epsilon"], ["CAS", "delta"], ["CAS", "gamma"], ["CAS", "alpha"]],
-  [["CAS", "gamma"], ["CAS", "kappa"], ["CAS", "beta"]],
+  [["CAS", "epsilon"], ["CAS", "delta"], ["CAS", "gamma"], ["CAS", "alpha"], ["CAS", "beta"]],
   [["PIC", "alpha"], ["PIC", "gamma"], ["PIC", "beta"], ["PIC", "delta"], ["PIC", "alpha"]],
   [["DOR", "gamma"], ["DOR", "alpha"], ["DOR", "zeta"], ["DOR", "beta"], ["DOR", "delta"]],
   [["AND", "alpha"], ["AND", "delta"], ["AND", "beta"], ["AND", "mu"], ["AND", "nu"], ["AND", "phi"], ["AND", "51"]],
@@ -416,17 +415,13 @@
   [["IND", "alpha"], ["IND", "theta"], ["IND", "delta"]],
   [["IND", "theta"], ["IND", "beta"]],
   [
-    ["LAC", "5"],
-    ["LAC", "alpha"],
     ["LAC", "beta"],
+    ["LAC", "alpha"],
     ["LAC", "4"],
     ["LAC", "5"],
-    ["LAC", "11"],
-    ["LAC", "6"],
-    ["LAC", "2"],
-    ["LAC", "5"]
+    ["LAC", "2"]
+
   ],
-  [["LAC", "6"], ["LAC", "1"]],
   [["LIB", "sigma"], ["LIB", "alpha"], ["LIB", "beta"], ["LIB", "gamma"], ["LIB", "upsilon"], ["LIB", "tau"]],
   [["LIB", "gamma"], ["LIB", "alpha"]],
   [
@@ -527,16 +522,15 @@
   [["APS", "alpha"], ["APS", "delta"], ["APS", "gamma"], ["APS", "beta"], ["APS", "delta"]],
   [
     ["AQL", "gamma"],
+    ["AQL", "zeta"],
     ["AQL", "delta"],
-    ["AQL", "lambda"],
-    ["AQL", "iota"],
     ["AQL", "eta"],
     ["AQL", "theta"],
     ["AQL", "beta"],
     ["AQL", "alpha"],
     ["AQL", "gamma"],
-    ["AQL", "zeta"],
-    ["AQL", "epsilon"]
+    ["AQL", "delta"],
+    ["AQL", "lambda"]
   ],
   [
     ["AQR", "alpha"],
