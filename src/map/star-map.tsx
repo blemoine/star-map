@@ -34,7 +34,6 @@ export class StarMap extends React.Component<Props, {}> {
 
   private throttledRotationChange = rafThrottle(
     (rotation: Rotation): void => {
-      console.log(rotation);
       this.props.rotationChange(rotation);
     }
   );
