@@ -23,7 +23,7 @@
   [["GEM", "kappa"], ["GEM", "upsilon"], ["GEM", "iota"], ["GEM", "tau"], ["GEM", "theta"]],
   [["GEM", "beta"], ["GEM", "upsilon"], ["GEM", "delta"], ["GEM", "zeta"], ["GEM", "gamma"]],
   [["GEM", "delta"], ["GEM", "lambda"], ["GEM", "xi"]],
-  [["CNC", "iota"], ["CNC", "gamma"], ["CNC", "delta"], ["CNC", "beta"], ["CNC", "8"], ["CNC", "gamma"]],
+  [["CNC", "iota"], ["CNC", "gamma"], ["CNC", "delta"], ["CNC", "beta"]],
   [["CNC", "delta"], ["CNC", "alpha"]],
   [["CMI", "alpha"], ["CMI", "beta"]],
   [
