@@ -20,6 +20,7 @@ const validated_1 = require("../utils/validated");
 const number_1 = require("../utils/number");
 const parsec_1 = require("../measures/parsec");
 const constellations_1 = require("../constellations/constellations");
+const raf_throttle_1 = require("../utils/raf-throttle");
 class StarMap extends React.Component {
     constructor() {
         super(...arguments);
@@ -27,6 +28,9 @@ class StarMap extends React.Component {
         this.tooltipNode = null;
         this.projection = d3_geo_1.geoStereographic();
         this.selectedStar = null;
+        this.throttledRotationChange = raf_throttle_1.rafThrottle((rotation) => {
+            this.props.rotationChange(rotation);
+        });
     }
     componentDidMount() {
         const height = this.getHeight();
@@ -81,7 +85,7 @@ class StarMap extends React.Component {
             }
             o0 = getProjectionRotate();
             const o1 = eulerAngles(gpos0, gpos1, o0);
-            self.props.rotationChange({
+            self.throttledRotationChange({
                 rotateLambda: o1[0],
                 rotatePhi: o1[1],
                 rotateGamma: o1[2],

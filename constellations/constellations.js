@@ -1,22 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const hygdata_utils_1 = require("../hygdata/hygdata.utils");
+const coordinates_1 = require("../geometry/coordinates");
+const validated_1 = require("../utils/validated");
 exports.emptyConstellations = {
     type: 'FeatureCollection',
     features: [],
 };
-function convertConstellationToGeoJson(constellations, starsGeoJson) {
+function convertConstellationToGeoJson(constellations, starDictionnary, newOrigin) {
     const features = constellations.map((constellation) => {
         const coordinates = constellation
             .map((id) => {
-            const star = starsGeoJson.features.find((feature) => feature.properties.id === id);
+            const star = starDictionnary[id];
             if (star) {
-                return star.geometry.coordinates;
+                return validated_1.flatMap(hygdata_utils_1.moveOrigin(newOrigin, star), (newStar) => {
+                    return validated_1.map(coordinates_1.xyzToLonLat(newStar.coordinates), newCoordinates => {
+                        return [-newCoordinates[0], newCoordinates[1]];
+                    });
+                });
             }
             else {
                 return null;
             }
         })
-            .filter((x) => x !== null);
+            .filter((x) => x !== null && !validated_1.isError(x));
         return {
             type: 'Feature',
             geometry: {

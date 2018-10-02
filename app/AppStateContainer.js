@@ -15,9 +15,9 @@ const App_1 = require("./App");
 const euler_angle_1 = require("../geometry/euler-angle");
 const parsec_1 = require("../measures/parsec");
 const debounce_1 = __importDefault(require("lodash/debounce"));
-const throttle_1 = __importDefault(require("lodash/throttle"));
 const spinner_1 = require("../spinner/spinner");
 const uuid_1 = require("../utils/uuid");
+const raf_throttle_1 = require("../utils/raf-throttle");
 const baseAcceleration = parsec_1.mkParsec(0.01);
 class AppStateContainer extends React.Component {
     constructor() {
@@ -38,9 +38,9 @@ class AppStateContainer extends React.Component {
         this.reinitAcceleration = debounce_1.default(() => {
             this.setState((s) => (Object.assign({}, s, { currentAcceleration: baseAcceleration })));
         }, 300);
-        this.debounceSetState = throttle_1.default((fn) => {
+        this.throttledSetState = raf_throttle_1.rafThrottle((fn) => {
             this.setState(fn);
-        }, 200);
+        });
         this.keyPressListener = (e) => {
             if (!e.srcElement || e.srcElement.tagName.toLowerCase() !== 'input') {
                 const lon = euler_angle_1.toRadians(euler_angle_1.mkDegree(this.state.rotation.rotateLambda));
@@ -54,11 +54,11 @@ class AppStateContainer extends React.Component {
                     ? parsec_1.add(s.currentAcceleration, parsec_1.minParsec(parsec_1.mkParsec(0.003), s.currentAcceleration))
                     : s.currentAcceleration;
                 if (e.key === 'ArrowUp') {
-                    this.debounceSetState((state) => (Object.assign({}, state, { currentAcceleration: newAcceleration, position: [s.position[0] + x, s.position[1] + y, s.position[2] + z] })));
+                    this.throttledSetState((state) => (Object.assign({}, state, { currentAcceleration: newAcceleration, position: [s.position[0] + x, s.position[1] + y, s.position[2] + z] })));
                     this.reinitAcceleration();
                 }
                 else if (e.key === 'ArrowDown') {
-                    this.debounceSetState((state) => (Object.assign({}, state, { currentAcceleration: newAcceleration, position: [s.position[0] - x, s.position[1] - y, s.position[2] - z] })));
+                    this.throttledSetState((state) => (Object.assign({}, state, { currentAcceleration: newAcceleration, position: [s.position[0] - x, s.position[1] - y, s.position[2] - z] })));
                     this.reinitAcceleration();
                 }
                 else if (e.code === 'KeyW') {

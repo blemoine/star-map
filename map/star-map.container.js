@@ -15,7 +15,6 @@ const React = __importStar(require("react"));
 const hygdata_utils_1 = require("../hygdata/hygdata.utils");
 const constellations_1 = require("../constellations/constellations");
 const reduce_1 = __importDefault(require("lodash/reduce"));
-const flatten_1 = __importDefault(require("lodash/flatten"));
 const validated_1 = require("../utils/validated");
 const coordinates_1 = require("../geometry/coordinates");
 let starCache = {};
@@ -27,24 +26,23 @@ exports.StarMapContainer = (props) => {
         geoJson = starCache[starId];
     }
     else {
-        const mandatoryStars = new Set(flatten_1.default(props.constellations.constellations));
-        geoJson = computeGeoJson(props.starDictionnary.stars, mandatoryStars, props.maxMagnitude, props.position);
+        geoJson = computeGeoJson(props.starDictionnary.stars, props.maxMagnitude, props.position);
         starCache = { [starId]: geoJson };
     }
     let constellation;
-    const constellationId = starId + '-' + props.constellations.id + '-' + props.displayConstellation;
+    const constellationId = props.starDictionnary.id + '-' + props.position + '-' + props.constellations.id + '-' + props.displayConstellation;
     if (constellationCache[constellationId]) {
         constellation = constellationCache[constellationId];
     }
     else {
         constellation = props.displayConstellation
-            ? constellations_1.convertConstellationToGeoJson(props.constellations.constellations, geoJson)
+            ? constellations_1.convertConstellationToGeoJson(props.constellations.constellations, props.starDictionnary.stars, props.position)
             : constellations_1.emptyConstellations;
         constellationCache = { [constellationId]: constellation };
     }
     return (React.createElement(star_map_1.StarMap, { constellation: constellation, geoJson: geoJson, rotation: props.rotation, rotationChange: (rotation) => props.updateRotation(rotation) }));
 };
-function computeGeoJson(stars, mandatoryStars, maxMagnitude, position) {
+function computeGeoJson(stars, maxMagnitude, position) {
     return {
         type: 'FeatureCollection',
         features: reduce_1.default(stars, (acc, oldStar) => {
@@ -54,8 +52,7 @@ function computeGeoJson(stars, mandatoryStars, maxMagnitude, position) {
                 return acc;
             }
             else {
-                const isMandatoryStar = mandatoryStars.has(newStar.id);
-                if (newStar.apparentMagnitude > maxMagnitude && !isMandatoryStar) {
+                if (newStar.apparentMagnitude > maxMagnitude) {
                     return acc;
                 }
                 else {
