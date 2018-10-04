@@ -1,4 +1,12 @@
-import { canDrawEulerianTrail, Edge, findStartVertex, fleuryAlgorithm, isBridge, reachableVertices } from '../graph';
+import {
+  canDrawEulerianTrail,
+  Edge,
+  extendedFleuryAlgorithm,
+  findStartVertex,
+  fleuryAlgorithm,
+  isBridge,
+  reachableVertices,
+} from '../graph';
 
 const square: Array<Edge> = [['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']];
 
@@ -111,5 +119,75 @@ describe('isBridge', () => {
   it('should return false if the edge is not a bridge', () => {
     expect(isBridge(squareWithHandle, ['A', 'D'])).toBe(false);
     expect(isBridge(squareWithHandle, ['A', 'B'])).toBe(false);
+  });
+});
+
+describe('extendedFleuryAlgorithm', () => {
+  it('should draw correctly a simple graph', () => {
+    expect(extendedFleuryAlgorithm([['C', 'B'], ['A', 'B']])).toEqual([['C', 'B'], ['B', 'A']]);
+  });
+  it('should draw correctly a cyclic graph', () => {
+    expect(extendedFleuryAlgorithm(square)).toEqual([['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']]);
+  });
+  it('should draw correctly a non cyclic euclidian graph', () => {
+    expect(extendedFleuryAlgorithm(squareWithHandle)).toEqual([
+      ['D', 'C'],
+      ['C', 'B'],
+      ['B', 'A'],
+      ['A', 'D'],
+      ['D', 'E'],
+      ['E', 'F'],
+    ]);
+  });
+
+  it('should work for a non euclidian trail', () => {
+    const result = extendedFleuryAlgorithm(threeBranchedOnC);
+    expect(result).toEqual([
+      ['A', 'B'],
+      ['B', 'C'],
+      ['C', 'D'],
+      ['D', 'E'],
+      ['E', 'D'],
+      ['D', 'C'],
+      ['C', 'F'],
+      ['F', 'G'],
+    ]);
+  });
+
+  it('should work for another euclidian trail', () => {
+    const result = extendedFleuryAlgorithm([
+      ['A', 'B'],
+      ['B', 'C'],
+      ['C', 'D'],
+      ['D', 'E'],
+      ['F', 'E'],
+      ['F', 'FF'],
+
+      ['D', 'G'],
+      ['G', 'GG'],
+      ['GG', 'H'],
+      ['H', 'I'],
+      ['H', 'J'],
+      ['J', 'K'],
+      ['H', 'K'],
+    ]);
+    expect(result).toEqual([
+      ['A', 'B'],
+      ['B', 'C'],
+      ['C', 'D'],
+      ['D', 'E'],
+      ['E', 'F'],
+      ['F', 'FF'],
+      ['FF', 'F'],
+      ['F', 'E'],
+      ['E', 'D'],
+      ['D', 'G'],
+      ['G', 'GG'],
+      ['GG', 'H'],
+      ['H', 'J'],
+      ['J', 'K'],
+      ['K', 'H'],
+      ['H', 'I'],
+    ]);
   });
 });
