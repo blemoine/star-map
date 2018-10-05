@@ -6,12 +6,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
 const controls_1 = require("../controls/controls");
 const informations_1 = require("../informations/informations");
 const star_map_container_1 = require("../map/star-map.container");
+const sortBy_1 = __importDefault(require("lodash/sortBy"));
 exports.App = (props) => {
+    const starsWithName = sortBy_1.default(Object.values(props.baseStarDictionnary.stars).filter((star) => !!star.name.trim()), (star) => star.name.toLowerCase());
+    const updateSelectedStar = (selectedStar) => {
+        if (!selectedStar) {
+            props.updateState({ selectedStar });
+        }
+        else {
+            props.updateState({ selectedStar, position: selectedStar.coordinates });
+        }
+    };
     return (React.createElement(React.Fragment, null,
         React.createElement("div", { style: {
                 position: 'absolute',
@@ -20,7 +33,7 @@ exports.App = (props) => {
                 paddingTop: '5px',
                 backgroundColor: 'rgba(55,55,55,0.8)',
             } },
-            React.createElement(controls_1.Controls, { displayConstellation: props.displayConstellation, displayConstellationChange: (displayConstellation) => props.updateState({ displayConstellation }), magnitude: props.maxMagnitude, magnitudeChange: (maxMagnitude) => props.updateState({ maxMagnitude }) })),
+            React.createElement(controls_1.Controls, { displayConstellation: props.displayConstellation, displayConstellationChange: (displayConstellation) => props.updateState({ displayConstellation }), magnitude: props.maxMagnitude, magnitudeChange: (maxMagnitude) => props.updateState({ maxMagnitude }), changeSelectedStar: (selectedStar) => updateSelectedStar(selectedStar), selectedStar: props.selectedStar, starsWithNane: starsWithName })),
         React.createElement("div", { style: {
                 position: 'absolute',
                 width: '300px',

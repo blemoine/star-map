@@ -15,6 +15,7 @@ const rc_tooltip_1 = __importDefault(require("rc-tooltip"));
 require("rc-tooltip/assets/bootstrap_white.css");
 require("./controls.css");
 exports.Controls = (props) => {
+    const selectedStarId = props.selectedStar ? props.selectedStar.id : '';
     return (React.createElement("div", { className: "controls-wrapper" },
         React.createElement("div", { className: "form-element" },
             React.createElement(rc_tooltip_1.default, { placement: "bottom", overlay: React.createElement("span", null,
@@ -33,5 +34,10 @@ exports.Controls = (props) => {
                     " from stars that have no other links than to be in same general direction. Those stars can in reality be really far from each others. ",
                     React.createElement("br", null),
                     "So, while staying in the neighbourhood (some light-years) of the solar system, the constellation will appear slightly deformed, the further you move, the less the constellation will make sense. That's why you can hide them if you want to navigate far into the galaxy."), destroyTooltipOnHide: true },
-                React.createElement("button", { onClick: () => props.displayConstellationChange(!props.displayConstellation) }, props.displayConstellation ? 'Hide Constellations' : 'Show Constellations')))));
+                React.createElement("button", { onClick: () => props.displayConstellationChange(!props.displayConstellation) }, props.displayConstellation ? 'Hide Constellations' : 'Show Constellations'))),
+        React.createElement("div", { className: "form-element star-selector" },
+            React.createElement("label", null, "Go to"),
+            React.createElement("select", { value: selectedStarId, onChange: (event) => props.changeSelectedStar(props.starsWithNane.find((s) => s.id === event.target.value) || null) },
+                React.createElement("option", { value: "" }),
+                props.starsWithNane.map((star) => (React.createElement("option", { key: star.id, value: star.id }, star.name)))))));
 };

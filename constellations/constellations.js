@@ -14,7 +14,7 @@ function convertConstellationToGeoJson(constellations, starDictionnary, newOrigi
             const star = starDictionnary[id];
             if (star) {
                 return validated_1.flatMap(hygdata_utils_1.moveOrigin(newOrigin, star), (newStar) => {
-                    return validated_1.map(coordinates_1.xyzToLonLat(newStar.coordinates), newCoordinates => {
+                    return validated_1.map(coordinates_1.xyzToLonLat(newStar.coordinates), (newCoordinates) => {
                         return [-newCoordinates[0], newCoordinates[1]];
                     });
                 });
