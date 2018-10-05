@@ -6,6 +6,7 @@ import { Rotation } from '../geometry/rotation';
 import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { StarMapContainer } from '../map/star-map.container';
+import { Star } from '../hygdata/hygdata.utils';
 
 type Props = {
   baseStarDictionnary: StarDictionnaryWithUniqueId;
@@ -16,6 +17,7 @@ type Props = {
   acceleration: Parsec;
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
+  nearestStar: Star | null;
 };
 export const App = (props: Props) => {
   return (
@@ -46,7 +48,12 @@ export const App = (props: Props) => {
           backgroundColor: 'rgba(55,55,55,0.8)',
         }}
       >
-        <Informations acceleration={props.acceleration} position={props.position} rotation={props.rotation} />
+        <Informations
+          acceleration={props.acceleration}
+          position={props.position}
+          rotation={props.rotation}
+          nearestStar={props.nearestStar}
+        />
       </div>
       <div className="main-wrapper" style={{ width: '100vw', height: '100vh' }}>
         <StarMapContainer
@@ -57,6 +64,7 @@ export const App = (props: Props) => {
           maxMagnitude={props.maxMagnitude}
           position={props.position}
           displayConstellation={props.displayConstellation}
+          updateNearestStar={(nearestStar) => props.updateState({ nearestStar })}
         />
       </div>
     </>

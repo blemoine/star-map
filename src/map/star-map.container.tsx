@@ -18,10 +18,33 @@ type Props = {
   maxMagnitude: number;
   position: Vector3D;
   displayConstellation: boolean;
+  updateNearestStar: (star: Star | null) => void;
 };
 
 let starCache: { [key: string]: GeoJSON.FeatureCollection<Point, Star> } = {};
 let constellationCache: { [key: string]: GeoJSON.FeatureCollection<LineString, {}> } = {};
+
+let currTimeout: number | null = null;
+function asyncSearchNearestStar(features: Array<GeoJSON.Feature<Point, Star>>, cb: (star: Star | null) => void): void {
+  if (currTimeout !== null) {
+    clearTimeout(currTimeout);
+  }
+  _searchNearestStar(0, null);
+  function _searchNearestStar(idx: number, currStar: Star | null) {
+    currTimeout = setTimeout(() => {
+      if (idx === features.length - 1) {
+        cb(currStar);
+      }
+
+      const newStar = features[idx];
+      const newMin =
+        !!newStar && (currStar === null || currStar.distance > newStar.properties.distance)
+          ? newStar.properties
+          : currStar;
+      _searchNearestStar(idx + 1, newMin);
+    });
+  }
+}
 
 export const StarMapContainer = (props: Props) => {
   let geoJson: GeoJSON.FeatureCollection<Point, Star>;
@@ -30,6 +53,11 @@ export const StarMapContainer = (props: Props) => {
     geoJson = starCache[starId];
   } else {
     geoJson = computeGeoJson(props.starDictionnary.stars, props.maxMagnitude, props.position);
+    props.updateNearestStar(null);
+    asyncSearchNearestStar(geoJson.features, (star) => {
+      props.updateNearestStar(star);
+    });
+
     starCache = { [starId]: geoJson };
   }
 

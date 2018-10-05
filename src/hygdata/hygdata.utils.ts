@@ -1,6 +1,8 @@
-import { mkParsec, Parsec } from '../measures/parsec';
+import { mkParsec, Parsec, toKm, toLightYear } from '../measures/parsec';
 import { map, Validated } from '../utils/validated';
 import { Vector3D, vectorLength } from '../geometry/vectors';
+import { toFullName } from '../constellations/constellations';
+import { round } from '../utils/number';
 
 export type Star = {
   id: string;
@@ -11,7 +13,7 @@ export type Star = {
   radius: Parsec | null;
   constellation: string;
   bayer: string | null;
-  flamsteed: string | null,
+  flamsteed: string | null;
   coordinates: Vector3D;
 };
 
@@ -54,4 +56,13 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
       apparentMagnitude,
     };
   });
+}
+
+export function formatName(star: Star): string {
+  return (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toFullName(star.constellation);
+}
+
+export function formatDistance(star: Star): string {
+  const distance = star.distance;
+  return distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(toLightYear(distance), 5) + ' Light-years';
 }

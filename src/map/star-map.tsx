@@ -3,8 +3,8 @@ import { LineString, Point } from 'geojson';
 
 import { drag } from 'd3-drag';
 import { zoom } from 'd3-zoom';
-import { select, event, mouse } from 'd3-selection';
-import { geoStereographic, geoPath, geoGraticule, GeoProjection } from 'd3-geo';
+import { event, mouse, select } from 'd3-selection';
+import { geoGraticule, geoPath, GeoProjection, geoStereographic } from 'd3-geo';
 
 import './star-map.css';
 import { Rotation } from '../geometry/rotation';
@@ -12,10 +12,9 @@ import { multiplyQuaternion, quaternionForRotation } from '../geometry/quaternio
 import { Degree, euler2quat, mkDegree, quat2euler } from '../geometry/euler-angle';
 import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry/coordinates';
 import { isError, raise, Validated, zip } from '../utils/validated';
-import { Star } from '../hygdata/hygdata.utils';
+import { formatDistance, formatName, Star } from '../hygdata/hygdata.utils';
 import { fastAtan2, round } from '../utils/number';
-import { toKm, toLightYear } from '../measures/parsec';
-import { toFullName } from '../constellations/constellations';
+import { toKm } from '../measures/parsec';
 import { rafThrottle } from '../utils/raf-throttle';
 
 type Props = {
@@ -236,13 +235,12 @@ export class StarMap extends React.Component<Props, {}> {
   private displayTooltip(star: Star) {
     const tooltip = select(this.tooltipNode);
     const radius = star.radius;
-    const distance = star.distance;
     tooltip
       .style('visibility', 'visible')
       .html(
         [
-          (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toFullName(star.constellation),
-          'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(toLightYear(distance), 5) + ' Light-years'),
+          formatName(star),
+          'distance: ' + formatDistance(star),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
         ].join('<br />')

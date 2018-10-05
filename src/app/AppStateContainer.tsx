@@ -23,6 +23,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
       rotateGamma: 0,
     },
     position: [0, 0, 0],
+    nearestStar: null,
     displayConstellation: true,
   };
 
@@ -124,6 +125,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     if (!!baseStars && !!baseConstellation) {
       return (
         <App
+          nearestStar={this.state.nearestStar}
           baseStarDictionnary={baseStars}
           baseConstellation={baseConstellation}
           acceleration={this.state.currentAcceleration}

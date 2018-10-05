@@ -15,4 +15,5 @@ export type AppState = {
   position: Vector3D;
   currentAcceleration: Parsec;
   displayConstellation: boolean;
+  nearestStar: Star | null
 };
