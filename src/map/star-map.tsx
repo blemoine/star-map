@@ -14,7 +14,7 @@ import { GeoCoordinates, lonlat2xyz, mkLatitude, mkLongitude } from '../geometry
 import { isError, raise, Validated, zip } from '../utils/validated';
 import { Star } from '../hygdata/hygdata.utils';
 import { fastAtan2, round } from '../utils/number';
-import { toKm } from '../measures/parsec';
+import { toKm, toLightYear } from '../measures/parsec';
 import { toFullName } from '../constellations/constellations';
 import { rafThrottle } from '../utils/raf-throttle';
 
@@ -242,7 +242,7 @@ export class StarMap extends React.Component<Props, {}> {
       .html(
         [
           (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toFullName(star.constellation),
-          'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(distance, 8) + 'Pc'),
+          'distance: ' + (distance < 10e-5 ? round(toKm(distance), 3) + 'Km' : round(toLightYear(distance), 5) + ' Light-years'),
           'magnitude: ' + round(star.apparentMagnitude),
           'radius: ' + (radius ? round(toKm(radius)) : '?') + 'Km',
         ].join('<br />')

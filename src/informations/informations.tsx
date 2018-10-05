@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Parsec } from '../measures/parsec';
+import { Parsec, toLightYear } from '../measures/parsec';
 import { Vector3D } from '../geometry/vectors';
 import { round } from '../utils/number';
 import { Rotation } from '../geometry/rotation';
@@ -18,35 +18,34 @@ export const Informations = (props: Props) => {
     <div>
       <ul>
         <li>
-          Acceleration: <em>{round(props.acceleration)}</em>
+          Acceleration: <em>{toLightYear(round(props.acceleration))}</em>
           <Tooltip
             placement="bottom"
             overlay={
               <span>
-                <a href="https://en.wikipedia.org/wiki/Parsec">Parsec</a> is a measurement of distance roughly equals to
-                3.26 light-years or 30 trillions kilometers.
+                <a href="https://en.wikipedia.org/wiki/Light-year">Light-years</a> is a measurement of distance roughly equals to 9.461 trillions kilometers.
                 <br />
                 The nearest star from earth is{' '}
-                <a href="https://en.wikipedia.org/wiki/Proxima_Centauri">Proxima Centauri</a>, which is ~1.3 Parsec from
+                <a href="https://en.wikipedia.org/wiki/Proxima_Centauri">Proxima Centauri</a>, which is ~4.24 Light-years from
                 earth.
               </span>
             }
             destroyTooltipOnHide={true}
           >
-            <span> Parsec</span>
+            <span> Light-Years</span>
           </Tooltip>
         </li>
         <li>
           Postion:
           <ul>
             <li>
-              X: <em>{formatedPostion[0]}</em> Parsec
+              X: <em>{toLightYear(formatedPostion[0])}</em> Light-years
             </li>
             <li>
-              Y: <em>{formatedPostion[1]}</em> Parsec
+              Y: <em>{toLightYear(formatedPostion[1])}</em> Light-years
             </li>
             <li>
-              Z: <em>{formatedPostion[2]}</em> Parsec
+              Z: <em>{toLightYear(formatedPostion[2])}</em> Light-years
             </li>
           </ul>
         </li>

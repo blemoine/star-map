@@ -29,6 +29,10 @@ export function add(p1: Parsec, p2: Parsec): Parsec {
   return r;
 }
 
+export function toLightYear(p: number): number {
+  return p * 3.261;
+}
+
 export function toKm(p: Parsec): number {
   return p * 3.08567758e13;
 }
