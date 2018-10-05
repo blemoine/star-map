@@ -127,5 +127,16 @@ export function optimizeConstellation(constellations: Array<Array<[string, strin
     return extendedFleuryAlgorithm(edges);
   });
 
-  return optimizedPaths;
+  return optimizedPaths.map((path) => {
+    const basePath = path.map((edge) => edge[1]);
+    const firstVertex = path[0][0];
+
+    return [firstVertex, ...basePath].map(
+      (vertex): [string, string] => {
+        const conAndName = vertex.split('-');
+
+        return [conAndName[0], conAndName[1]];
+      }
+    );
+  });
 }

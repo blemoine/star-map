@@ -1,5 +1,5 @@
 import { flatMap, isError, map, sequence, Validated, zip } from '../utils/validated';
-import { constellationAsStarId, validateConstellationJson } from './constellations.helpers';
+import { constellationAsStarId, optimizeConstellation, validateConstellationJson } from './constellations.helpers';
 import { parseJson, parseToCsv, readFile } from './file.helper';
 import { RawHygCsvRow, rowsToStars } from './hyg-csv.helpers';
 import { StarDictionnary } from '../app/AppState';
@@ -28,8 +28,10 @@ Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
     const result = flatMap(
       zip(maybeFilteredStars, maybeParsedConstellation),
       ([filteredStars, parsedConstellation]): Validated<Result> => {
+        const optimizedConstellations = optimizeConstellation(parsedConstellation);
+
         const maybeConstellations = sequence(
-          parsedConstellation.map((constellation) => constellationAsStarId(filteredStars, constellation))
+          optimizedConstellations.map((constellation) => constellationAsStarId(filteredStars, constellation))
         );
 
         return map(maybeConstellations, (constellations) => ({
