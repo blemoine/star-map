@@ -7,6 +7,7 @@ import { Parsec } from '../measures/parsec';
 import { Informations } from '../informations/informations';
 import { StarMapContainer } from '../map/star-map.container';
 import { Star } from '../hygdata/hygdata.utils';
+import sortBy from 'lodash/sortBy';
 
 type Props = {
   baseStarDictionnary: StarDictionnaryWithUniqueId;
@@ -18,8 +19,21 @@ type Props = {
   displayConstellation: boolean;
   updateState: (s: Partial<AppState>) => void;
   nearestStar: Star | null;
+  selectedStar: Star | null;
 };
 export const App = (props: Props) => {
+  const starsWithName = sortBy(
+    Object.values(props.baseStarDictionnary.stars).filter((star) => !!star.name.trim()),
+    (star: Star) => star.name.toLowerCase()
+  );
+  const updateSelectedStar = (selectedStar: Star | null) => {
+    if (!selectedStar) {
+      props.updateState({ selectedStar });
+    } else {
+      props.updateState({ selectedStar, position: selectedStar.coordinates });
+    }
+  };
+
   return (
     <>
       <div
@@ -36,6 +50,9 @@ export const App = (props: Props) => {
           displayConstellationChange={(displayConstellation) => props.updateState({ displayConstellation })}
           magnitude={props.maxMagnitude}
           magnitudeChange={(maxMagnitude) => props.updateState({ maxMagnitude })}
+          changeSelectedStar={(selectedStar) => updateSelectedStar(selectedStar)}
+          selectedStar={props.selectedStar}
+          starsWithNane={starsWithName}
         />
       </div>
       <div

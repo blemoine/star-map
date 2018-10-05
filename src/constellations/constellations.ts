@@ -22,10 +22,10 @@ export function convertConstellationToGeoJson(
           const star = starDictionnary[id];
           if (star) {
             return flatMap(moveOrigin(newOrigin, star), (newStar) => {
-              return map(xyzToLonLat(newStar.coordinates), newCoordinates => {
+              return map(xyzToLonLat(newStar.coordinates), (newCoordinates) => {
                 return [-newCoordinates[0], newCoordinates[1]];
-              })
-            })
+              });
+            });
           } else {
             return null;
           }

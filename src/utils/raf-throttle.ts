@@ -1,4 +1,3 @@
-
 export function rafThrottle<P extends Array<any>, R>(callback: (...p: P) => R): (...p: P) => void {
   let requestId: number | null = null;
 

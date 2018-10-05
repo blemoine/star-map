@@ -8,7 +8,7 @@ export const round = (num: number, precision: number = 2) => {
 const pi_2 = Math.PI / 2;
 //http://developer.download.nvidia.com/cg/atan2.html
 export function fastAtan2(y: number, x: number): number {
-  if(x === 0 && y === 0) return 0;
+  if (x === 0 && y === 0) return 0;
   let t0, t1, t3, t4;
 
   t3 = Math.abs(x);

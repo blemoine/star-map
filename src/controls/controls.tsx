@@ -2,14 +2,19 @@ import * as React from 'react';
 import Tooltip from 'rc-tooltip';
 import 'rc-tooltip/assets/bootstrap_white.css';
 import './controls.css';
+import { Star } from '../hygdata/hygdata.utils';
 
 type Props = {
+  starsWithNane: Array<Star>;
+  selectedStar: Star | null;
+  changeSelectedStar: (s: Star | null) => void;
   displayConstellation: boolean;
   displayConstellationChange: (displayConstellation: boolean) => void;
   magnitude: number;
   magnitudeChange: (magnitude: number) => void;
 };
 export const Controls = (props: Props) => {
+  const selectedStarId = props.selectedStar ? props.selectedStar.id : '';
   return (
     <div className="controls-wrapper">
       <div className="form-element">
@@ -43,9 +48,9 @@ export const Controls = (props: Props) => {
               <a href="https://en.wikipedia.org/wiki/Constellation">Constellation</a> are often <em>drawn</em> from
               stars that have no other links than to be in same general direction. Those stars can in reality be really
               far from each others. <br />
-              So, while staying in the neighbourhood (some light-years) of the solar system, the
-              constellation will appear slightly deformed, the further you move, the less the constellation will make
-              sense. That's why you can hide them if you want to navigate far into the galaxy.
+              So, while staying in the neighbourhood (some light-years) of the solar system, the constellation will
+              appear slightly deformed, the further you move, the less the constellation will make sense. That's why you
+              can hide them if you want to navigate far into the galaxy.
             </span>
           }
           destroyTooltipOnHide={true}
@@ -54,6 +59,22 @@ export const Controls = (props: Props) => {
             {props.displayConstellation ? 'Hide Constellations' : 'Show Constellations'}
           </button>
         </Tooltip>
+      </div>
+      <div className="form-element star-selector">
+        <label>Go to</label>
+        <select
+          value={selectedStarId}
+          onChange={(event) =>
+            props.changeSelectedStar(props.starsWithNane.find((s) => s.id === event.target.value) || null)
+          }
+        >
+          <option value="" />
+          {props.starsWithNane.map((star) => (
+            <option key={star.id} value={star.id}>
+              {star.name}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

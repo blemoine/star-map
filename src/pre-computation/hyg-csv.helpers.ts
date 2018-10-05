@@ -23,10 +23,7 @@ export type RawHygCsvRow = {
   con: string;
 };
 
-export function rowsToStars(
-  maxNavigationRadius: number,
-  rows: Array<RawHygCsvRow>
-): Validated<StarDictionnary> {
+export function rowsToStars(maxNavigationRadius: number, rows: Array<RawHygCsvRow>): Validated<StarDictionnary> {
   return rows.reduce((maybeAcc: Validated<{ [starId: string]: Star }>, row) => {
     return flatMap(maybeAcc, (acc) => {
       return map(rowToStar(row), (star) => {

@@ -25,6 +25,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
     position: [0, 0, 0],
     nearestStar: null,
     displayConstellation: true,
+    selectedStar: null,
   };
 
   private reinitAcceleration = debounce(() => {
@@ -134,6 +135,7 @@ export class AppStateContainer extends React.Component<{}, AppState> {
           position={this.state.position}
           rotation={this.state.rotation}
           updateState={(partialState) => this.setState((previousState) => ({ ...previousState, ...partialState }))}
+          selectedStar={this.state.selectedStar}
         />
       );
     } else {
