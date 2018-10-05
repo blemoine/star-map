@@ -1,4 +1,4 @@
-import { countBy, flatten, pickBy, uniq } from 'lodash';
+import { countBy, flatten, pickBy, uniq, takeWhile } from 'lodash';
 
 export type Vertex = string;
 export type Edge = [Vertex, Vertex];
@@ -119,7 +119,7 @@ export function extendedFleuryAlgorithm(edges: Array<Edge>): Array<Edge> {
 
     const newEdges = [...edges];
 
-    let nextVertex: Vertex | null;
+    let nextVertex: Vertex;
     if (adjacents.length === 1) {
       nextVertex = adjacents[0][0] === start ? adjacents[0][1] : adjacents[0][0];
     } else {
@@ -129,23 +129,25 @@ export function extendedFleuryAlgorithm(edges: Array<Edge>): Array<Edge> {
       } else {
         if (adjacents.length === 0) {
           //go backward
-          nextVertex = null;
+          //get all already chosen Path reversed until we find one that connect to a remaining edge.
+          // put all that in alreadyChosenPath, and return
+          const reversed: Array<Edge> = alreadyChosenPath.map((arr: Edge): Edge => [arr[1], arr[0]]).reverse();
+
+          const backtrack: Array<Edge> = takeWhile(reversed, (edge) => {
+            return edges.some(([c, d]) => c === edge[1] || d === edge[1]);
+          });
+
+          return _fleuryAlgorithm(newEdges, backtrack[backtrack.length - 1][1], alreadyChosenPath.concat(backtrack));
         } else {
           nextVertex = adjacents[0][0] === start ? adjacents[0][1] : adjacents[0][0];
-          newEdges.push([start, nextVertex]);
         }
+        newEdges.push([start, nextVertex]);
       }
     }
 
-    if (nextVertex === null) {
-      return [];
-    } else {
-      const idx = newEdges.findIndex(
-        ([a, b]) => (a === nextVertex && b === start) || (a === start && b === nextVertex)
-      );
-      newEdges.splice(idx, 1);
-      const chosenEdge: Edge = [start, nextVertex];
-      return _fleuryAlgorithm(newEdges, nextVertex, alreadyChosenPath.concat([chosenEdge]));
-    }
+    const idx = newEdges.findIndex(([a, b]) => (a === nextVertex && b === start) || (a === start && b === nextVertex));
+    newEdges.splice(idx, 1);
+    const chosenEdge: Edge = [start, nextVertex];
+    return _fleuryAlgorithm(newEdges, nextVertex, alreadyChosenPath.concat([chosenEdge]));
   }
 }

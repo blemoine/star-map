@@ -1,6 +1,11 @@
 import { mkParsec } from '../../measures/parsec';
 import { getOrThrow } from '../../tests/utils/utils';
-import { constellationAsStarId, convertStarNameToFullName, validateConstellationJson } from '../constellations.helpers';
+import {
+  constellationAsStarId,
+  convertStarNameToFullName,
+  optimizeConstellation,
+  validateConstellationJson,
+} from '../constellations.helpers';
 import { isError } from '../../utils/validated';
 import { StarDictionnary } from '../../app/AppState';
 
@@ -89,5 +94,80 @@ describe('validateConstellationJson', () => {
     expect(validateConstellationJson({})).toBe(false);
     expect(validateConstellationJson([{}])).toBe(false);
     expect(validateConstellationJson([[['ORI', 'zeta'], ['ORI', 'epsilon'], ['ORI', 'delta', 'da']]])).toBe(false);
+  });
+});
+
+describe('optimizeConstellation', () => {
+  it('should optimize one constellation', () => {
+    const uma: Array<Array<[string, string]>> = [
+      [
+        ['UMA', 'eta'],
+        ['UMA', 'zeta'],
+        ['UMA', 'epsilon'],
+        ['UMA', 'delta'],
+        ['UMA', 'alpha'],
+        ['UMA', '23'],
+        ['UMA', 'omicron'],
+        ['UMA', 'upsilon'],
+        ['UMA', 'beta'],
+        ['UMA', 'gamma'],
+        ['UMA', 'delta'],
+      ],
+      [['UMA', 'beta'], ['UMA', 'alpha']],
+      [['UMA', 'upsilon'], ['UMA', 'theta'], ['UMA', 'iota'], ['UMA', 'kappa']],
+      [['UMA', 'gamma'], ['UMA', 'chi'], ['UMA', 'nu'], ['UMA', 'xi']],
+      [['UMA', 'chi'], ['UMA', 'psi'], ['UMA', 'mu'], ['UMA', 'lambda']],
+    ];
+
+    const result = optimizeConstellation(uma);
+
+    expect(result).toEqual([
+      [
+        ['UMA-eta', 'UMA-zeta'],
+        ['UMA-zeta', 'UMA-epsilon'],
+        ['UMA-epsilon', 'UMA-delta'],
+        ['UMA-delta', 'UMA-alpha'],
+        ['UMA-alpha', 'UMA-23'],
+        ['UMA-23', 'UMA-omicron'],
+        ['UMA-omicron', 'UMA-upsilon'],
+        ['UMA-upsilon', 'UMA-beta'],
+        ['UMA-beta', 'UMA-alpha'],
+        ['UMA-alpha', 'UMA-beta'],
+        ['UMA-beta', 'UMA-upsilon'],
+        ['UMA-upsilon', 'UMA-theta'],
+        ['UMA-theta', 'UMA-iota'],
+        ['UMA-iota', 'UMA-kappa'],
+        ['UMA-kappa', 'UMA-iota'],
+        ['UMA-iota', 'UMA-theta'],
+        ['UMA-theta', 'UMA-upsilon'],
+        ['UMA-upsilon', 'UMA-beta'],
+        ['UMA-beta', 'UMA-gamma'],
+        ['UMA-gamma', 'UMA-delta'],
+        ['UMA-delta', 'UMA-gamma'],
+        ['UMA-gamma', 'UMA-beta'],
+        ['UMA-beta', 'UMA-upsilon'],
+        ['UMA-upsilon', 'UMA-theta'],
+        ['UMA-theta', 'UMA-iota'],
+        ['UMA-iota', 'UMA-theta'],
+        ['UMA-theta', 'UMA-upsilon'],
+        ['UMA-upsilon', 'UMA-beta'],
+        ['UMA-beta', 'UMA-gamma'],
+        ['UMA-gamma', 'UMA-chi'],
+        ['UMA-chi', 'UMA-nu'],
+        ['UMA-nu', 'UMA-xi'],
+        ['UMA-xi', 'UMA-nu'],
+        ['UMA-nu', 'UMA-chi'],
+        ['UMA-chi', 'UMA-psi'],
+        ['UMA-psi', 'UMA-mu'],
+        ['UMA-mu', 'UMA-lambda'],
+        ['UMA-lambda', 'UMA-mu'],
+        ['UMA-mu', 'UMA-psi'],
+        ['UMA-psi', 'UMA-chi'],
+        ['UMA-chi', 'UMA-nu'],
+        ['UMA-nu', 'UMA-chi'],
+        ['UMA-chi', 'UMA-psi'],
+        ['UMA-psi', 'UMA-mu'],
+      ],
+    ]);
   });
 });

@@ -2,6 +2,8 @@ import { Star } from '../hygdata/hygdata.utils';
 import { raise, sequence, Validated } from '../utils/validated';
 import find from 'lodash/find';
 import { StarDictionnary } from '../app/AppState';
+import { Edge, extendedFleuryAlgorithm, reachableVertices, Vertex } from './graph';
+import { flatten, uniqWith, isEqual } from 'lodash';
 
 export function constellationAsStarId(
   stars: StarDictionnary,
@@ -10,11 +12,7 @@ export function constellationAsStarId(
   return sequence(constellation.map(([con, bayerOrFlam]) => constellationPointAsStarId(stars, con, bayerOrFlam)));
 }
 
-function constellationPointAsStarId(
-  stars: StarDictionnary,
-  con: string,
-  bayerOrFlam: string,
-): Validated<string> {
+function constellationPointAsStarId(stars: StarDictionnary, con: string, bayerOrFlam: string): Validated<string> {
   const exactStar = find(stars, (star: Star) => {
     return (star.bayer === bayerOrFlam || star.flamsteed === bayerOrFlam) && star.constellation === con.toLowerCase();
   });
@@ -87,4 +85,47 @@ export function validateConstellationJson(obj: unknown): obj is Array<Array<[str
       );
     })
   );
+}
+
+export function optimizeConstellation(constellations: Array<Array<[string, string]>>): Array<Array<[string, string]>> {
+  const withNames = constellations.map((arr) => arr.map(([a, b]) => a + '-' + b));
+  const edges: Array<Edge> = flatten(
+    withNames.map((arr) =>
+      arr
+        .map(
+          (vertex, idx): Edge | null => {
+            if (idx === 0) {
+              return null;
+            } else {
+              return [vertex, arr[idx - 1]];
+            }
+          }
+        )
+        .filter(
+          (a): a is Edge => {
+            return a !== null;
+          }
+        )
+    )
+  );
+  const allVertices: Array<Vertex> = flatten(flatten(withNames));
+
+  const verticesGroupedByCycle: Array<Array<Vertex>> = uniqWith(
+    allVertices.map((v) => reachableVertices(edges, v).sort()),
+    isEqual
+  );
+
+  const groupedEdges: Array<Array<Edge>> = verticesGroupedByCycle.map(
+    (vertices): Array<Edge> => {
+      return edges.filter(([a, b]) => {
+        return vertices.some((v) => v === a || v === b);
+      });
+    }
+  );
+
+  const optimizedPaths = groupedEdges.map((edges) => {
+    return extendedFleuryAlgorithm(edges);
+  });
+
+  return optimizedPaths;
 }
