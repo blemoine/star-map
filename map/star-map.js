@@ -17,9 +17,9 @@ const quaternion_1 = require("../geometry/quaternion");
 const euler_angle_1 = require("../geometry/euler-angle");
 const coordinates_1 = require("../geometry/coordinates");
 const validated_1 = require("../utils/validated");
+const hygdata_utils_1 = require("../hygdata/hygdata.utils");
 const number_1 = require("../utils/number");
 const parsec_1 = require("../measures/parsec");
-const constellations_1 = require("../constellations/constellations");
 const raf_throttle_1 = require("../utils/raf-throttle");
 class StarMap extends React.Component {
     constructor() {
@@ -215,12 +215,11 @@ class StarMap extends React.Component {
     displayTooltip(star) {
         const tooltip = d3_selection_1.select(this.tooltipNode);
         const radius = star.radius;
-        const distance = star.distance;
         tooltip
             .style('visibility', 'visible')
             .html([
-            (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + constellations_1.toFullName(star.constellation),
-            'distance: ' + (distance < 10e-5 ? number_1.round(parsec_1.toKm(distance), 3) + 'Km' : number_1.round(distance, 8) + 'Pc'),
+            hygdata_utils_1.formatName(star),
+            'distance: ' + hygdata_utils_1.formatDistance(star),
             'magnitude: ' + number_1.round(star.apparentMagnitude),
             'radius: ' + (radius ? number_1.round(parsec_1.toKm(radius)) : '?') + 'Km',
         ].join('<br />'));

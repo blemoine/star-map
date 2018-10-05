@@ -33,6 +33,7 @@ class AppStateContainer extends React.Component {
                 rotateGamma: 0,
             },
             position: [0, 0, 0],
+            nearestStar: null,
             displayConstellation: true,
         };
         this.reinitAcceleration = debounce_1.default(() => {
@@ -97,7 +98,7 @@ class AppStateContainer extends React.Component {
         const baseStars = this.state.baseStars;
         const baseConstellation = this.state.baseConstellation;
         if (!!baseStars && !!baseConstellation) {
-            return (React.createElement(App_1.App, { baseStarDictionnary: baseStars, baseConstellation: baseConstellation, acceleration: this.state.currentAcceleration, maxMagnitude: this.state.maxMagnitude, displayConstellation: this.state.displayConstellation, position: this.state.position, rotation: this.state.rotation, updateState: (partialState) => this.setState((previousState) => (Object.assign({}, previousState, partialState))) }));
+            return (React.createElement(App_1.App, { nearestStar: this.state.nearestStar, baseStarDictionnary: baseStars, baseConstellation: baseConstellation, acceleration: this.state.currentAcceleration, maxMagnitude: this.state.maxMagnitude, displayConstellation: this.state.displayConstellation, position: this.state.position, rotation: this.state.rotation, updateState: (partialState) => this.setState((previousState) => (Object.assign({}, previousState, partialState))) }));
         }
         else {
             return (React.createElement("div", { style: {

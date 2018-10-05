@@ -18,6 +18,10 @@ function add(p1, p2) {
     return r;
 }
 exports.add = add;
+function toLightYear(p) {
+    return p * 3.261;
+}
+exports.toLightYear = toLightYear;
 function toKm(p) {
     return p * 3.08567758e13;
 }

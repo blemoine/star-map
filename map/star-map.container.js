@@ -19,6 +19,25 @@ const validated_1 = require("../utils/validated");
 const coordinates_1 = require("../geometry/coordinates");
 let starCache = {};
 let constellationCache = {};
+let currTimeout = null;
+function asyncSearchNearestStar(features, cb) {
+    if (currTimeout !== null) {
+        clearTimeout(currTimeout);
+    }
+    _searchNearestStar(0, null);
+    function _searchNearestStar(idx, currStar) {
+        currTimeout = setTimeout(() => {
+            if (idx === features.length - 1) {
+                cb(currStar);
+            }
+            const newStar = features[idx];
+            const newMin = !!newStar && (currStar === null || currStar.distance > newStar.properties.distance)
+                ? newStar.properties
+                : currStar;
+            _searchNearestStar(idx + 1, newMin);
+        });
+    }
+}
 exports.StarMapContainer = (props) => {
     let geoJson;
     const starId = props.starDictionnary.id + '-' + props.maxMagnitude + '-' + props.position;
@@ -27,6 +46,10 @@ exports.StarMapContainer = (props) => {
     }
     else {
         geoJson = computeGeoJson(props.starDictionnary.stars, props.maxMagnitude, props.position);
+        props.updateNearestStar(null);
+        asyncSearchNearestStar(geoJson.features, (star) => {
+            props.updateNearestStar(star);
+        });
         starCache = { [starId]: geoJson };
     }
     let constellation;

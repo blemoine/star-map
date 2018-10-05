@@ -11,39 +11,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
+const parsec_1 = require("../measures/parsec");
 const number_1 = require("../utils/number");
 const rc_tooltip_1 = __importDefault(require("rc-tooltip"));
+const hygdata_utils_1 = require("../hygdata/hygdata.utils");
+require("./informations.css");
 exports.Informations = (props) => {
-    const formatedPostion = props.position.map((coordinate) => number_1.round(coordinate, 5));
+    const formatedPostion = props.position.map((coordinate) => number_1.round(parsec_1.toLightYear(coordinate), 5));
+    const nearestStar = props.nearestStar;
     return (React.createElement("div", null,
         React.createElement("ul", null,
+            React.createElement("li", null, nearestStar ? (React.createElement(React.Fragment, null,
+                "Nearest star is ",
+                hygdata_utils_1.formatName(nearestStar),
+                " at ",
+                hygdata_utils_1.formatDistance(nearestStar))) : (React.createElement("span", { className: "ellipsis-loading" }, "Computing nearest star"))),
             React.createElement("li", null,
                 "Acceleration: ",
-                React.createElement("em", null, number_1.round(props.acceleration)),
+                React.createElement("em", null, number_1.round(parsec_1.toLightYear(props.acceleration))),
                 React.createElement(rc_tooltip_1.default, { placement: "bottom", overlay: React.createElement("span", null,
-                        React.createElement("a", { href: "https://en.wikipedia.org/wiki/Parsec" }, "Parsec"),
-                        " is a measurement of distance roughly equals to 3.26 light-years or 30 trillions kilometers.",
+                        React.createElement("a", { href: "https://en.wikipedia.org/wiki/Light-year" }, "Light-years"),
+                        " is a measurement of distance roughly equals to 9.461 trillions kilometers.",
                         React.createElement("br", null),
                         "The nearest star from earth is",
                         ' ',
                         React.createElement("a", { href: "https://en.wikipedia.org/wiki/Proxima_Centauri" }, "Proxima Centauri"),
-                        ", which is ~1.3 Parsec from earth."), destroyTooltipOnHide: true },
-                    React.createElement("span", null, " Parsec"))),
+                        ", which is ~4.24 Light-years from earth."), destroyTooltipOnHide: true },
+                    React.createElement("span", null, " Light-Years"))),
             React.createElement("li", null,
                 "Postion:",
                 React.createElement("ul", null,
                     React.createElement("li", null,
                         "X: ",
                         React.createElement("em", null, formatedPostion[0]),
-                        " Parsec"),
+                        " Light-years"),
                     React.createElement("li", null,
                         "Y: ",
                         React.createElement("em", null, formatedPostion[1]),
-                        " Parsec"),
+                        " Light-years"),
                     React.createElement("li", null,
                         "Z: ",
                         React.createElement("em", null, formatedPostion[2]),
-                        " Parsec"))),
+                        " Light-years"))),
             React.createElement("li", null,
                 "Rotation:",
                 React.createElement("ul", null,

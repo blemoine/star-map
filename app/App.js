@@ -29,7 +29,7 @@ exports.App = (props) => {
                 border: '1px solid #AAA',
                 backgroundColor: 'rgba(55,55,55,0.8)',
             } },
-            React.createElement(informations_1.Informations, { acceleration: props.acceleration, position: props.position, rotation: props.rotation })),
+            React.createElement(informations_1.Informations, { acceleration: props.acceleration, position: props.position, rotation: props.rotation, nearestStar: props.nearestStar })),
         React.createElement("div", { className: "main-wrapper", style: { width: '100vw', height: '100vh' } },
-            React.createElement(star_map_container_1.StarMapContainer, { starDictionnary: props.baseStarDictionnary, constellations: props.baseConstellation, rotation: props.rotation, updateRotation: (rotation) => props.updateState({ rotation }), maxMagnitude: props.maxMagnitude, position: props.position, displayConstellation: props.displayConstellation }))));
+            React.createElement(star_map_container_1.StarMapContainer, { starDictionnary: props.baseStarDictionnary, constellations: props.baseConstellation, rotation: props.rotation, updateRotation: (rotation) => props.updateState({ rotation }), maxMagnitude: props.maxMagnitude, position: props.position, displayConstellation: props.displayConstellation, updateNearestStar: (nearestStar) => props.updateState({ nearestStar }) }))));
 };

@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const parsec_1 = require("../measures/parsec");
 const validated_1 = require("../utils/validated");
 const vectors_1 = require("../geometry/vectors");
+const constellations_1 = require("../constellations/constellations");
+const number_1 = require("../utils/number");
 function magnitudeAt(baseMagnitude, baseDistance, newDistance) {
     return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }
@@ -43,3 +45,12 @@ function moveOrigin(newOrigin, star) {
     });
 }
 exports.moveOrigin = moveOrigin;
+function formatName(star) {
+    return (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + constellations_1.toFullName(star.constellation);
+}
+exports.formatName = formatName;
+function formatDistance(star) {
+    const distance = star.distance;
+    return distance < 10e-5 ? number_1.round(parsec_1.toKm(distance), 3) + 'Km' : number_1.round(parsec_1.toLightYear(distance), 5) + ' Light-years';
+}
+exports.formatDistance = formatDistance;
