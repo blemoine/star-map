@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const validated_1 = require("../utils/validated");
 const find_1 = __importDefault(require("lodash/find"));
+const graph_1 = require("./graph");
+const lodash_1 = require("lodash");
 function constellationAsStarId(stars, constellation) {
     return validated_1.sequence(constellation.map(([con, bayerOrFlam]) => constellationPointAsStarId(stars, con, bayerOrFlam)));
 }
@@ -81,3 +83,37 @@ function validateConstellationJson(obj) {
         }));
 }
 exports.validateConstellationJson = validateConstellationJson;
+function optimizeConstellation(constellations) {
+    const withNames = constellations.map((arr) => arr.map(([a, b]) => a + '-' + b));
+    const edges = lodash_1.flatten(withNames.map((arr) => arr
+        .map((vertex, idx) => {
+        if (idx === 0) {
+            return null;
+        }
+        else {
+            return [vertex, arr[idx - 1]];
+        }
+    })
+        .filter((a) => {
+        return a !== null;
+    })));
+    const allVertices = lodash_1.flatten(lodash_1.flatten(withNames));
+    const verticesGroupedByCycle = lodash_1.uniqWith(allVertices.map((v) => graph_1.reachableVertices(edges, v).sort()), lodash_1.isEqual);
+    const groupedEdges = verticesGroupedByCycle.map((vertices) => {
+        return edges.filter(([a, b]) => {
+            return vertices.some((v) => v === a || v === b);
+        });
+    });
+    const optimizedPaths = groupedEdges.map((edges) => {
+        return graph_1.extendedFleuryAlgorithm(edges);
+    });
+    return optimizedPaths.map((path) => {
+        const basePath = path.map((edge) => edge[1]);
+        const firstVertex = path[0][0];
+        return [firstVertex, ...basePath].map((vertex) => {
+            const conAndName = vertex.split('-');
+            return [conAndName[0], conAndName[1]];
+        });
+    });
+}
+exports.optimizeConstellation = optimizeConstellation;

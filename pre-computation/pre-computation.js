@@ -21,7 +21,8 @@ Promise.all([file_helper_1.readFile(hygDataCsvFileName), file_helper_1.readFile(
     const maybeFilteredStars = validated_1.flatMap(parsed, (row) => hyg_csv_helpers_1.rowsToStars(maxNavigationRadius, row));
     const maybeParsedConstellation = file_helper_1.parseJson(rawConstellationJsonFileContent, constellations_helpers_1.validateConstellationJson);
     const result = validated_1.flatMap(validated_1.zip(maybeFilteredStars, maybeParsedConstellation), ([filteredStars, parsedConstellation]) => {
-        const maybeConstellations = validated_1.sequence(parsedConstellation.map((constellation) => constellations_helpers_1.constellationAsStarId(filteredStars, constellation)));
+        const optimizedConstellations = constellations_helpers_1.optimizeConstellation(parsedConstellation);
+        const maybeConstellations = validated_1.sequence(optimizedConstellations.map((constellation) => constellations_helpers_1.constellationAsStarId(filteredStars, constellation)));
         return validated_1.map(maybeConstellations, (constellations) => ({
             stars: filteredStars,
             constellations: constellations,
