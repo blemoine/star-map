@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Parsec, toLightYear } from '../measures/parsec';
-import { Vector3D } from '../geometry/vectors';
+import { Vector3D, vectorLength } from '../geometry/vectors';
 import { round } from '../utils/number';
 import { Rotation } from '../geometry/rotation';
 import Tooltip from 'rc-tooltip';
@@ -48,6 +48,9 @@ export const Informations = (props: Props) => {
           >
             <span> Light-Years</span>
           </Tooltip>
+        </li>
+        <li>
+          Distance from sun: {round(toLightYear(vectorLength(props.position)))} Light-years
         </li>
         <li>
           Postion:

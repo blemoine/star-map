@@ -9,7 +9,7 @@ import { Spinner } from '../spinner/spinner';
 import { uuid } from '../utils/uuid';
 import { rafThrottle } from '../utils/raf-throttle';
 
-const baseAcceleration = mkParsec(0.01);
+const baseAcceleration = mkParsec(0.005);
 
 export class AppStateContainer extends React.Component<{}, AppState> {
   state: AppState = {
