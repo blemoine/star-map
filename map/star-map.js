@@ -158,6 +158,7 @@ class StarMap extends React.Component {
         constellationPath
             .enter()
             .append('path')
+            .lower()
             .merge(constellationPath)
             .attr('d', geoGenerator)
             .attr('class', 'constellation')
