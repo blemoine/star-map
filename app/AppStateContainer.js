@@ -18,7 +18,7 @@ const debounce_1 = __importDefault(require("lodash/debounce"));
 const spinner_1 = require("../spinner/spinner");
 const uuid_1 = require("../utils/uuid");
 const raf_throttle_1 = require("../utils/raf-throttle");
-const baseAcceleration = parsec_1.mkParsec(0.01);
+const baseAcceleration = parsec_1.mkParsec(0.005);
 class AppStateContainer extends React.Component {
     constructor() {
         super(...arguments);

@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
 const parsec_1 = require("../measures/parsec");
+const vectors_1 = require("../geometry/vectors");
 const number_1 = require("../utils/number");
 const rc_tooltip_1 = __importDefault(require("rc-tooltip"));
 const hygdata_utils_1 = require("../hygdata/hygdata.utils");
@@ -38,6 +39,10 @@ exports.Informations = (props) => {
                         React.createElement("a", { href: "https://en.wikipedia.org/wiki/Proxima_Centauri" }, "Proxima Centauri"),
                         ", which is ~4.24 Light-years from earth."), destroyTooltipOnHide: true },
                     React.createElement("span", null, " Light-Years"))),
+            React.createElement("li", null,
+                "Distance from sun: ",
+                number_1.round(parsec_1.toLightYear(vectors_1.vectorLength(props.position))),
+                " Light-years"),
             React.createElement("li", null,
                 "Postion:",
                 React.createElement("ul", null,
