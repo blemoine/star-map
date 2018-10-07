@@ -54,9 +54,14 @@ describe('map', () => {
 
   it('should be associative', () => {
     fc.assert(
-      fc.property(validatedGenerator(fc.float()), fc.func<[number], number>(fc.float()), fc.func<[number], string>(fc.string()),   function(v: Validated<number>, f1, f2) {
-        expect(map(map(v, f1), f2)).toEqual(map(v, (x) => f2(f1(x))));
-      })
+      fc.property(
+        validatedGenerator(fc.float()),
+        fc.func<[number], number>(fc.float()),
+        fc.func<[number], string>(fc.string()),
+        function(v: Validated<number>, f1, f2) {
+          expect(map(map(v, f1), f2)).toEqual(map(v, (x) => f2(f1(x))));
+        }
+      )
     );
   });
 

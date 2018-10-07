@@ -1,4 +1,4 @@
-import { flatMap, map, raise, Validated, zip } from '../utils/validated';
+import { flatMap, raise, Validated, zip } from '../utils/validated';
 import { Vector3D, vectorLength } from './vectors';
 import { DegreeTag, mkRadian, toDegree, toRadians } from './euler-angle';
 import { fastAsin, fastAtan2 } from '../utils/number';
@@ -29,33 +29,6 @@ export function mkLongitude(n: number): Validated<Longitude> {
 }
 
 export type GeoCoordinates = [Longitude, Latitude];
-
-declare class RightAscensionTag {
-  private _kind: 'rightAscension';
-}
-export type RightAscension = number & RightAscensionTag;
-export function mkRightAscension(n: number): Validated<RightAscension> {
-  if (n < 0 || n > 24) {
-    return raise(`The right ascension ${n} should be between 0 and 24`);
-  } else {
-    return n as RightAscension;
-  }
-}
-
-export type Declination = Latitude;
-
-export type RaDecCoordinates = [Declination, RightAscension];
-
-export function decRaToGeo([dec, ra]: RaDecCoordinates): Validated<GeoCoordinates> {
-  const normalizedRa = ra <= 12 ? ra : ra - 24;
-
-  return map(mkLongitude(normalizedRa * 15), (lon): GeoCoordinates => [lon, dec]);
-}
-
-export function geoToDecRa([lon, lat]: GeoCoordinates): Validated<RaDecCoordinates> {
-  const maybeRa = mkRightAscension((lon >= 0 ? lon : lon + 360) / 15);
-  return map(maybeRa, (ra): RaDecCoordinates => [lat, ra]);
-}
 
 export function lonlat2xyz(coord: GeoCoordinates): Vector3D {
   const lon = toRadians(coord[0]);
