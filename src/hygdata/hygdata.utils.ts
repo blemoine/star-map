@@ -21,10 +21,6 @@ export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDist
   return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }
 
-export function toApparentMagnitude(distance: Parsec, absoluteMagnitude: number): number {
-  return magnitudeAt(absoluteMagnitude, mkParsec(10), distance);
-}
-
 export function toAbsoluteMagnitude(baseMagnitude: number, baseDistance: Parsec): number {
   return magnitudeAt(baseMagnitude, baseDistance, mkParsec(10));
 }
