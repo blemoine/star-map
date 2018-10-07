@@ -49,9 +49,7 @@ export const Informations = (props: Props) => {
             <span> Light-Years</span>
           </Tooltip>
         </li>
-        <li>
-          Distance from sun: {round(toLightYear(vectorLength(props.position)))} Light-years
-        </li>
+        <li>Distance from sun: {round(toLightYear(vectorLength(props.position)))} Light-years</li>
         <li>
           Postion:
           <ul>
