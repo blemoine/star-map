@@ -233,8 +233,7 @@ class StarMap extends React.Component {
             else {
                 const parentNode = this.svgNode.parentNode;
                 if (!!parentNode && 'clientHeight' in parentNode) {
-                    const castedNode = parentNode;
-                    return castedNode.clientHeight;
+                    return parentNode.clientHeight;
                 }
             }
         }
@@ -248,8 +247,7 @@ class StarMap extends React.Component {
             else {
                 const parentNode = this.svgNode.parentNode;
                 if (!!parentNode && 'clientWidth' in parentNode) {
-                    const castedNode = parentNode;
-                    return castedNode.clientWidth;
+                    return parentNode.clientWidth;
                 }
             }
         }

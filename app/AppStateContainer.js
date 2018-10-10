@@ -18,6 +18,7 @@ const debounce_1 = __importDefault(require("lodash/debounce"));
 const spinner_1 = require("../spinner/spinner");
 const uuid_1 = require("../utils/uuid");
 const raf_throttle_1 = require("../utils/raf-throttle");
+const hygdata_utils_1 = require("../hygdata/hygdata.utils");
 const baseAcceleration = parsec_1.mkParsec(0.005);
 class AppStateContainer extends React.Component {
     constructor() {
@@ -88,7 +89,12 @@ class AppStateContainer extends React.Component {
         fetch('data/precomputation.json')
             .then((r) => r.json())
             .then((json) => {
-            this.setState((s) => (Object.assign({}, s, { baseStars: { id: uuid_1.uuid(), stars: json.stars }, baseConstellation: { id: uuid_1.uuid(), constellations: json.constellations } })));
+            const stars = json.stars.reduce((acc, interchange) => {
+                const star = hygdata_utils_1.interchangeToStar(interchange);
+                acc[star.id] = star;
+                return acc;
+            }, {});
+            this.setState((s) => (Object.assign({}, s, { baseStars: { id: uuid_1.uuid(), stars }, baseConstellation: { id: uuid_1.uuid(), constellations: json.constellations } })));
         });
         document.addEventListener('keydown', this.keyPressListener);
     }

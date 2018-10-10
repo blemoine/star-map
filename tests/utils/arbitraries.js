@@ -15,14 +15,10 @@ const parsec_1 = require("../../measures/parsec");
 const degree = fc.float().map(euler_angle_1.mkDegree);
 const longitude = fc.float(-179.999, 180).map((i) => utils_1.getOrThrow(coordinates_1.mkLongitude(i)));
 const latitude = fc.float(-90, 90).map((i) => utils_1.getOrThrow(coordinates_1.mkLatitude(i)));
-const ra = fc.float(0, 24).map((i) => utils_1.getOrThrow(coordinates_1.mkRightAscension(i)));
-const dec = latitude;
 const parsec = fc.float(1, 1000000).map((i) => utils_1.getOrThrow(parsec_1.mkParsec(i)));
 exports.arbitray = {
     degree,
     latitude,
     longitude,
-    ra,
-    dec,
     parsec,
 };

@@ -4,6 +4,7 @@ const validated_1 = require("../utils/validated");
 const constellations_helpers_1 = require("./constellations.helpers");
 const file_helper_1 = require("./file.helper");
 const hyg_csv_helpers_1 = require("./hyg-csv.helpers");
+const hygdata_utils_1 = require("../hygdata/hygdata.utils");
 const hygDataCsvFileName = process.argv[2];
 if (!hygDataCsvFileName) {
     console.error('The first argument must be a valid csv filename');
@@ -24,7 +25,7 @@ Promise.all([file_helper_1.readFile(hygDataCsvFileName), file_helper_1.readFile(
         const optimizedConstellations = constellations_helpers_1.optimizeConstellation(parsedConstellation);
         const maybeConstellations = validated_1.sequence(optimizedConstellations.map((constellation) => constellations_helpers_1.constellationAsStarId(filteredStars, constellation)));
         return validated_1.map(maybeConstellations, (constellations) => ({
-            stars: filteredStars,
+            stars: filteredStars.map(hygdata_utils_1.starToInterchange),
             constellations: constellations,
         }));
     });

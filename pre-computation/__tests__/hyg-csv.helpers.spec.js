@@ -21,8 +21,7 @@ describe('rowsToStars', () => {
     it('should return the expected starsm with magnitude more than 6', () => {
         const rows = [alpheratz, Object.assign({}, alpheratz, { id: '1', mag: '14' })];
         const result = hyg_csv_helpers_1.rowsToStars(10, rows);
-        expect(result).toEqual({
-            '676': {
+        expect(result).toEqual([{
                 apparentMagnitude: 2.07,
                 bayer: 'alpha',
                 flamsteed: '21',
@@ -34,7 +33,7 @@ describe('rowsToStars', () => {
                 name: 'Alpheratz',
                 radius: 5.321278590462636e-8,
             },
-        });
+        ]);
     });
     it('should return an error if there is one error', () => {
         const rows = [alpheratz, Object.assign({}, alpheratz, { id: '1', mag: 'abc' })];

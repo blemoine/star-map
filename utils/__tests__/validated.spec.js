@@ -51,9 +51,7 @@ describe('map', () => {
         }));
     });
     it('should be associative', () => {
-        fc.assert(fc.property(validatedGenerator(fc.float()), function (v) {
-            const f1 = (x) => x + 1;
-            const f2 = (x) => x * 2 + '';
+        fc.assert(fc.property(validatedGenerator(fc.float()), fc.func(fc.float()), fc.func(fc.string()), function (v, f1, f2) {
             expect(validated_1.map(validated_1.map(v, f1), f2)).toEqual(validated_1.map(v, (x) => f2(f1(x))));
         }));
     });
@@ -65,8 +63,7 @@ describe('map', () => {
         }));
     });
     it('should transform values', () => {
-        const f1 = (x) => x + 1;
-        fc.assert(fc.property(fc.float(), function (v) {
+        fc.assert(fc.property(fc.float(), fc.func(fc.float()), function (v, f1) {
             expect(validated_1.map(v, f1)).toEqual(f1(v));
         }));
     });

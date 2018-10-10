@@ -5,14 +5,44 @@ const validated_1 = require("../utils/validated");
 const vectors_1 = require("../geometry/vectors");
 const constellations_1 = require("../constellations/constellations");
 const number_1 = require("../utils/number");
+function interchangeToStar(interchangeFormat) {
+    return {
+        id: interchangeFormat[0],
+        name: interchangeFormat[1],
+        distance: interchangeFormat[2],
+        apparentMagnitude: interchangeFormat[3],
+        color: [interchangeFormat[4], interchangeFormat[5], interchangeFormat[6]],
+        radius: interchangeFormat[7],
+        constellation: interchangeFormat[8],
+        bayer: interchangeFormat[9],
+        flamsteed: interchangeFormat[10],
+        coordinates: [interchangeFormat[11], interchangeFormat[12], interchangeFormat[13]],
+    };
+}
+exports.interchangeToStar = interchangeToStar;
+function starToInterchange(star) {
+    return [
+        star.id,
+        star.name,
+        star.distance,
+        star.apparentMagnitude,
+        star.color[0],
+        star.color[1],
+        star.color[2],
+        star.radius,
+        star.constellation,
+        star.bayer,
+        star.flamsteed,
+        star.coordinates[0],
+        star.coordinates[1],
+        star.coordinates[2],
+    ];
+}
+exports.starToInterchange = starToInterchange;
 function magnitudeAt(baseMagnitude, baseDistance, newDistance) {
     return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }
 exports.magnitudeAt = magnitudeAt;
-function toApparentMagnitude(distance, absoluteMagnitude) {
-    return magnitudeAt(absoluteMagnitude, parsec_1.mkParsec(10), distance);
-}
-exports.toApparentMagnitude = toApparentMagnitude;
 function toAbsoluteMagnitude(baseMagnitude, baseDistance) {
     return magnitudeAt(baseMagnitude, baseDistance, parsec_1.mkParsec(10));
 }

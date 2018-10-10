@@ -17,11 +17,11 @@ function rowsToStars(maxNavigationRadius, rows) {
                         return acc;
                     }
                 }
-                acc[star.id] = star;
+                acc.push(star);
                 return acc;
             });
         });
-    }, {});
+    }, []);
 }
 exports.rowsToStars = rowsToStars;
 function rowToStar(row) {

@@ -22,25 +22,6 @@ function mkLongitude(n) {
     }
 }
 exports.mkLongitude = mkLongitude;
-function mkRightAscension(n) {
-    if (n < 0 || n > 24) {
-        return validated_1.raise(`The right ascension ${n} should be between 0 and 24`);
-    }
-    else {
-        return n;
-    }
-}
-exports.mkRightAscension = mkRightAscension;
-function decRaToGeo([dec, ra]) {
-    const normalizedRa = ra <= 12 ? ra : ra - 24;
-    return validated_1.map(mkLongitude(normalizedRa * 15), (lon) => [lon, dec]);
-}
-exports.decRaToGeo = decRaToGeo;
-function geoToDecRa([lon, lat]) {
-    const maybeRa = mkRightAscension((lon >= 0 ? lon : lon + 360) / 15);
-    return validated_1.map(maybeRa, (ra) => [lat, ra]);
-}
-exports.geoToDecRa = geoToDecRa;
 function lonlat2xyz(coord) {
     const lon = euler_angle_1.toRadians(coord[0]);
     const lat = euler_angle_1.toRadians(coord[1]);

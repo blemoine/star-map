@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const validated_1 = require("../utils/validated");
-const find_1 = __importDefault(require("lodash/find"));
 const graph_1 = require("./graph");
 const lodash_1 = require("lodash");
 function constellationAsStarId(stars, constellation) {
@@ -12,7 +8,7 @@ function constellationAsStarId(stars, constellation) {
 }
 exports.constellationAsStarId = constellationAsStarId;
 function constellationPointAsStarId(stars, con, bayerOrFlam) {
-    const exactStar = find_1.default(stars, (star) => {
+    const exactStar = stars.find((star) => {
         return (star.bayer === bayerOrFlam || star.flamsteed === bayerOrFlam) && star.constellation === con.toLowerCase();
     });
     if (exactStar) {
@@ -20,7 +16,7 @@ function constellationPointAsStarId(stars, con, bayerOrFlam) {
     }
     else {
         if (bayerOrFlam.match(/^[a-zA-Z]+$/)) {
-            const approxStar = find_1.default(stars, (star) => {
+            const approxStar = stars.find((star) => {
                 return !!star.bayer && star.bayer.startsWith(bayerOrFlam) && star.constellation === con.toLowerCase();
             });
             if (approxStar) {

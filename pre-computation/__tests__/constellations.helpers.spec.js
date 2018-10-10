@@ -5,8 +5,8 @@ const utils_1 = require("../../tests/utils/utils");
 const constellations_helpers_1 = require("../constellations.helpers");
 const validated_1 = require("../../utils/validated");
 describe('constellationAsStarId', () => {
-    const stars = {
-        '112601': {
+    const stars = [
+        {
             id: '112601',
             name: '',
             bayer: 'lambda',
@@ -18,7 +18,7 @@ describe('constellationAsStarId', () => {
             radius: utils_1.getOrThrow(parsec_1.mkParsec(0.000001223435776852617)),
             coordinates: [112.009754, -33.916636, -15.573012],
         },
-        '114670': {
+        {
             id: '114670',
             name: '',
             bayer: 'psi-2',
@@ -30,7 +30,7 @@ describe('constellationAsStarId', () => {
             radius: utils_1.getOrThrow(parsec_1.mkParsec(2.863916287468094e-8)),
             coordinates: [119.529341, -22.20547, -19.652688],
         },
-    };
+    ];
     it('should return an error if one star is not found', () => {
         const result = constellations_helpers_1.constellationAsStarId(stars, [['AQR', 'lambda'], ['ORI', 'pi-2']]);
         if (validated_1.isError(result)) {

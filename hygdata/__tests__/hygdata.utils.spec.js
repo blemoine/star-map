@@ -14,22 +14,6 @@ const utils_1 = require("../../tests/utils/utils");
 const arbitraries_1 = require("../../tests/utils/arbitraries");
 const validated_1 = require("../../utils/validated");
 const vectors_1 = require("../../geometry/vectors");
-describe('toApparentMagnitude', () => {
-    it('should work as identity function if distance is 10 parsec', () => {
-        const dist = utils_1.getOrThrow(parsec_1.mkParsec(10));
-        fc.assert(fc.property(fc.float(), function (absMag) {
-            return Math.abs(hygdata_utils_1.toApparentMagnitude(dist, absMag) - absMag) === 0;
-        }));
-    });
-    it('should convert correctly absolute magnitude to apparent magnitude at the specified distance', () => {
-        const dist = utils_1.getOrThrow(parsec_1.mkParsec(10.9999));
-        const absMag = 1.933;
-        expect(hygdata_utils_1.toApparentMagnitude(dist, absMag)).toBeCloseTo(2.14, 3);
-        const dist2 = utils_1.getOrThrow(parsec_1.mkParsec(432.9004));
-        const absMag2 = -6.932;
-        expect(hygdata_utils_1.toApparentMagnitude(dist2, absMag2)).toBeCloseTo(1.25, 3);
-    });
-});
 describe('moveOrigin', () => {
     it('should not do anthing if not moving', () => {
         const origin = [0, 0, 0];
