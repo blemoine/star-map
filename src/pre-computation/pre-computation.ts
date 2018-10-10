@@ -2,7 +2,7 @@ import { flatMap, isError, map, sequence, Validated, zip } from '../utils/valida
 import { constellationAsStarId, optimizeConstellation, validateConstellationJson } from './constellations.helpers';
 import { parseJson, parseToCsv, readFile } from './file.helper';
 import { RawHygCsvRow, rowsToStars } from './hyg-csv.helpers';
-import { StarDictionnary } from '../app/AppState';
+import { StarInterchangeFormat, starToInterchange } from '../hygdata/hygdata.utils';
 
 const hygDataCsvFileName = process.argv[2];
 if (!hygDataCsvFileName) {
@@ -15,7 +15,7 @@ if (!constallationJsonFileName) {
   process.exit(1);
 }
 
-type Result = { stars: StarDictionnary; constellations: Array<Array<string>> };
+export type PreComputationResult = { stars: Array<StarInterchangeFormat>; constellations: Array<Array<string>> };
 
 const maxNavigationRadius = 110;
 
@@ -27,7 +27,7 @@ Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
 
     const result = flatMap(
       zip(maybeFilteredStars, maybeParsedConstellation),
-      ([filteredStars, parsedConstellation]): Validated<Result> => {
+      ([filteredStars, parsedConstellation]): Validated<PreComputationResult> => {
         const optimizedConstellations = optimizeConstellation(parsedConstellation);
 
         const maybeConstellations = sequence(
@@ -35,7 +35,7 @@ Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
         );
 
         return map(maybeConstellations, (constellations) => ({
-          stars: filteredStars,
+          stars: filteredStars.map(starToInterchange),
           constellations: constellations,
         }));
       }
@@ -47,7 +47,7 @@ Promise.all([readFile(hygDataCsvFileName), readFile(constallationJsonFileName)])
       return result;
     }
   })
-  .then((r: Result) => {
+  .then((r: PreComputationResult) => {
     console.log(JSON.stringify(r));
   })
   .catch((error) => {

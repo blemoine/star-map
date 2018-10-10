@@ -17,6 +17,57 @@ export type Star = {
   coordinates: Vector3D;
 };
 
+export type StarInterchangeFormat = [
+  string,
+  string,
+  Parsec,
+  number,
+  number,
+  number,
+  number,
+  Parsec | null,
+  string,
+  string | null,
+  string | null,
+  number,
+  number,
+  number
+];
+
+export function interchangeToStar(interchangeFormat: StarInterchangeFormat): Star {
+  return {
+    id: interchangeFormat[0],
+    name: interchangeFormat[1],
+    distance: interchangeFormat[2],
+    apparentMagnitude: interchangeFormat[3],
+    color: [interchangeFormat[4], interchangeFormat[5], interchangeFormat[6]],
+    radius: interchangeFormat[7],
+    constellation: interchangeFormat[8],
+    bayer: interchangeFormat[9],
+    flamsteed: interchangeFormat[10],
+    coordinates: [interchangeFormat[11], interchangeFormat[12], interchangeFormat[13]],
+  };
+}
+
+export function starToInterchange(star: Star): StarInterchangeFormat {
+  return [
+    star.id,
+    star.name,
+    star.distance,
+    star.apparentMagnitude,
+    star.color[0],
+    star.color[1],
+    star.color[2],
+    star.radius,
+    star.constellation,
+    star.bayer,
+    star.flamsteed,
+    star.coordinates[0],
+    star.coordinates[1],
+    star.coordinates[2],
+  ];
+}
+
 export function magnitudeAt(baseMagnitude: number, baseDistance: Parsec, newDistance: Parsec): number {
   return baseMagnitude + 5 * Math.log10(newDistance / baseDistance);
 }

@@ -8,6 +8,8 @@ import debounce from 'lodash/debounce';
 import { Spinner } from '../spinner/spinner';
 import { uuid } from '../utils/uuid';
 import { rafThrottle } from '../utils/raf-throttle';
+import { PreComputationResult } from '../pre-computation/pre-computation';
+import { interchangeToStar } from '../hygdata/hygdata.utils';
 
 const baseAcceleration = mkParsec(0.005);
 
@@ -103,11 +105,17 @@ export class AppStateContainer extends React.Component<{}, AppState> {
   componentDidMount() {
     fetch('data/precomputation.json')
       .then((r) => r.json())
-      .then((json: { stars: StarDictionnary; constellations: Array<Array<string>> }) => {
+      .then((json: PreComputationResult) => {
+        const stars: StarDictionnary = json.stars.reduce((acc: StarDictionnary, interchange) => {
+          const star = interchangeToStar(interchange);
+          acc[star.id] = star;
+          return acc;
+        }, {});
+
         this.setState(
           (s): AppState => ({
             ...s,
-            baseStars: { id: uuid(), stars: json.stars },
+            baseStars: { id: uuid(), stars },
             baseConstellation: { id: uuid(), constellations: json.constellations },
           })
         );

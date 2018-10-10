@@ -21,8 +21,7 @@ describe('rowsToStars', () => {
     const rows: Array<RawHygCsvRow> = [alpheratz, { ...alpheratz, id: '1', mag: '14' }];
     const result = rowsToStars(10, rows);
 
-    expect(result).toEqual({
-      '676': {
+    expect(result).toEqual([{
         apparentMagnitude: 2.07,
         bayer: 'alpha',
         flamsteed: '21',
@@ -34,7 +33,7 @@ describe('rowsToStars', () => {
         name: 'Alpheratz',
         radius: 5.321278590462636e-8,
       },
-    });
+    ]);
   });
   it('should return an error if there is one error', () => {
     const rows: Array<RawHygCsvRow> = [alpheratz, { ...alpheratz, id: '1', mag: 'abc' }];

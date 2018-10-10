@@ -1,26 +1,24 @@
 import { Star } from '../hygdata/hygdata.utils';
 import { raise, sequence, Validated } from '../utils/validated';
-import find from 'lodash/find';
-import { StarDictionnary } from '../app/AppState';
 import { Edge, extendedFleuryAlgorithm, reachableVertices, Vertex } from './graph';
 import { flatten, uniqWith, isEqual } from 'lodash';
 
 export function constellationAsStarId(
-  stars: StarDictionnary,
+  stars: Array<Star>,
   constellation: Array<[string, string]>
 ): Validated<Array<string>> {
   return sequence(constellation.map(([con, bayerOrFlam]) => constellationPointAsStarId(stars, con, bayerOrFlam)));
 }
 
-function constellationPointAsStarId(stars: StarDictionnary, con: string, bayerOrFlam: string): Validated<string> {
-  const exactStar = find(stars, (star: Star) => {
+function constellationPointAsStarId(stars: Array<Star>, con: string, bayerOrFlam: string): Validated<string> {
+  const exactStar = stars.find((star: Star) => {
     return (star.bayer === bayerOrFlam || star.flamsteed === bayerOrFlam) && star.constellation === con.toLowerCase();
   });
   if (exactStar) {
     return exactStar.id;
   } else {
     if (bayerOrFlam.match(/^[a-zA-Z]+$/)) {
-      const approxStar = find(stars, (star: Star) => {
+      const approxStar = stars.find((star: Star) => {
         return !!star.bayer && star.bayer.startsWith(bayerOrFlam) && star.constellation === con.toLowerCase();
       });
       if (approxStar) {

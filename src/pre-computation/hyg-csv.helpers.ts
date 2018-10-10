@@ -5,7 +5,6 @@ import { parseToFloat } from '../utils/number';
 import { findColorOf, findTemperatureOf } from '../data/spectral-types-informations';
 import { computeRadius } from '../stars/stars.utils';
 import { convertStarNameToFullName } from './constellations.helpers';
-import { StarDictionnary } from '../app/AppState';
 
 export type RawHygCsvRow = {
   id: string;
@@ -23,8 +22,8 @@ export type RawHygCsvRow = {
   con: string;
 };
 
-export function rowsToStars(maxNavigationRadius: number, rows: Array<RawHygCsvRow>): Validated<StarDictionnary> {
-  return rows.reduce((maybeAcc: Validated<{ [starId: string]: Star }>, row) => {
+export function rowsToStars(maxNavigationRadius: number, rows: Array<RawHygCsvRow>): Validated<Array<Star>> {
+  return rows.reduce((maybeAcc: Validated<Array<Star>>, row) => {
     return flatMap(maybeAcc, (acc) => {
       return map(rowToStar(row), (star) => {
         if (star.distance > maxNavigationRadius) {
@@ -33,12 +32,12 @@ export function rowsToStars(maxNavigationRadius: number, rows: Array<RawHygCsvRo
             return acc;
           }
         }
-        acc[star.id] = star;
+        acc.push(star)
 
         return acc;
       });
     });
-  }, {});
+  }, []);
 }
 
 function rowToStar(row: RawHygCsvRow): Validated<Star> {
