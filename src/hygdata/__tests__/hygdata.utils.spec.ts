@@ -1,4 +1,4 @@
-import { moveOrigin, Star } from '../hygdata.utils';
+import { interchangeToStar, moveOrigin, Star, starToInterchange } from '../hygdata.utils';
 import { mkParsec } from '../../measures/parsec';
 import * as fc from 'fast-check';
 import { getOrThrow } from '../../tests/utils/utils';
@@ -72,5 +72,13 @@ describe('moveOrigin', () => {
         expect(result.distance).toBeCloseTo(Math.abs(baseDistance - newCoord), 6);
       })
     );
+  });
+});
+
+describe('star and interchange format', () => {
+  it('should be invert of each other', () => {
+    fc.assert(fc.property(arbitray.stars, function(star: Star) {
+      expect(interchangeToStar(starToInterchange(star))).toEqual(star)
+    }));
   });
 });
