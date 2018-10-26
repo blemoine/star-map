@@ -1,7 +1,7 @@
 import { mkParsec, Parsec, toKm, toLightYear } from '../measures/parsec';
 import { map, Validated } from '../utils/validated';
 import { Vector3D, vectorLength } from '../geometry/vectors';
-import { toFullName } from '../constellations/constellations';
+import { toGenitiveName } from '../constellations/constellations';
 import { round } from '../utils/number';
 
 export type Star = {
@@ -106,7 +106,9 @@ export function moveOrigin(newOrigin: Vector3D, star: Star): Validated<Star> {
 }
 
 export function formatName(star: Star): string {
-  return (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toFullName(star.constellation);
+  return (
+    (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + toGenitiveName(star.constellation)
+  );
 }
 
 export function formatDistance(star: Star): string {
