@@ -28,7 +28,7 @@ exports.Controls = (props) => {
             React.createElement("input", { type: "number", value: props.magnitude, onChange: (e) => props.magnitudeChange(parseFloat(e.target.value)), max: 6, step: 0.25 })),
         React.createElement("div", { className: "form-element" },
             React.createElement(rc_tooltip_1.default, { placement: "bottom", overlay: React.createElement("span", null,
-                    React.createElement("a", { href: "https://en.wikipedia.org/wiki/Constellation" }, "Constellation"),
+                    React.createElement("a", { href: "https://en.wikipedia.org/wiki/Constellation" }, "Constellations"),
                     " are often ",
                     React.createElement("em", null, "drawn"),
                     " from stars that have no other links than to be in same general direction. Those stars can in reality be really far from each others. ",
