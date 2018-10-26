@@ -67,3 +67,10 @@ describe('moveOrigin', () => {
         }));
     });
 });
+describe('star and interchange format', () => {
+    it('should be invert of each other', () => {
+        fc.assert(fc.property(arbitraries_1.arbitray.stars, function (star) {
+            expect(hygdata_utils_1.interchangeToStar(hygdata_utils_1.starToInterchange(star))).toEqual(star);
+        }));
+    });
+});

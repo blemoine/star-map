@@ -39,5 +39,14 @@ exports.Controls = (props) => {
             React.createElement("label", null, "Go to"),
             React.createElement("select", { value: selectedStarId, onChange: (event) => props.changeSelectedStar(props.starsWithNane.find((s) => s.id === event.target.value) || null) },
                 React.createElement("option", { value: "" }),
-                props.starsWithNane.map((star) => (React.createElement("option", { key: star.id, value: star.id }, star.name)))))));
+                props.starsWithNane.map((star) => (React.createElement("option", { key: star.id, value: star.id }, star.name))))),
+        React.createElement("div", { className: "form-element help" },
+            React.createElement(rc_tooltip_1.default, { placement: "bottom", overlay: React.createElement("ul", null,
+                    React.createElement("li", null, "Move with keyboard arrows up (`\u2191`) and down (`\u2193`)"),
+                    React.createElement("li", null, "Move faster with `\u21E7 Shift` +` \u2191` or `\u21E7 Shift` + `\u2193`"),
+                    React.createElement("li", null, "Look around with the mouse by dragging the map"),
+                    React.createElement("li", null,
+                        "More information and code here: ",
+                        React.createElement("a", { href: "https://github.com/blemoine/star-map" }, "https://github.com/blemoine/star-map"))), destroyTooltipOnHide: true },
+                React.createElement("button", null, "Help!")))));
 };

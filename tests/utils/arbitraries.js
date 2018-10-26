@@ -16,9 +16,47 @@ const degree = fc.float().map(euler_angle_1.mkDegree);
 const longitude = fc.float(-179.999, 180).map((i) => utils_1.getOrThrow(coordinates_1.mkLongitude(i)));
 const latitude = fc.float(-90, 90).map((i) => utils_1.getOrThrow(coordinates_1.mkLatitude(i)));
 const parsec = fc.float(1, 1000000).map((i) => utils_1.getOrThrow(parsec_1.mkParsec(i)));
+const color = fc
+    .float(0, 255)
+    .chain((red) => fc.float(0, 255).chain((green) => fc.float(0, 255).map((blue) => [red, green, blue])));
+const vector3d = fc
+    .float()
+    .chain((red) => fc.float().chain((green) => fc.float().map((blue) => [red, green, blue])));
+const orNull = (arb) => fc.oneof(arb, fc.constant(null));
+const stars = fc.string().chain((id) => {
+    return fc.string().chain((name) => {
+        return parsec.chain((distance) => {
+            return fc.float().chain((apparentMagnitude) => {
+                return color.chain((color) => {
+                    return orNull(parsec).chain((radius) => {
+                        return fc.string().chain((constellation) => {
+                            return orNull(fc.string()).chain((bayer) => {
+                                return orNull(fc.string()).chain((flamsteed) => {
+                                    return vector3d.map((coordinates) => ({
+                                        id,
+                                        name,
+                                        distance,
+                                        apparentMagnitude,
+                                        color,
+                                        radius,
+                                        constellation,
+                                        bayer,
+                                        flamsteed,
+                                        coordinates,
+                                    }));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 exports.arbitray = {
     degree,
     latitude,
     longitude,
     parsec,
+    stars,
 };
