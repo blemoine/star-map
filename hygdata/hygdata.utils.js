@@ -76,7 +76,7 @@ function moveOrigin(newOrigin, star) {
 }
 exports.moveOrigin = moveOrigin;
 function formatName(star) {
-    return (star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + constellations_1.toFullName(star.constellation);
+    return ((star.name ? star.name + ', ' : '') + (star.bayer || star.flamsteed) + ' - ' + constellations_1.toGenitiveName(star.constellation));
 }
 exports.formatName = formatName;
 function formatDistance(star) {
