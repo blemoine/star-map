@@ -60,6 +60,7 @@ export const Controls = (props: Props) => {
           </button>
         </Tooltip>
       </div>
+
       <div className="form-element star-selector">
         <label>Go to</label>
         <select
@@ -75,6 +76,23 @@ export const Controls = (props: Props) => {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="form-element help">
+        <Tooltip
+          placement="bottom"
+          overlay={
+            <ul>
+              <li>Move with keyboard arrows up (`↑`) and down (`↓`)</li>
+              <li>Move faster with `⇧ Shift` +` ↑` or `⇧ Shift` + `↓`</li>
+              <li>Look around with the mouse by dragging the map</li>
+              <li>More information and code here: <a href="https://github.com/blemoine/star-map">https://github.com/blemoine/star-map</a></li>
+            </ul>
+          }
+          destroyTooltipOnHide={true}
+        >
+          <button>Help!</button>
+        </Tooltip>
       </div>
     </div>
   );
