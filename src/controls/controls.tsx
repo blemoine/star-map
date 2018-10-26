@@ -45,7 +45,7 @@ export const Controls = (props: Props) => {
           placement="bottom"
           overlay={
             <span>
-              <a href="https://en.wikipedia.org/wiki/Constellation">Constellation</a> are often <em>drawn</em> from
+              <a href="https://en.wikipedia.org/wiki/Constellation">Constellations</a> are often <em>drawn</em> from
               stars that have no other links than to be in same general direction. Those stars can in reality be really
               far from each others. <br />
               So, while staying in the neighbourhood (some light-years) of the solar system, the constellation will
